@@ -163,7 +163,7 @@ const StudentDetailPage = () => {
                                 {/* Quote */}
                                 <ElegantCard>
                                     <blockquote className="text-lg italic text-gray-700 border-l-4 border-black pl-6">
-                                        "The foundation I received at CIHS taught me discipline, perseverance, and the importance of serving others. These values have guided my entire medical career since my graduation from this 27-year-old institution."
+                                        &ldquo;The foundation I received at CIHS taught me discipline, perseverance, and the importance of serving others. These values have guided my entire medical career since my graduation from this 27-year-old institution.&rdquo;
                                     </blockquote>
                                 </ElegantCard>
 

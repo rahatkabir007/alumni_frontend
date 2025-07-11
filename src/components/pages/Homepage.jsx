@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
 import { selectIsAuthenticated } from '@/redux/features/auth/authSlice'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import ScrollReveal from '@/components/animations/ScrollReveal'
 import StaggerContainer from '@/components/animations/StaggerContainer'
 import AnimatedCard from '@/components/animations/AnimatedCard'
@@ -93,9 +94,11 @@ const Homepage = () => {
 
                             <ScrollReveal direction="right" delay={0.4}>
                                 <ElegantCard className="relative overflow-hidden">
-                                    <img
+                                    <Image
                                         src="/images/cihs-main-building.jpg"
                                         alt="CIHS Main Building"
+                                        width={500}
+                                        height={256}
                                         className="rounded-lg w-full h-64 object-cover"
                                         style={{ backgroundColor: '#e5e7eb' }}
                                     />
