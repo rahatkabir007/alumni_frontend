@@ -1,17 +1,21 @@
 "use client"
 import { motion } from 'framer-motion'
-import { useInView } from 'framer-motion'
-import { useRef, useEffect, useState } from 'react'
+import { useInView } from 'react-intersection-observer'
+import { useEffect, useState } from 'react'
 
 const StaggerContainer = ({
     children,
     staggerDelay = 0.1,
     className = '',
-    once = true
+    once = true,
+    threshold = 0.1
 }) => {
-    const ref = useRef(null)
     const [isMounted, setIsMounted] = useState(false)
-    const isInView = useInView(ref, { once, margin: '-10% 0px -10% 0px' })
+    const { ref, inView } = useInView({
+        threshold,
+        triggerOnce: once,
+        rootMargin: '-10% 0px -10% 0px'
+    })
 
     useEffect(() => {
         setIsMounted(true)
@@ -41,7 +45,7 @@ const StaggerContainer = ({
         <motion.div
             ref={ref}
             initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
+            animate={inView ? "visible" : "hidden"}
             variants={container}
             className={className}
         >
