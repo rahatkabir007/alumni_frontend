@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
 import { selectIsAuthenticated } from '@/redux/features/auth/authSlice'
 import { motion } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
 import ScrollReveal from '@/components/animations/ScrollReveal'
 import StaggerContainer from '@/components/animations/StaggerContainer'
 import AnimatedCard from '@/components/animations/AnimatedCard'
@@ -19,18 +18,26 @@ import Link from 'next/link'
 
 const Homepage = () => {
     const router = useRouter()
-    const isAuthenticated = useSelector(selectIsAuthenticated)
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [isInitialized, setIsInitialized] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
 
+    // Safely get auth state only on client side
+    const authState = useSelector((state) => {
+        if (typeof window === 'undefined') return false
+        return selectIsAuthenticated(state)
+    })
+
     useEffect(() => {
         setIsMounted(true)
+        setIsAuthenticated(authState)
         const timer = setTimeout(() => {
             setIsInitialized(true)
         }, 100)
         return () => clearTimeout(timer)
-    }, [])
+    }, [authState])
 
+    // Show loading state during SSR and initial hydration
     if (!isMounted) {
         return (
             <div className="bg-gray-50">
