@@ -1,54 +1,15 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useRouter } from 'next/navigation'
-import Navigation from '@/components/Navigation'
+import { useSelector } from 'react-redux'
+import { selectIsAuthenticated } from '@/redux/features/auth/authSlice'
 
 const Homepage = () => {
     const router = useRouter()
-    const [user, setUser] = useState(null)
-    const [isLoading, setIsLoading] = useState(true)
-
-    useEffect(() => {
-        // Check if user is already logged in
-        const token = localStorage.getItem('token')
-        const userData = localStorage.getItem('user')
-
-        if (token && userData) {
-            try {
-                // Verify that user data is valid
-                const parsedUser = JSON.parse(userData)
-                setUser(parsedUser)
-            } catch (error) {
-                // Invalid user data, clear storage
-                localStorage.removeItem('token')
-                localStorage.removeItem('user')
-                setUser(null)
-            }
-        }
-
-        setIsLoading(false)
-    }, [])
-
-    const handleLogout = () => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        setUser(null)
-        router.push('/')
-    }
-
-    // Show loading while checking authentication
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-        )
-    }
+    const isAuthenticated = useSelector(selectIsAuthenticated)
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <Navigation user={user} onLogout={handleLogout} />
-
+        <div className="bg-gray-50">
             {/* Hero Section */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center py-16 sm:py-20">
@@ -60,7 +21,7 @@ const Homepage = () => {
                         Join our growing community of graduates making a difference.
                     </p>
 
-                    {!user ? (
+                    {!isAuthenticated ? (
                         <div className="space-x-4">
                             <button
                                 onClick={() => router.push('/login')}
@@ -69,7 +30,7 @@ const Homepage = () => {
                                 Get Started
                             </button>
                             <button
-                                onClick={() => router.push('/signup')}
+                                onClick={() => router.push('/register')}
                                 className="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-colors"
                             >
                                 Sign Up

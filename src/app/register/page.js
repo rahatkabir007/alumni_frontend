@@ -1,9 +1,13 @@
 "use client"
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
+import { useRegisterMutation } from '@/redux/features/auth/authApi';
+import { selectIsAuthenticated } from '@/redux/features/auth/authSlice';
+import { ToastMessage } from '@/utils/ToastMessage';
 
 const RegisterSchema = Yup.object().shape({
     name: Yup.string()
@@ -27,39 +31,42 @@ const RegisterSchema = Yup.object().shape({
 
 export default function RegisterPage() {
     const router = useRouter();
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const dispatch = useDispatch();
     const [submitError, setSubmitError] = useState(null);
 
+    const [register, { isLoading }] = useRegisterMutation();
+    const isAuthenticated = useSelector(selectIsAuthenticated);
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.push('/dashboard');
+        }
+    }, [isAuthenticated, router]);
+
     const handleSubmit = async (values, { setSubmitting }) => {
-        setIsSubmitting(true);
         setSubmitError(null);
 
         try {
-            // Replace this with your actual API call
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: values.name,
-                    email: values.email,
-                    password: values.password,
-                }),
-            });
+            const result = await register({
+                name: values.name,
+                email: values.email,
+                password: values.password,
+            }).unwrap();
 
-            if (response.ok) {
-                // Redirect to login or dashboard
-                router.push('/');
+            if (result.success) {
+                ToastMessage.notifySuccess('Account created successfully! Please login.');
+                router.push('/login?message=Account created successfully');
             } else {
-                const errorData = await response.json();
-                setSubmitError(errorData.message || 'Something went wrong');
+                setSubmitError(result.message || 'Something went wrong');
+                ToastMessage.notifyError(result.message || 'Something went wrong');
             }
         } catch (error) {
             console.error('Register error:', error);
-            setSubmitError('Network error. Please try again.');
+            const errorMessage = error.data?.message || 'Network error. Please try again.';
+            setSubmitError(errorMessage);
+            ToastMessage.notifyError(errorMessage);
         } finally {
-            setIsSubmitting(false);
             setSubmitting(false);
         }
     };
@@ -67,6 +74,19 @@ export default function RegisterPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
+                {/* Back to Home Button */}
+                <div className="flex justify-start">
+                    <button
+                        onClick={() => router.push('/')}
+                        className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Back to Home
+                    </button>
+                </div>
+
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                         Create your account
@@ -158,10 +178,10 @@ export default function RegisterPage() {
                             <div>
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting}
+                                    disabled={isLoading}
                                     className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {isSubmitting ? (
+                                    {isLoading ? (
                                         <>
                                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                                             Creating Account...

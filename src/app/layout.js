@@ -2,6 +2,7 @@ import { Figtree } from "next/font/google";
 import "@/styles/globals.css";
 import StoreProvider from "../redux/StoreProvider";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
+import AppWrapper from "@/components/AppWrapper";
 
 const figtree = Figtree({
   variable: "--font-figtree",
@@ -10,27 +11,19 @@ const figtree = Figtree({
 });
 
 export const metadata = {
-  title: "Framtonic",
-  description: "A web application for managing frames and documents",
+  title: "Alumni Network",
+  description: "A web application for alumni networking",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${figtree.variable} antialiased`}
-      >
-        <header>
-          {/* <Header /> */}
-        </header>
-        <main className="">
-          <StoreProvider>
-            <AntdRegistry>{children}</AntdRegistry>
-          </StoreProvider>
-        </main>
-        <footer className="mt-auto">
-          {/* <Footer /> */}
-        </footer>
+      <body className={`${figtree.variable} antialiased`}>
+        <StoreProvider>
+          <AntdRegistry>
+            <AppWrapper>{children}</AppWrapper>
+          </AntdRegistry>
+        </StoreProvider>
       </body>
     </html>
   );

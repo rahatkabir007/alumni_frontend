@@ -1,40 +1,34 @@
 "use client"
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
+import { useLoginMutation } from '@/redux/features/auth/authApi';
+import { setCredentials, selectIsAuthenticated, selectRedirectPath, clearRedirectPath } from '@/redux/features/auth/authSlice';
+import { ToastMessage } from '@/utils/ToastMessage';
 
 export default function Login() {
     const router = useRouter();
+    const dispatch = useDispatch();
     const searchParams = useSearchParams();
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-    // Check if user is already authenticated
+    const [login, { isLoading }] = useLoginMutation();
+    const isAuthenticated = useSelector(selectIsAuthenticated);
+    const redirectPath = useSelector(selectRedirectPath);
+
+    // Redirect if already authenticated
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
-
-        if (token && userData) {
-            try {
-                // Verify that user data is valid
-                JSON.parse(userData);
-                // Redirect to dashboard if already logged in
-                router.push('/dashboard');
-                return;
-            } catch (error) {
-                // Invalid user data, clear storage
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-            }
+        if (isAuthenticated) {
+            const targetPath = redirectPath || '/dashboard';
+            dispatch(clearRedirectPath());
+            router.push(targetPath);
         }
-
-        setIsCheckingAuth(false);
-    }, [router]);
+    }, [isAuthenticated, redirectPath, router, dispatch]);
 
     // Check for error in URL params
     useEffect(() => {
@@ -43,15 +37,6 @@ export default function Login() {
             setError(errorParam.replace(/_/g, ' '));
         }
     }, [searchParams]);
-
-    // Show loading while checking authentication
-    if (isCheckingAuth) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-        );
-    }
 
     const handleInputChange = (e) => {
         setFormData({
@@ -62,35 +47,31 @@ export default function Login() {
 
     const handleEmailLogin = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError('');
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
+            const result = await login(formData).unwrap();
 
             if (result.success) {
-                // Store token and user data
-                localStorage.setItem('token', result.data.token);
-                localStorage.setItem('user', JSON.stringify(result.data.user));
+                dispatch(setCredentials({
+                    user: result.data.user,
+                    token: result.data.token
+                }));
 
-                // Redirect to dashboard
-                router.push('/dashboard');
+                ToastMessage.notifySuccess('Login successful!');
+
+                const targetPath = redirectPath || '/dashboard';
+                dispatch(clearRedirectPath());
+                router.push(targetPath);
             } else {
                 setError(result.message || 'Login failed');
+                ToastMessage.notifyError(result.message || 'Login failed');
             }
         } catch (err) {
             console.error('Login error:', err);
-            setError('Network error. Please try again.');
-        } finally {
-            setLoading(false);
+            const errorMessage = err.data?.message || 'Network error. Please try again.';
+            setError(errorMessage);
+            ToastMessage.notifyError(errorMessage);
         }
     };
 
@@ -105,6 +86,19 @@ export default function Login() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
+                {/* Back to Home Button */}
+                <div className="flex justify-start">
+                    <button
+                        onClick={() => router.push('/')}
+                        className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Back to Home
+                    </button>
+                </div>
+
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                         Sign in to your account
@@ -146,10 +140,10 @@ export default function Login() {
                     <div>
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={isLoading}
                             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                         >
-                            {loading ? 'Signing in...' : 'Sign in'}
+                            {isLoading ? 'Signing in...' : 'Sign in'}
                         </button>
                     </div>
 
