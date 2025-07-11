@@ -1,11 +1,11 @@
 "use client"
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '@/redux/features/auth/authSlice';
 import { ToastMessage } from '@/utils/ToastMessage';
 
-export default function AuthCallback() {
+function AuthCallbackContent() {
     const router = useRouter();
     const dispatch = useDispatch();
     const searchParams = useSearchParams();
@@ -90,4 +90,19 @@ export default function AuthCallback() {
     }
 
     return null;
+}
+
+export default function AuthCallback() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading...</p>
+                </div>
+            </div>
+        }>
+            <AuthCallbackContent />
+        </Suspense>
+    );
 }
