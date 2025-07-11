@@ -1,6 +1,6 @@
 import { Figtree } from "next/font/google";
 import "@/styles/globals.css";
-import StoreProvider from "./redux/StoreProvider";
+import StoreProvider from "../redux/StoreProvider";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 const figtree = Figtree({
