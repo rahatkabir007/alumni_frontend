@@ -10,18 +10,14 @@ import StaggerContainer from '@/components/animations/StaggerContainer'
 import AnimatedCard from '@/components/animations/AnimatedCard'
 import CountUp from '@/components/animations/CountUp'
 import FloatingElements from '@/components/animations/FloatingElements'
+import HeroSlider from '@/components/HeroSlider'
+import Link from 'next/link'
 
 const Homepage = () => {
     const router = useRouter()
     const isAuthenticated = useSelector(selectIsAuthenticated)
     const [isInitialized, setIsInitialized] = useState(false)
     const [isMounted, setIsMounted] = useState(false)
-
-    // Use react-intersection-observer for hero section
-    const { ref: heroRef, inView: heroInView } = useInView({
-        threshold: 0.1,
-        triggerOnce: true
-    })
 
     useEffect(() => {
         setIsMounted(true)
@@ -31,163 +27,94 @@ const Homepage = () => {
         return () => clearTimeout(timer)
     }, [])
 
-    const heroVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.3,
-                delayChildren: 0.2
-            }
-        }
-    }
-
-    const heroItemVariants = {
-        hidden: { opacity: 0, y: 30 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: { duration: 0.8, ease: "easeOut" }
-        }
-    }
-
-    // Show static content during SSR
     if (!isMounted) {
         return (
             <div className="bg-gray-50">
-                {/* Static Hero Section for SSR */}
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center py-16 sm:py-20">
-                        <h1 className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6">
-                            Welcome to Alumni Network
-                        </h1>
-                        <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                            Connect with fellow alumni, share experiences, and build lasting professional relationships.
-                            Join our growing community of graduates making a difference.
-                        </p>
-                        <div className="space-x-4">
-                            <div className="inline-block animate-pulse bg-gray-200 h-12 w-32 rounded-lg"></div>
-                            <div className="inline-block animate-pulse bg-gray-200 h-12 w-24 rounded-lg"></div>
-                        </div>
+                {/* Static content for SSR */}
+                <div className="h-[70vh] bg-blue-600 flex items-center justify-center">
+                    <div className="text-center text-white">
+                        <h1 className="text-4xl md:text-6xl font-bold mb-4">CIHS Alumni Network</h1>
+                        <p className="text-xl">Chittagong Ideal High School</p>
                     </div>
-                </section>
-
+                </div>
                 {/* ...existing static sections... */}
             </div>
         )
     }
 
     return (
-        <div className="bg-gray-50 relative overflow-hidden">
-            <FloatingElements count={8} />
+        <div className="bg-gray-50">
+            {/* Hero Slider */}
+            <HeroSlider />
 
-            {/* Hero Section with react-intersection-observer */}
-            <motion.section
-                ref={heroRef}
-                initial="hidden"
-                animate={heroInView ? "visible" : "hidden"}
-                variants={heroVariants}
-                className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10"
-            >
-                <div className="text-center py-16 sm:py-20">
-                    <motion.h1
-                        variants={heroItemVariants}
-                        className="text-4xl sm:text-6xl font-bold text-gray-900 mb-6"
-                    >
-                        Welcome to Alumni Network
-                    </motion.h1>
-
-                    <motion.p
-                        variants={heroItemVariants}
-                        className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto"
-                    >
-                        Connect with fellow alumni, share experiences, and build lasting professional relationships.
-                        Join our growing community of graduates making a difference.
-                    </motion.p>
-
-                    <motion.div variants={heroItemVariants}>
-                        {!isInitialized ? (
-                            <div className="space-x-4">
-                                <div className="inline-block animate-pulse bg-gray-200 h-12 w-32 rounded-lg"></div>
-                                <div className="inline-block animate-pulse bg-gray-200 h-12 w-24 rounded-lg"></div>
-                            </div>
-                        ) : !isAuthenticated ? (
-                            <div className="space-x-4">
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => router.push('/login')}
-                                    className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors"
-                                >
-                                    Get Started
-                                </motion.button>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => router.push('/register')}
-                                    className="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-colors"
-                                >
-                                    Sign Up
-                                </motion.button>
-                            </div>
-                        ) : (
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => router.push('/dashboard')}
-                                className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors"
-                            >
-                                Go to Dashboard
-                            </motion.button>
-                        )}
-                    </motion.div>
-                </div>
-            </motion.section>
-
-            {/* Features Section with improved ScrollReveal */}
-            <ScrollReveal direction="up" delay={0.2} threshold={0.2}>
-                <section className="py-16">
+            {/* School Brief Section */}
+            <ScrollReveal direction="up" delay={0.2}>
+                <section className="py-16 bg-white">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <ScrollReveal direction="fade" delay={0.1}>
-                            <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-                                Why Join Our Alumni Network?
-                            </h2>
-                        </ScrollReveal>
-
-                        <StaggerContainer staggerDelay={0.2} className="grid md:grid-cols-3 gap-8">
-                            {[
-                                { icon: '🤝', title: 'Network', description: 'Connect with alumni from your institution and build meaningful professional relationships.' },
-                                { icon: '💼', title: 'Opportunities', description: 'Discover job opportunities, mentorship programs, and career advancement resources.' },
-                                { icon: '🎓', title: 'Growth', description: 'Access exclusive events, workshops, and continuous learning opportunities.' }
-                            ].map((feature, index) => (
-                                <AnimatedCard key={index} className="text-center p-6" hoverScale={1.05} rotateOnHover>
-                                    <motion.div
-                                        whileHover={{ rotate: 360 }}
-                                        transition={{ duration: 0.6 }}
-                                        className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                        <div className="grid md:grid-cols-2 gap-12 items-center">
+                            <ScrollReveal direction="left" delay={0.3}>
+                                <div>
+                                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                                        About Chittagong Ideal High School
+                                    </h2>
+                                    <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                                        Established in 1965, Chittagong Ideal High School (CIHS) has been a beacon of
+                                        educational excellence in Chittagong. From nursery to class 10, we have nurtured
+                                        thousands of students who have gone on to become leaders in various fields around the world.
+                                    </p>
+                                    <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                                        Our commitment to quality education, moral values, and character building has
+                                        produced graduates who are not only academically successful but also responsible
+                                        citizens contributing to society.
+                                    </p>
+                                    <Link
+                                        href="/about"
+                                        className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-300"
                                     >
-                                        <span className="text-2xl">{feature.icon}</span>
-                                    </motion.div>
-                                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                                    <p className="text-gray-600">{feature.description}</p>
-                                </AnimatedCard>
-                            ))}
-                        </StaggerContainer>
+                                        Learn More About CIHS
+                                        <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                        </svg>
+                                    </Link>
+                                </div>
+                            </ScrollReveal>
+
+                            <ScrollReveal direction="right" delay={0.4}>
+                                <div className="relative">
+                                    <img
+                                        src="/images/cihs-main-building.jpg"
+                                        alt="CIHS Main Building"
+                                        className="rounded-lg shadow-xl"
+                                        style={{ backgroundColor: '#e5e7eb' }} // Fallback
+                                    />
+                                    <div className="absolute -bottom-4 -right-4 bg-yellow-500 text-blue-900 p-4 rounded-lg shadow-lg">
+                                        <div className="text-2xl font-bold">58+</div>
+                                        <div className="text-sm">Years of Excellence</div>
+                                    </div>
+                                </div>
+                            </ScrollReveal>
+                        </div>
                     </div>
                 </section>
             </ScrollReveal>
 
-            {/* Statistics Section with CountUp animations */}
-            <ScrollReveal direction="up" delay={0.3} threshold={0.3}>
-                <section className="py-16 bg-blue-600 text-white relative">
+            {/* Statistics Section */}
+            <ScrollReveal direction="up" delay={0.3}>
+                <section className="py-16 bg-gradient-to-r from-blue-600 to-green-600 text-white relative">
                     <FloatingElements count={6} className="opacity-10" />
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                        <ScrollReveal direction="fade" delay={0.1}>
+                            <h2 className="text-3xl font-bold text-center mb-12">
+                                CIHS Alumni Network by Numbers
+                            </h2>
+                        </ScrollReveal>
+
                         <StaggerContainer staggerDelay={0.15} className="grid grid-cols-2 md:grid-cols-4 gap-8">
                             {[
-                                { number: 10000, label: 'Alumni Members', suffix: '+' },
-                                { number: 500, label: 'Companies', suffix: '+' },
-                                { number: 50, label: 'Countries', suffix: '+' },
-                                { number: 1000, label: 'Success Stories', suffix: '+' }
+                                { number: 5000, label: 'Alumni Members', suffix: '+' },
+                                { number: 58, label: 'Years of Excellence', suffix: '+' },
+                                { number: 25, label: 'Countries Worldwide', suffix: '+' },
+                                { number: 200, label: 'Success Stories', suffix: '+' }
                             ].map((stat, index) => (
                                 <AnimatedCard key={index} className="text-center">
                                     <CountUp
@@ -205,52 +132,55 @@ const Homepage = () => {
                 </section>
             </ScrollReveal>
 
-            {/* Testimonials Section with staggered animations */}
-            <ScrollReveal direction="up" delay={0.2} threshold={0.2}>
+            {/* Testimonials Section */}
+            <ScrollReveal direction="up" delay={0.2}>
                 <section className="py-16 bg-white">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <ScrollReveal direction="scale" delay={0.1}>
                             <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-                                What Our Alumni Say
+                                What Our Alumni & Teachers Say
                             </h2>
                         </ScrollReveal>
 
                         <StaggerContainer staggerDelay={0.2} className="grid md:grid-cols-3 gap-8">
                             {[
                                 {
-                                    name: 'Sarah Johnson',
-                                    role: 'Software Engineer at Google',
-                                    quote: 'The Alumni Network helped me connect with mentors who guided my career path. I found my dream job through connections made here!',
-                                    avatar: 'SJ'
+                                    name: 'Dr. Rahman Ahmed',
+                                    role: 'CIHS Alumni (Class of 1985) - Now Surgeon at Johns Hopkins',
+                                    quote: 'CIHS gave me the foundation that led to my success in medicine. The values and discipline I learned here shaped my entire career.',
+                                    avatar: 'RA',
+                                    type: 'alumni'
                                 },
                                 {
-                                    name: 'Michael Chen',
-                                    role: 'Startup Founder',
-                                    quote: 'I found my co-founder and early investors through this platform. The community support has been incredible for my entrepreneurial journey.',
-                                    avatar: 'MC'
+                                    name: 'Mrs. Fatima Khatun',
+                                    role: 'Mathematics Teacher at CIHS (1975-2010)',
+                                    quote: 'Teaching at CIHS for 35 years was the most rewarding experience. Watching our students become global leaders fills my heart with pride.',
+                                    avatar: 'FK',
+                                    type: 'teacher'
                                 },
                                 {
-                                    name: 'Emily Rodriguez',
-                                    role: 'Marketing Director',
-                                    quote: 'The networking events and workshops have been invaluable for my professional development. Highly recommend joining!',
-                                    avatar: 'ER'
+                                    name: 'Eng. Karim Hassan',
+                                    role: 'CIHS Alumni (Class of 1992) - Software Engineer at Google',
+                                    quote: 'The analytical thinking and problem-solving skills I developed at CIHS directly contributed to my success in the tech industry.',
+                                    avatar: 'KH',
+                                    type: 'alumni'
                                 }
                             ].map((testimonial, index) => (
                                 <AnimatedCard
                                     key={index}
-                                    className="bg-gray-50 p-6 rounded-lg"
+                                    className="bg-gray-50 p-6 rounded-lg border-l-4 border-blue-500"
                                     hoverScale={1.03}
-                                    rotateOnHover
                                 >
                                     <div className="flex items-center mb-4">
                                         <motion.div
                                             whileHover={{ scale: 1.1 }}
-                                            className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold mr-4"
+                                            className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold mr-4 ${testimonial.type === 'teacher' ? 'bg-green-600' : 'bg-blue-600'
+                                                }`}
                                         >
                                             {testimonial.avatar}
                                         </motion.div>
                                         <div>
-                                            <h4 className="font-semibold">{testimonial.name}</h4>
+                                            <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
                                             <p className="text-sm text-gray-600">{testimonial.role}</p>
                                         </div>
                                     </div>
@@ -262,20 +192,119 @@ const Homepage = () => {
                 </section>
             </ScrollReveal>
 
-            {/* Call to Action Section with multiple reveal effects */}
-            <ScrollReveal direction="up" delay={0.3} threshold={0.4}>
-                <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white relative">
+            {/* Latest Announcements & Events */}
+            <ScrollReveal direction="up" delay={0.2}>
+                <section className="py-16 bg-gray-100">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="grid md:grid-cols-2 gap-12">
+                            {/* Announcements */}
+                            <ScrollReveal direction="left" delay={0.3}>
+                                <div>
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-6">Latest Announcements</h3>
+                                    <div className="space-y-4">
+                                        {[
+                                            {
+                                                title: 'Annual Alumni Reunion 2024',
+                                                date: 'December 15, 2024',
+                                                description: 'Join us for the biggest alumni gathering of the year at CIHS campus.'
+                                            },
+                                            {
+                                                title: 'Scholarship Program Launch',
+                                                date: 'January 1, 2024',
+                                                description: 'New merit-based scholarship program for current CIHS students funded by alumni.'
+                                            },
+                                            {
+                                                title: 'Alumni Achievement Awards',
+                                                date: 'November 30, 2024',
+                                                description: 'Nominate outstanding alumni for recognition in various categories.'
+                                            }
+                                        ].map((announcement, index) => (
+                                            <div key={index} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-300">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
+                                                    <span className="text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded">{announcement.date}</span>
+                                                </div>
+                                                <p className="text-gray-600 text-sm">{announcement.description}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <Link
+                                        href="/events"
+                                        className="inline-flex items-center mt-6 text-blue-600 hover:text-blue-700 font-medium"
+                                    >
+                                        View All Events
+                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </Link>
+                                </div>
+                            </ScrollReveal>
+
+                            {/* Latest Blogs */}
+                            <ScrollReveal direction="right" delay={0.3}>
+                                <div>
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-6">Latest Blog Posts</h3>
+                                    <div className="space-y-4">
+                                        {[
+                                            {
+                                                title: 'My Journey from CIHS to Silicon Valley',
+                                                author: 'Ahmed Rahman',
+                                                date: 'November 20, 2024',
+                                                excerpt: 'How the foundation laid at CIHS helped me succeed in the tech industry...'
+                                            },
+                                            {
+                                                title: 'Memories of Golden Days at CIHS',
+                                                author: 'Nasir Uddin',
+                                                date: 'November 15, 2024',
+                                                excerpt: 'Nostalgic memories of school days and the teachers who shaped our lives...'
+                                            },
+                                            {
+                                                title: 'Building a Startup: Lessons from CIHS',
+                                                author: 'Fatima Sheikh',
+                                                date: 'November 10, 2024',
+                                                excerpt: 'How the entrepreneurial spirit was nurtured during my time at CIHS...'
+                                            }
+                                        ].map((blog, index) => (
+                                            <div key={index} className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-300">
+                                                <h4 className="font-semibold text-gray-900 mb-2">{blog.title}</h4>
+                                                <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
+                                                    <span>By {blog.author}</span>
+                                                    <span>{blog.date}</span>
+                                                </div>
+                                                <p className="text-gray-600 text-sm">{blog.excerpt}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <Link
+                                        href="/blogs"
+                                        className="inline-flex items-center mt-6 text-blue-600 hover:text-blue-700 font-medium"
+                                    >
+                                        Read All Blogs
+                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </Link>
+                                </div>
+                            </ScrollReveal>
+                        </div>
+                    </div>
+                </section>
+            </ScrollReveal>
+
+            {/* Call to Action Section */}
+            <ScrollReveal direction="up" delay={0.3}>
+                <section className="py-16 bg-gradient-to-r from-blue-600 to-green-600 text-white relative">
                     <FloatingElements count={5} />
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
                         <ScrollReveal direction="scale" delay={0.1}>
                             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                                Ready to Connect with Your Alumni Community?
+                                Join the CIHS Alumni Community
                             </h2>
                         </ScrollReveal>
 
                         <ScrollReveal direction="fade" delay={0.2}>
                             <p className="text-xl mb-8">
-                                Join thousands of alumni who are already building meaningful connections and advancing their careers.
+                                Connect with fellow alumni, share your success stories, and give back to your alma mater.
                             </p>
                         </ScrollReveal>
 
@@ -287,15 +316,15 @@ const Homepage = () => {
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => router.push('/register')}
-                                            className="bg-white text-blue-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors"
+                                            className="bg-yellow-500 text-blue-900 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-yellow-400 transition-colors"
                                         >
-                                            Join Now
+                                            Join Alumni Network
                                         </motion.button>
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => router.push('/login')}
-                                            className="border border-white text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
+                                            className="border-2 border-white text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
                                         >
                                             Sign In
                                         </motion.button>
@@ -305,9 +334,9 @@ const Homepage = () => {
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => router.push('/dashboard')}
-                                        className="bg-white text-blue-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors"
+                                        className="bg-yellow-500 text-blue-900 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-yellow-400 transition-colors"
                                     >
-                                        Explore Dashboard
+                                        Go to Dashboard
                                     </motion.button>
                                 )}
                             </div>

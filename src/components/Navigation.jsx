@@ -13,32 +13,46 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                 <div className="flex justify-between h-16">
                     {/* Logo */}
                     <div className="flex items-center">
-                        <Link href="/" className="text-2xl font-bold text-blue-600">
-                            Alumni Network
+                        <Link href="/" className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                CIHS
+                            </div>
+                            <div>
+                                <div className="text-lg font-bold text-blue-600">CIHS Alumni</div>
+                                <div className="text-xs text-gray-500">Chittagong Ideal High School</div>
+                            </div>
                         </Link>
                     </div>
 
                     {/* Navigation Links */}
-                    <div className="flex items-center space-x-4">
-                        <Link href="/" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                    <div className="flex items-center space-x-6">
+                        <Link href="/" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                             Home
                         </Link>
-                        <Link href="/about" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            About
+                        <Link href="/about" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            About School
                         </Link>
-                        <Link href="/contact" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <Link href="/students" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            Alumni
+                        </Link>
+                        <Link href="/teachers" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            Teachers
+                        </Link>
+                        <Link href="/blogs" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            Blogs
+                        </Link>
+                        <Link href="/events" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            Events
+                        </Link>
+                        <Link href="/contact" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                             Contact
                         </Link>
 
-                        {/* Conditional Authentication - only show after initialization */}
+                        {/* Conditional Authentication */}
                         {!isInitialized ? (
-                            // Show loading placeholder that matches the profile button structure
                             <div className="flex items-center space-x-2 px-3 py-2">
-                                {/* Circular avatar placeholder */}
                                 <div className="animate-pulse bg-gray-200 w-8 h-8 rounded-full"></div>
-                                {/* Name placeholder */}
                                 <div className="animate-pulse bg-gray-200 h-4 w-20 rounded"></div>
-                                {/* Dropdown arrow placeholder */}
                                 <div className="animate-pulse bg-gray-200 w-4 h-4 rounded"></div>
                             </div>
                         ) : !user ? (
@@ -53,7 +67,7 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                                     onClick={() => router.push('/register')}
                                     className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
                                 >
-                                    Sign Up
+                                    Join Alumni
                                 </button>
                             </div>
                         ) : (
@@ -63,9 +77,9 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                                     className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
                                 >
                                     <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                                        {user.name?.charAt(0).toUpperCase() || 'U'}
+                                        {user.name?.charAt(0).toUpperCase() || 'A'}
                                     </div>
-                                    <span>{user.name || 'User'}</span>
+                                    <span>{user.name || 'Alumni'}</span>
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
@@ -90,7 +104,7 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                                             }}
                                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
-                                            Profile
+                                            My Profile
                                         </button>
                                         <hr className="my-1" />
                                         <button
