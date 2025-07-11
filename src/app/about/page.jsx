@@ -21,8 +21,8 @@ const AboutPage = () => {
                             Chittagong Ideal High School
                         </h1>
                         <p className="text-xl max-w-3xl mx-auto text-gray-300">
-                            Excellence in Education Since 1965. Nurturing minds, building character,
-                            and creating future leaders for over five decades.
+                            Excellence in Education Since 1998. Nurturing minds, building character,
+                            and creating future leaders for over two decades.
                         </p>
                     </div>
                 </section>
@@ -38,7 +38,7 @@ const AboutPage = () => {
                                     <BlackTag className="mb-4">Our History</BlackTag>
                                     <h2 className="text-3xl font-bold text-gray-900 mb-6">A Legacy of Excellence</h2>
                                     <p className="text-gray-600 mb-6 leading-relaxed">
-                                        Founded in 1965, Chittagong Ideal High School began as a vision to provide
+                                        Founded in 1998, Chittagong Ideal High School began as a vision to provide
                                         quality education to the children of Chittagong. What started as a small
                                         institution has grown into one of the most prestigious schools in the region.
                                     </p>
@@ -83,11 +83,12 @@ const AboutPage = () => {
                         </ScrollReveal>
 
                         <StaggerContainer staggerDelay={0.15} className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                            {[
-                                { number: 58, label: 'Years of Excellence', suffix: '+' },
-                                { number: 15000, label: 'Alumni Worldwide', suffix: '+' },
-                                { number: 500, label: 'Current Students', suffix: '+' },
-                                { number: 50, label: 'Dedicated Teachers', suffix: '+' }
+                            {[{
+                                number: 27, label: 'Years of Excellence', suffix: '+'
+                            },
+                            { number: 15000, label: 'Alumni Worldwide', suffix: '+' },
+                            { number: 500, label: 'Current Students', suffix: '+' },
+                            { number: 50, label: 'Dedicated Teachers', suffix: '+' }
                             ].map((stat, index) => (
                                 <ElegantCard key={index} background="black" className="text-center border-gray-700">
                                     <CountUp

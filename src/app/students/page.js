@@ -18,7 +18,7 @@ const StudentsPage = () => {
         {
             id: 1,
             name: 'Dr. Rahman Ahmed',
-            batch: '1985',
+            batch: '2005',
             class: '10',
             profession: 'Surgeon at Johns Hopkins Hospital',
             location: 'Baltimore, USA',
@@ -28,7 +28,7 @@ const StudentsPage = () => {
         {
             id: 2,
             name: 'Eng. Fatima Khan',
-            batch: '1990',
+            batch: '2010',
             class: '10',
             profession: 'Software Engineer at Google',
             location: 'California, USA',
@@ -38,7 +38,7 @@ const StudentsPage = () => {
         {
             id: 3,
             name: 'Prof. Nasir Uddin',
-            batch: '1988',
+            batch: '2008',
             class: '10',
             profession: 'Professor at University of Dhaka',
             location: 'Dhaka, Bangladesh',
@@ -48,7 +48,7 @@ const StudentsPage = () => {
         {
             id: 4,
             name: 'Dr. Ayesha Begum',
-            batch: '1992',
+            batch: '2012',
             class: '10',
             profession: 'Pediatrician',
             location: 'Chittagong, Bangladesh',
@@ -58,7 +58,7 @@ const StudentsPage = () => {
         {
             id: 5,
             name: 'Mohammad Karim',
-            batch: '1987',
+            batch: '2007',
             class: '10',
             profession: 'CEO at Tech Startup',
             location: 'Singapore',
@@ -68,7 +68,7 @@ const StudentsPage = () => {
         {
             id: 6,
             name: 'Rashida Sultana',
-            batch: '1995',
+            batch: '2015',
             class: '10',
             profession: 'Diplomat',
             location: 'London, UK',
@@ -77,7 +77,7 @@ const StudentsPage = () => {
         }
     ]
 
-    const batches = ['all', '1985', '1987', '1988', '1990', '1992', '1995', '2000', '2005', '2010', '2015', '2020']
+    const batches = ['all', '2005', '2007', '2008', '2010', '2012', '2015', '2018', '2020', '2022', '2024']
     const classes = ['all', 'Nursery', 'KG', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 
     const filteredStudents = students.filter(student => {

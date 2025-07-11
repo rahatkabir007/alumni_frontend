@@ -49,7 +49,7 @@ const EventsPage = () => {
             location: 'CIHS Campus',
             category: 'Celebration',
             status: 'upcoming',
-            description: 'Celebrating 60 years of educational excellence at CIHS. Join us for a day of festivities, achievements showcase, and community spirit.',
+            description: 'Celebrating 27 years of educational excellence at CIHS. Join us for a day of festivities, achievements showcase, and community spirit.',
             image: '/images/events/foundation-day.jpg',
             organizer: 'CIHS Administration',
             capacity: '1000 attendees',

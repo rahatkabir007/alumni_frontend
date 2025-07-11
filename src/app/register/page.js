@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { useRegisterMutation } from '@/redux/features/auth/authApi';
 import { selectIsAuthenticated } from '@/redux/features/auth/authSlice';
 import { ToastMessage } from '@/utils/ToastMessage';
@@ -37,7 +38,7 @@ export default function RegisterPage() {
     const [register, { isLoading }] = useRegisterMutation();
     const isAuthenticated = useSelector(selectIsAuthenticated);
 
-    // Redirect if already authenticated - go to homepage instead of dashboard
+    // Redirect if already authenticated
     useEffect(() => {
         if (isAuthenticated) {
             router.push('/');
@@ -72,32 +73,57 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+            {/* Background floating elements */}
+            <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-white opacity-5 rounded-full"></div>
+                <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white opacity-3 rounded-full"></div>
+                <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-white opacity-5 rounded-full"></div>
+                <div className="absolute bottom-1/3 left-1/4 w-24 h-24 bg-white opacity-3 rounded-full"></div>
+            </div>
+
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="max-w-md w-full space-y-8 relative z-10"
+            >
                 {/* Back to Home Button */}
-                <div className="flex justify-start">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex justify-start"
+                >
                     <button
                         onClick={() => router.push('/')}
-                        className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+                        className="flex items-center text-gray-300 hover:text-white text-sm font-medium transition-colors group"
                     >
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 mr-2 group-hover:transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                         Back to Home
                     </button>
-                </div>
+                </motion.div>
 
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        Create your account
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-center"
+                >
+                    <h2 className="text-4xl font-bold text-white mb-2">
+                        Join CIHS Alumni
                     </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Or{' '}
-                        <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-                            sign in to your existing account
+                    <p className="text-gray-400 mb-4">Create your alumni network account</p>
+                    <p className="text-sm text-gray-500">
+                        Already have an account?{' '}
+                        <Link href="/login" className="text-white font-semibold hover:text-gray-300 transition-colors">
+                            Sign in here
                         </Link>
                     </p>
-                </div>
+                </motion.div>
 
                 <Formik
                     initialValues={{
@@ -110,104 +136,114 @@ export default function RegisterPage() {
                     onSubmit={handleSubmit}
                 >
                     {({ isSubmitting }) => (
-                        <Form className="mt-8 space-y-6">
-                            {submitError && (
-                                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
-                                    {submitError}
-                                </div>
-                            )}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                        >
+                            <Form className="space-y-6">
+                                {submitError && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="bg-red-900/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg backdrop-blur-sm"
+                                    >
+                                        {submitError}
+                                    </motion.div>
+                                )}
 
-                            <div className="space-y-4">
-                                <div>
-                                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                                        Full Name
-                                    </label>
-                                    <Field
-                                        id="name"
-                                        name="name"
-                                        type="text"
-                                        className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                                        placeholder="Enter your full name"
-                                    />
-                                    <ErrorMessage name="name" component="div" className="mt-1 text-sm text-red-600" />
+                                <div className="space-y-4">
+                                    <div>
+                                        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+                                            Full Name
+                                        </label>
+                                        <Field
+                                            id="name"
+                                            name="name"
+                                            type="text"
+                                            className="w-full px-4 py-3 bg-white/10 border border-gray-600 placeholder-gray-400 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all backdrop-blur-sm"
+                                            placeholder="Enter your full name"
+                                        />
+                                        <ErrorMessage name="name" component="div" className="mt-1 text-sm text-red-300" />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                                            Email Address
+                                        </label>
+                                        <Field
+                                            id="email"
+                                            name="email"
+                                            type="email"
+                                            className="w-full px-4 py-3 bg-white/10 border border-gray-600 placeholder-gray-400 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all backdrop-blur-sm"
+                                            placeholder="Enter your email address"
+                                        />
+                                        <ErrorMessage name="email" component="div" className="mt-1 text-sm text-red-300" />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                                            Password
+                                        </label>
+                                        <Field
+                                            id="password"
+                                            name="password"
+                                            type="password"
+                                            className="w-full px-4 py-3 bg-white/10 border border-gray-600 placeholder-gray-400 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all backdrop-blur-sm"
+                                            placeholder="Create a strong password"
+                                        />
+                                        <ErrorMessage name="password" component="div" className="mt-1 text-sm text-red-300" />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
+                                            Confirm Password
+                                        </label>
+                                        <Field
+                                            id="confirmPassword"
+                                            name="confirmPassword"
+                                            type="password"
+                                            className="w-full px-4 py-3 bg-white/10 border border-gray-600 placeholder-gray-400 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all backdrop-blur-sm"
+                                            placeholder="Confirm your password"
+                                        />
+                                        <ErrorMessage name="confirmPassword" component="div" className="mt-1 text-sm text-red-300" />
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Email Address
-                                    </label>
-                                    <Field
-                                        id="email"
-                                        name="email"
-                                        type="email"
-                                        className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                                        placeholder="Enter your email address"
-                                    />
-                                    <ErrorMessage name="email" component="div" className="mt-1 text-sm text-red-600" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                        Password
-                                    </label>
-                                    <Field
-                                        id="password"
-                                        name="password"
-                                        type="password"
-                                        className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                                        placeholder="Enter your password"
-                                    />
-                                    <ErrorMessage name="password" component="div" className="mt-1 text-sm text-red-600" />
-                                </div>
-
-                                <div>
-                                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                                        Confirm Password
-                                    </label>
-                                    <Field
-                                        id="confirmPassword"
-                                        name="confirmPassword"
-                                        type="password"
-                                        className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                                        placeholder="Confirm your password"
-                                    />
-                                    <ErrorMessage name="confirmPassword" component="div" className="mt-1 text-sm text-red-600" />
-                                </div>
-                            </div>
-
-                            <div>
-                                <button
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
                                     type="submit"
                                     disabled={isLoading}
-                                    className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full bg-white text-black py-3 px-4 rounded-lg font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform"
                                 >
                                     {isLoading ? (
-                                        <>
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        <div className="flex items-center justify-center">
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
                                             Creating Account...
-                                        </>
+                                        </div>
                                     ) : (
                                         'Create Account'
                                     )}
-                                </button>
-                            </div>
+                                </motion.button>
 
-                            <div className="text-center">
-                                <p className="text-sm text-gray-600">
-                                    By signing up, you agree to our{' '}
-                                    <Link href="/terms" className="font-medium text-blue-600 hover:text-blue-500">
-                                        Terms of Service
-                                    </Link>{' '}
-                                    and{' '}
-                                    <Link href="/privacy" className="font-medium text-blue-600 hover:text-blue-500">
-                                        Privacy Policy
-                                    </Link>
-                                </p>
-                            </div>
-                        </Form>
+                                <div className="text-center">
+                                    <p className="text-xs text-gray-500">
+                                        By creating an account, you agree to our{' '}
+                                        <Link href="/terms" className="text-gray-300 hover:text-white transition-colors">
+                                            Terms of Service
+                                        </Link>{' '}
+                                        and{' '}
+                                        <Link href="/privacy" className="text-gray-300 hover:text-white transition-colors">
+                                            Privacy Policy
+                                        </Link>
+                                    </p>
+                                </div>
+                            </Form>
+                        </motion.div>
                     )}
                 </Formik>
-            </div>
+            </motion.div>
         </div>
     );
 }

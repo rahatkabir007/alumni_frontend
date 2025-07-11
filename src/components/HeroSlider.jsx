@@ -10,7 +10,7 @@ const HeroSlider = () => {
             id: 1,
             image: '/images/cihs-building.jpg',
             title: 'Welcome to CIHS Alumni Network',
-            subtitle: 'Chittagong Ideal High School - Excellence in Education Since 1965',
+            subtitle: 'Chittagong Ideal High School - Excellence in Education Since 1998',
             description: 'Connecting generations of students who have walked through our halls'
         },
         {

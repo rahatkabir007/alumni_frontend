@@ -64,12 +64,12 @@ const Homepage = () => {
                         <div className="grid md:grid-cols-2 gap-12 items-center">
                             <ScrollReveal direction="left" delay={0.3}>
                                 <div>
-                                    <BlackTag className="mb-4">Established 1965</BlackTag>
+                                    <BlackTag className="mb-4">Established 1998</BlackTag>
                                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                                         About Chittagong Ideal High School
                                     </h2>
                                     <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                                        Established in 1965, Chittagong Ideal High School (CIHS) has been a beacon of
+                                        Established in 1998, Chittagong Ideal High School (CIHS) has been a beacon of
                                         educational excellence in Chittagong. From nursery to class 10, we have nurtured
                                         thousands of students who have gone on to become leaders in various fields around the world.
                                     </p>
@@ -100,7 +100,7 @@ const Homepage = () => {
                                         style={{ backgroundColor: '#e5e7eb' }}
                                     />
                                     <div className="absolute -bottom-4 -right-4 bg-black text-white p-4 rounded-lg shadow-lg">
-                                        <div className="text-2xl font-bold">58+</div>
+                                        <div className="text-2xl font-bold">27+</div>
                                         <div className="text-sm">Years of Excellence</div>
                                     </div>
                                 </ElegantCard>
@@ -124,7 +124,7 @@ const Homepage = () => {
                         <StaggerContainer staggerDelay={0.15} className="grid grid-cols-2 md:grid-cols-4 gap-8">
                             {[
                                 { number: 5000, label: 'Alumni Members', suffix: '+' },
-                                { number: 58, label: 'Years of Excellence', suffix: '+' },
+                                { number: 27, label: 'Years of Excellence', suffix: '+' },
                                 { number: 25, label: 'Countries Worldwide', suffix: '+' },
                                 { number: 200, label: 'Success Stories', suffix: '+' }
                             ].map((stat, index) => (
