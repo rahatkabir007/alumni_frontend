@@ -1,5 +1,7 @@
 import { Figtree } from "next/font/google";
 import "@/styles/globals.css";
+import StoreProvider from "./redux/StoreProvider";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 const figtree = Figtree({
   variable: "--font-figtree",
@@ -18,7 +20,17 @@ export default function RootLayout({ children }) {
       <body
         className={`${figtree.variable} antialiased`}
       >
-        {children}
+        <header>
+          {/* <Header /> */}
+        </header>
+        <main className="">
+          <StoreProvider>
+            <AntdRegistry>{children}</AntdRegistry>
+          </StoreProvider>
+        </main>
+        <footer className="mt-auto">
+          {/* <Footer /> */}
+        </footer>
       </body>
     </html>
   );
