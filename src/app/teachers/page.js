@@ -4,6 +4,9 @@ import { motion } from 'framer-motion'
 import ScrollReveal from '@/components/animations/ScrollReveal'
 import StaggerContainer from '@/components/animations/StaggerContainer'
 import AnimatedCard from '@/components/animations/AnimatedCard'
+import BlackButton from '@/components/common/BlackButton'
+import ElegantCard from '@/components/common/ElegantCard'
+import BlackTag from '@/components/common/BlackTag'
 import Link from 'next/link'
 
 const TeachersPage = () => {
@@ -91,20 +94,21 @@ const TeachersPage = () => {
 
     const filteredTeachers = teachers.filter(teacher => {
         return (selectedDepartment === 'all' || teacher.department === selectedDepartment) &&
-               (selectedStatus === 'all' || teacher.status === selectedStatus)
+            (selectedStatus === 'all' || teacher.status === selectedStatus)
     })
 
     return (
-        <div className="bg-slate-900 min-h-screen">
+        <div className="bg-gray-50 min-h-screen">
             {/* Header */}
             <ScrollReveal direction="up" delay={0.2}>
-                <section className="py-16 bg-gradient-to-r from-slate-800 to-slate-700">
+                <section className="py-16 bg-black text-white">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">
+                        <BlackTag className="mb-4 bg-white text-black">Faculty</BlackTag>
+                        <h1 className="text-4xl md:text-5xl font-bold mb-4">
                             Our Distinguished Teachers
                         </h1>
-                        <p className="text-xl max-w-3xl mx-auto text-slate-300">
-                            Meet the dedicated educators who have shaped generations of students at CIHS. 
+                        <p className="text-xl max-w-3xl mx-auto text-gray-300">
+                            Meet the dedicated educators who have shaped generations of students at CIHS.
                             From seasoned veterans to current faculty, each teacher has contributed to our legacy of excellence.
                         </p>
                     </div>
@@ -113,42 +117,42 @@ const TeachersPage = () => {
 
             {/* Filters */}
             <ScrollReveal direction="up" delay={0.3}>
-                <section className="py-8 bg-slate-800 border-b border-slate-700">
+                <section className="py-8 bg-white border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex flex-wrap gap-4 items-center justify-center">
                             <div className="flex items-center space-x-2">
-                                <label className="text-sm font-medium text-slate-300">Department:</label>
-                                <select 
+                                <label className="text-sm font-medium text-gray-700">Department:</label>
+                                <select
                                     value={selectedDepartment}
                                     onChange={(e) => setSelectedDepartment(e.target.value)}
-                                    className="bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="border-2 border-black rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                                 >
                                     {departments.map(dept => (
-                                        <option key={dept} value={dept} className="bg-slate-700">
+                                        <option key={dept} value={dept}>
                                             {dept === 'all' ? 'All Departments' : dept}
                                         </option>
                                     ))}
                                 </select>
                             </div>
-                            
+
                             <div className="flex items-center space-x-2">
-                                <label className="text-sm font-medium text-slate-300">Status:</label>
-                                <select 
+                                <label className="text-sm font-medium text-gray-700">Status:</label>
+                                <select
                                     value={selectedStatus}
                                     onChange={(e) => setSelectedStatus(e.target.value)}
-                                    className="bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="border-2 border-black rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                                 >
                                     {statuses.map(status => (
-                                        <option key={status} value={status} className="bg-slate-700">
+                                        <option key={status} value={status}>
                                             {status === 'all' ? 'All Teachers' : status === 'active' ? 'Current Faculty' : 'Retired Teachers'}
                                         </option>
                                     ))}
                                 </select>
                             </div>
-                            
-                            <div className="text-sm text-slate-400">
+
+                            <BlackTag size="sm">
                                 Showing {filteredTeachers.length} teachers
-                            </div>
+                            </BlackTag>
                         </div>
                     </div>
                 </section>
@@ -160,13 +164,9 @@ const TeachersPage = () => {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {filteredTeachers.map((teacher) => (
-                                <AnimatedCard 
-                                    key={teacher.id} 
-                                    className="bg-slate-800 border border-slate-700 rounded-lg shadow-xl overflow-hidden hover:border-blue-500/50 transition-all duration-300"
-                                    hoverScale={1.03}
-                                >
+                                <ElegantCard key={teacher.id} className="overflow-hidden">
                                     <div className="relative">
-                                        <div 
+                                        <div
                                             className="h-48 bg-gradient-to-br from-blue-600 to-emerald-600"
                                             style={{
                                                 backgroundImage: `url(${teacher.image})`,
@@ -174,64 +174,65 @@ const TeachersPage = () => {
                                                 backgroundPosition: 'center'
                                             }}
                                         />
-                                        <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold ${
-                                            teacher.status === 'active' 
-                                                ? 'bg-emerald-500 text-white' 
-                                                : 'bg-amber-500 text-slate-900'
-                                        }`}>
+                                        <BlackTag
+                                            className={`absolute top-4 right-4 ${teacher.status === 'active' ? 'bg-green-600 text-white' : 'bg-yellow-500 text-black'}`}
+                                            size="xs"
+                                        >
                                             {teacher.status === 'active' ? 'Current Faculty' : 'Retired'}
-                                        </div>
+                                        </BlackTag>
                                     </div>
-                                    
+
                                     <div className="p-6">
-                                        <h3 className="text-xl font-bold text-white mb-2">{teacher.name}</h3>
-                                        <p className="text-blue-400 font-medium mb-2">{teacher.designation}</p>
-                                        <p className="text-slate-400 text-sm mb-3">
-                                            <span className="inline-flex items-center">
-                                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H7m2 0v-4a1 1 0 011-1h2a1 1 0 011 1v4m-3 0h4" />
-                                                </svg>
-                                                {teacher.department} • {teacher.period}
-                                            </span>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-2">{teacher.name}</h3>
+                                        <p className="text-blue-600 font-medium mb-2">{teacher.designation}</p>
+                                        <p className="text-gray-600 text-sm mb-3 flex items-center">
+                                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H7m2 0v-4a1 1 0 011-1h2a1 1 0 011 1v4m-3 0h4" />
+                                            </svg>
+                                            {teacher.department} • {teacher.period}
                                         </p>
-                                        
+
                                         <div className="mb-3">
-                                            <h4 className="text-sm font-medium text-slate-300 mb-1">Specialization:</h4>
-                                            <p className="text-emerald-400 text-sm">{teacher.specialization}</p>
+                                            <h4 className="text-sm font-medium text-gray-700 mb-1">Specialization:</h4>
+                                            <BlackTag variant="subtle" size="xs">{teacher.specialization}</BlackTag>
                                         </div>
-                                        
+
                                         <div className="mb-4">
-                                            <h4 className="text-sm font-medium text-slate-300 mb-1">Subjects:</h4>
+                                            <h4 className="text-sm font-medium text-gray-700 mb-1">Subjects:</h4>
                                             <div className="flex flex-wrap gap-1">
                                                 {teacher.subjects.slice(0, 2).map((subject, index) => (
-                                                    <span key={index} className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs">
+                                                    <BlackTag key={index} variant="outline" size="xs">
                                                         {subject}
-                                                    </span>
+                                                    </BlackTag>
                                                 ))}
                                                 {teacher.subjects.length > 2 && (
-                                                    <span className="bg-slate-700 text-slate-400 px-2 py-1 rounded text-xs">
+                                                    <BlackTag variant="subtle" size="xs">
                                                         +{teacher.subjects.length - 2} more
-                                                    </span>
+                                                    </BlackTag>
                                                 )}
                                             </div>
                                         </div>
-                                        
-                                        <p className="text-slate-300 text-sm mb-4 line-clamp-2">{teacher.achievements}</p>
-                                        
+
+                                        <p className="text-gray-700 text-sm mb-4 line-clamp-2">{teacher.achievements}</p>
+
                                         <div className="flex justify-between items-center">
-                                            <span className="text-xs text-slate-500">{teacher.department}</span>
-                                            <Link 
-                                                href={`/teachers/${teacher.id}`}
-                                                className="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center"
-                                            >
-                                                View Profile 
-                                                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
+                                            <BlackTag variant="subtle" size="xs">{teacher.department}</BlackTag>
+                                            <Link href={`/teachers/${teacher.id}`}>
+                                                <BlackButton
+                                                    size="sm"
+                                                    variant="outline"
+                                                    icon={
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                        </svg>
+                                                    }
+                                                >
+                                                    View Profile
+                                                </BlackButton>
                                             </Link>
                                         </div>
                                     </div>
-                                </AnimatedCard>
+                                </ElegantCard>
                             ))}
                         </StaggerContainer>
                     </div>
@@ -240,20 +241,21 @@ const TeachersPage = () => {
 
             {/* Join Faculty CTA */}
             <ScrollReveal direction="up" delay={0.5}>
-                <section className="py-16 bg-slate-800 border-t border-slate-700">
+                <section className="py-16 bg-black text-white">
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <h2 className="text-3xl font-bold text-white mb-4">
+                        <h2 className="text-3xl font-bold mb-4">
                             Interested in Teaching at CIHS?
                         </h2>
-                        <p className="text-lg text-slate-400 mb-8">
+                        <p className="text-lg text-gray-300 mb-8">
                             Join our dedicated team of educators and help shape the next generation of leaders.
                         </p>
-                        <Link 
-                            href="/contact"
-                            className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-lg"
+                        <BlackButton
+                            onClick={() => router.push('/contact')}
+                            size="lg"
+                            className="bg-white text-black hover:bg-gray-200"
                         >
                             Contact HR Department
-                        </Link>
+                        </BlackButton>
                     </div>
                 </section>
             </ScrollReveal>

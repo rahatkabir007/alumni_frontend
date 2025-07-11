@@ -79,12 +79,12 @@ const TestimonialSlider = () => {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -300 }}
                         transition={{ duration: 0.5, ease: "easeInOut" }}
-                        className="bg-slate-800 border border-slate-700 p-8 rounded-xl shadow-2xl"
+                        className="bg-black border border-gray-800 p-8 rounded-xl shadow-2xl text-white"
                     >
                         <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-6">
                             {/* Avatar/Image */}
                             <div className="flex-shrink-0">
-                                <div 
+                                <div
                                     className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white font-bold text-xl shadow-lg"
                                     style={{
                                         backgroundImage: `url(${testimonials[currentSlide].image})`,
@@ -94,25 +94,24 @@ const TestimonialSlider = () => {
                                 >
                                     {!testimonials[currentSlide].image && testimonials[currentSlide].avatar}
                                 </div>
-                                <div className={`mt-2 text-center px-3 py-1 rounded-full text-xs font-medium ${
-                                    testimonials[currentSlide].type === 'teacher' 
-                                        ? 'bg-emerald-500/20 text-emerald-400' 
-                                        : 'bg-blue-500/20 text-blue-400'
-                                }`}>
+                                <div className={`mt-2 text-center px-3 py-1 rounded-full text-xs font-medium ${testimonials[currentSlide].type === 'teacher'
+                                    ? 'bg-emerald-500 text-white'
+                                    : 'bg-blue-500 text-white'
+                                    }`}>
                                     {testimonials[currentSlide].type === 'teacher' ? 'Teacher' : 'Alumni'}
                                 </div>
                             </div>
 
                             {/* Content */}
                             <div className="flex-1 text-center md:text-left">
-                                <blockquote className="text-lg md:text-xl text-slate-200 italic mb-6 leading-relaxed">
+                                <blockquote className="text-lg md:text-xl text-gray-200 italic mb-6 leading-relaxed">
                                     "{testimonials[currentSlide].quote}"
                                 </blockquote>
                                 <div>
                                     <h4 className="text-xl font-bold text-white mb-1">
                                         {testimonials[currentSlide].name}
                                     </h4>
-                                    <p className="text-slate-400 text-sm">
+                                    <p className="text-gray-400 text-sm">
                                         {testimonials[currentSlide].role}
                                     </p>
                                 </div>
@@ -122,10 +121,10 @@ const TestimonialSlider = () => {
                 </AnimatePresence>
             </div>
 
-            {/* Navigation Arrows */}
+            {/* Navigation Arrows - Updated with black theme */}
             <button
                 onClick={prevSlide}
-                className="slider-nav prev"
+                className="absolute left-[-24px] top-1/2 transform -translate-y-1/2 bg-black text-white border border-gray-700 rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-800 transition-all z-10"
                 aria-label="Previous testimonial"
             >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,7 +134,7 @@ const TestimonialSlider = () => {
 
             <button
                 onClick={nextSlide}
-                className="slider-nav next"
+                className="absolute right-[-24px] top-1/2 transform -translate-y-1/2 bg-black text-white border border-gray-700 rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-800 transition-all z-10"
                 aria-label="Next testimonial"
             >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,17 +142,16 @@ const TestimonialSlider = () => {
                 </svg>
             </button>
 
-            {/* Indicators */}
+            {/* Indicators - Updated with black theme */}
             <div className="flex justify-center space-x-2 mt-6">
                 {testimonials.map((_, index) => (
                     <button
                         key={index}
                         onClick={() => setCurrentSlide(index)}
-                        className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                            index === currentSlide 
-                                ? 'bg-blue-400' 
-                                : 'bg-slate-600 hover:bg-slate-500'
-                        }`}
+                        className={`w-3 h-3 rounded-full transition-colors duration-300 ${index === currentSlide
+                            ? 'bg-black'
+                            : 'bg-gray-400 hover:bg-gray-600'
+                            }`}
                         aria-label={`Go to testimonial ${index + 1}`}
                     />
                 ))}

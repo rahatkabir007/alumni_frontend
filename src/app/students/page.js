@@ -4,6 +4,9 @@ import { motion } from 'framer-motion'
 import ScrollReveal from '@/components/animations/ScrollReveal'
 import StaggerContainer from '@/components/animations/StaggerContainer'
 import AnimatedCard from '@/components/animations/AnimatedCard'
+import BlackButton from '@/components/common/BlackButton'
+import ElegantCard from '@/components/common/ElegantCard'
+import BlackTag from '@/components/common/BlackTag'
 import Link from 'next/link'
 
 const StudentsPage = () => {
@@ -86,12 +89,13 @@ const StudentsPage = () => {
         <div className="bg-gray-50 min-h-screen">
             {/* Header */}
             <ScrollReveal direction="up" delay={0.2}>
-                <section className="py-16 bg-gradient-to-r from-blue-600 to-green-600 text-white">
+                <section className="py-16 bg-black text-white relative">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                        <BlackTag className="mb-4 bg-white text-black">Alumni Directory</BlackTag>
                         <h1 className="text-4xl md:text-5xl font-bold mb-4">
                             CIHS Alumni Directory
                         </h1>
-                        <p className="text-xl max-w-3xl mx-auto">
+                        <p className="text-xl max-w-3xl mx-auto text-gray-300">
                             Connect with fellow graduates from Chittagong Ideal High School.
                             From nursery to class 10, our alumni are making a difference worldwide.
                         </p>
@@ -101,7 +105,7 @@ const StudentsPage = () => {
 
             {/* Filters */}
             <ScrollReveal direction="up" delay={0.3}>
-                <section className="py-8 bg-white shadow-sm">
+                <section className="py-8 bg-white shadow-sm border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex flex-wrap gap-4 items-center justify-center">
                             <div className="flex items-center space-x-2">
@@ -109,7 +113,7 @@ const StudentsPage = () => {
                                 <select
                                     value={selectedBatch}
                                     onChange={(e) => setSelectedBatch(e.target.value)}
-                                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="border-2 border-black rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                                 >
                                     {batches.map(batch => (
                                         <option key={batch} value={batch}>
@@ -124,7 +128,7 @@ const StudentsPage = () => {
                                 <select
                                     value={selectedClass}
                                     onChange={(e) => setSelectedClass(e.target.value)}
-                                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="border-2 border-black rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
                                 >
                                     {classes.map(cls => (
                                         <option key={cls} value={cls}>
@@ -134,9 +138,9 @@ const StudentsPage = () => {
                                 </select>
                             </div>
 
-                            <div className="text-sm text-gray-600">
+                            <BlackTag size="sm">
                                 Showing {filteredStudents.length} alumni
-                            </div>
+                            </BlackTag>
                         </div>
                     </div>
                 </section>
@@ -148,11 +152,7 @@ const StudentsPage = () => {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {filteredStudents.map((student) => (
-                                <AnimatedCard
-                                    key={student.id}
-                                    className="bg-white rounded-lg shadow-lg overflow-hidden"
-                                    hoverScale={1.03}
-                                >
+                                <ElegantCard key={student.id} className="overflow-hidden group">
                                     <div className="relative">
                                         <div
                                             className="h-48 bg-gradient-to-br from-blue-400 to-green-400"
@@ -162,35 +162,45 @@ const StudentsPage = () => {
                                                 backgroundPosition: 'center'
                                             }}
                                         />
-                                        <div className="absolute top-4 right-4 bg-yellow-500 text-blue-900 px-2 py-1 rounded text-sm font-semibold">
+                                        <BlackTag
+                                            className="absolute top-4 right-4"
+                                            size="xs"
+                                        >
                                             Batch {student.batch}
-                                        </div>
+                                        </BlackTag>
                                     </div>
 
                                     <div className="p-6">
                                         <h3 className="text-xl font-bold text-gray-900 mb-2">{student.name}</h3>
                                         <p className="text-blue-600 font-medium mb-2">{student.profession}</p>
-                                        <p className="text-gray-600 text-sm mb-2">
-                                            <span className="inline-flex items-center">
-                                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                {student.location}
-                                            </span>
+                                        <p className="text-gray-600 text-sm mb-2 flex items-center">
+                                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            {student.location}
                                         </p>
                                         <p className="text-gray-700 text-sm mb-4">{student.achievements}</p>
                                         <div className="flex justify-between items-center">
-                                            <span className="text-xs text-gray-500">Class {student.class} Graduate</span>
-                                            <Link
-                                                href={`/students/${student.id}`}
-                                                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                                            >
-                                                View Profile →
+                                            <BlackTag variant="subtle" size="xs">
+                                                Class {student.class} Graduate
+                                            </BlackTag>
+                                            <Link href={`/students/${student.id}`}>
+                                                <BlackButton
+                                                    size="sm"
+                                                    variant="outline"
+                                                    icon={
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                        </svg>
+                                                    }
+                                                >
+                                                    View Profile
+                                                </BlackButton>
                                             </Link>
                                         </div>
                                     </div>
-                                </AnimatedCard>
+                                </ElegantCard>
                             ))}
                         </StaggerContainer>
                     </div>
@@ -199,20 +209,21 @@ const StudentsPage = () => {
 
             {/* Join CTA */}
             <ScrollReveal direction="up" delay={0.5}>
-                <section className="py-16 bg-white">
+                <section className="py-16 bg-black text-white">
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                        <h2 className="text-3xl font-bold mb-4">
                             Are You a CIHS Graduate?
                         </h2>
-                        <p className="text-lg text-gray-600 mb-8">
+                        <p className="text-lg text-gray-300 mb-8">
                             Join our alumni network and connect with your fellow graduates. Share your story and inspire current students.
                         </p>
-                        <Link
-                            href="/register"
-                            className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors duration-300"
+                        <BlackButton
+                            onClick={() => router.push('/register')}
+                            size="lg"
+                            className="bg-white text-black hover:bg-gray-200"
                         >
                             Join Alumni Network
-                        </Link>
+                        </BlackButton>
                     </div>
                 </section>
             </ScrollReveal>
