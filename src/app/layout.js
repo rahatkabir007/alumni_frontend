@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import StoreProvider from "../redux/StoreProvider";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import AppWrapper from "@/components/AppWrapper";
+import { Suspense } from "react";
 
 const figtree = Figtree({
   variable: "--font-figtree",
@@ -21,7 +22,9 @@ export default function RootLayout({ children }) {
       <body className={`${figtree.variable} antialiased`}>
         <StoreProvider>
           <AntdRegistry>
-            <AppWrapper>{children}</AppWrapper>
+            <Suspense>
+              <AppWrapper>{children}</AppWrapper>
+            </Suspense>
           </AntdRegistry>
         </StoreProvider>
       </body>
