@@ -1,5 +1,5 @@
 "use client"
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import Navigation from '@/components/Navigation';
@@ -16,6 +16,7 @@ const AppWrapper = ({ children }) => {
     const router = useRouter();
     const dispatch = useDispatch();
     const user = useSelector(selectCurrentUser);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     // Pages where Navigation and Footer should be hidden
     const authPages = ['/login', '/register'];
@@ -26,19 +27,26 @@ const AppWrapper = ({ children }) => {
 
     useEffect(() => {
         // Check if user is already logged in on app initialization
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const initializeAuthState = () => {
+            const token = localStorage.getItem('token');
+            const userData = localStorage.getItem('user');
 
-        if (token && userData) {
-            try {
-                const parsedUser = JSON.parse(userData);
-                dispatch(initializeAuth({ user: parsedUser, token }));
-            } catch (error) {
-                // Invalid user data, clear storage
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
+            if (token && userData) {
+                try {
+                    const parsedUser = JSON.parse(userData);
+                    dispatch(initializeAuth({ user: parsedUser, token }));
+                } catch (error) {
+                    // Invalid user data, clear storage
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                }
             }
-        }
+
+            // Mark as initialized after checking auth state
+            setIsInitialized(true);
+        };
+
+        initializeAuthState();
     }, [dispatch]);
 
     const handleLogout = () => {
@@ -50,7 +58,6 @@ const AppWrapper = ({ children }) => {
 
         // Check if current route is protected
         const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-        console.log("🚀 ~ handleLogout ~ isProtectedRoute:", isProtectedRoute)
 
         if (isProtectedRoute) {
             // If on a protected route, redirect to homepage
@@ -64,7 +71,7 @@ const AppWrapper = ({ children }) => {
     return (
         <div className="min-h-screen flex flex-col">
             {shouldShowNavigation && (
-                <Navigation user={user} onLogout={handleLogout} />
+                <Navigation user={user} onLogout={handleLogout} isInitialized={isInitialized} />
             )}
 
             <main className="flex-grow">
@@ -75,6 +82,5 @@ const AppWrapper = ({ children }) => {
         </div>
     );
 };
-
 
 export default AppWrapper;

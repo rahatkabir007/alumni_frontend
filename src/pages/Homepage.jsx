@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
 import { selectIsAuthenticated } from '@/redux/features/auth/authSlice'
@@ -7,6 +7,16 @@ import { selectIsAuthenticated } from '@/redux/features/auth/authSlice'
 const Homepage = () => {
     const router = useRouter()
     const isAuthenticated = useSelector(selectIsAuthenticated)
+    const [isInitialized, setIsInitialized] = useState(false)
+
+    useEffect(() => {
+        // Small delay to ensure auth state is properly initialized
+        const timer = setTimeout(() => {
+            setIsInitialized(true)
+        }, 100)
+
+        return () => clearTimeout(timer)
+    }, [])
 
     return (
         <div className="bg-gray-50">
@@ -21,7 +31,13 @@ const Homepage = () => {
                         Join our growing community of graduates making a difference.
                     </p>
 
-                    {!isAuthenticated ? (
+                    {!isInitialized ? (
+                        // Show loading placeholder while checking auth state
+                        <div className="space-x-4">
+                            <div className="inline-block animate-pulse bg-gray-200 h-12 w-32 rounded-lg"></div>
+                            <div className="inline-block animate-pulse bg-gray-200 h-12 w-24 rounded-lg"></div>
+                        </div>
+                    ) : !isAuthenticated ? (
                         <div className="space-x-4">
                             <button
                                 onClick={() => router.push('/login')}

@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-const Navigation = ({ user, onLogout }) => {
+const Navigation = ({ user, onLogout, isInitialized }) => {
     const router = useRouter()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
@@ -30,8 +30,18 @@ const Navigation = ({ user, onLogout }) => {
                             Contact
                         </Link>
 
-                        {/* Conditional Authentication */}
-                        {!user ? (
+                        {/* Conditional Authentication - only show after initialization */}
+                        {!isInitialized ? (
+                            // Show loading placeholder that matches the profile button structure
+                            <div className="flex items-center space-x-2 px-3 py-2">
+                                {/* Circular avatar placeholder */}
+                                <div className="animate-pulse bg-gray-200 w-8 h-8 rounded-full"></div>
+                                {/* Name placeholder */}
+                                <div className="animate-pulse bg-gray-200 h-4 w-20 rounded"></div>
+                                {/* Dropdown arrow placeholder */}
+                                <div className="animate-pulse bg-gray-200 w-4 h-4 rounded"></div>
+                            </div>
+                        ) : !user ? (
                             <div className="flex items-center space-x-2">
                                 <button
                                     onClick={() => router.push('/login')}
