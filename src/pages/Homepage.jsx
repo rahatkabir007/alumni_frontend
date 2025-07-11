@@ -168,7 +168,7 @@ const Homepage = () => {
                                         <h3 className="text-2xl font-bold text-gray-900">Announcements</h3>
                                     </div>
                                     <div className="space-y-4">
-                                        {{
+                                        {[{
                                             title: 'Annual Alumni Reunion 2024',
                                             date: 'December 15, 2024',
                                             description: 'Join us for the biggest alumni gathering of the year at CIHS campus.',
@@ -187,14 +187,14 @@ const Homepage = () => {
                                             type: 'Award'
                                         }
                                         ].map((announcement, index) => (
-                                        <ElegantCard key={index} padding="md" className="hover:shadow-lg">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
-                                                <BlackTag size="xs">{announcement.type}</BlackTag>
-                                            </div>
-                                            <p className="text-sm text-blue-600 mb-2">{announcement.date}</p>
-                                            <p className="text-gray-600 text-sm">{announcement.description}</p>
-                                        </ElegantCard>
+                                            <ElegantCard key={index} padding="md" className="hover:shadow-lg">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
+                                                    <BlackTag size="xs">{announcement.type}</BlackTag>
+                                                </div>
+                                                <p className="text-sm text-blue-600 mb-2">{announcement.date}</p>
+                                                <p className="text-gray-600 text-sm">{announcement.description}</p>
+                                            </ElegantCard>
                                         ))}
                                     </div>
                                     <div className="mt-6">
@@ -221,7 +221,7 @@ const Homepage = () => {
                                         <h3 className="text-2xl font-bold text-gray-900">Blog Posts</h3>
                                     </div>
                                     <div className="space-y-4">
-                                        {{
+                                        {[{
                                             title: 'My Journey from CIHS to Silicon Valley',
                                             author: 'Ahmed Rahman',
                                             date: 'November 20, 2024',
@@ -235,25 +235,25 @@ const Homepage = () => {
                                             excerpt: 'Nostalgic memories of school days and the teachers who shaped our lives...',
                                             category: 'Memories'
                                         },
-                                            {
-                                                title: 'Building a Startup: Lessons from CIHS',
-                                                author: 'Fatima Sheikh',
-                                                date: 'November 10, 2024',
-                                                excerpt: 'How the entrepreneurial spirit was nurtured during my time at CIHS...',
-                                                category: 'Business'
-                                            }.map((blog, index) => (
-                                                <ElegantCard key={index} padding="md" className="hover:shadow-lg">
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <h4 className="font-semibold text-gray-900">{blog.title}</h4>
-                                                        <BlackTag size="xs">{blog.category}</BlackTag>
-                                                    </div>
-                                                    <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
-                                                        <span>By {blog.author}</span>
-                                                        <span>{blog.date}</span>
-                                                    </div>
-                                                    <p className="text-gray-600 text-sm">{blog.excerpt}</p>
-                                                </ElegantCard>
-                                            ))}
+                                        {
+                                            title: 'Building a Startup: Lessons from CIHS',
+                                            author: 'Fatima Sheikh',
+                                            date: 'November 10, 2024',
+                                            excerpt: 'How the entrepreneurial spirit was nurtured during my time at CIHS...',
+                                            category: 'Business'
+                                        }].map((blog, index) => (
+                                            <ElegantCard key={index} padding="md" className="hover:shadow-lg">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <h4 className="font-semibold text-gray-900">{blog.title}</h4>
+                                                    <BlackTag size="xs">{blog.category}</BlackTag>
+                                                </div>
+                                                <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
+                                                    <span>By {blog.author}</span>
+                                                    <span>{blog.date}</span>
+                                                </div>
+                                                <p className="text-gray-600 text-sm">{blog.excerpt}</p>
+                                            </ElegantCard>
+                                        ))}
                                     </div>
                                     <div className="mt-6">
                                         <BlackButton
