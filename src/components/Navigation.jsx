@@ -10,7 +10,7 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     return (
-        <nav className="bg-black shadow-xl border-b border-gray-800">
+        <nav className="sticky top-0 z-50 bg-black shadow-xl border-b border-gray-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     {/* Logo */}
@@ -61,7 +61,7 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                             <div className="flex items-center space-x-2">
                                 <button
                                     onClick={() => router.push('/login')}
-                                    className="text-white hover:text-gray-300 px-4 py-2 rounded-md text-sm font-medium border border-white hover:bg-white hover:text-black transition-colors"
+                                    className="text-white px-4 py-2 rounded-md text-sm font-medium border border-white hover:bg-white hover:text-black transition-colors"
                                 >
                                     Login
                                 </button>
@@ -216,7 +216,7 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                                                 router.push('/login')
                                                 setIsMobileMenuOpen(false)
                                             }}
-                                            className="w-full text-left text-white hover:text-gray-300 py-2 text-base font-medium border border-white rounded-md px-4 hover:bg-white hover:text-black transition-colors"
+                                            className="w-full text-left text-white py-2 text-base font-medium border border-white rounded-md px-4 hover:bg-white hover:text-black transition-colors"
                                         >
                                             Login
                                         </button>
