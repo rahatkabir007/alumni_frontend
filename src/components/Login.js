@@ -24,9 +24,22 @@ export default function Login() {
     // Redirect if already authenticated
     useEffect(() => {
         if (isAuthenticated) {
-            const targetPath = redirectPath || '/dashboard';
+            // Check if user just logged out (should go to homepage)
+            const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+
+            let targetPath;
+            if (justLoggedOut) {
+                // If user just logged out, always go to homepage
+                targetPath = '/';
+                sessionStorage.removeItem('justLoggedOut');
+            } else {
+                // If user was trying to access a protected route, go there
+                // Otherwise go to homepage
+                targetPath = redirectPath || '/';
+            }
+
             dispatch(clearRedirectPath());
-            router.push(targetPath);
+            router.replace(targetPath);
         }
     }, [isAuthenticated, redirectPath, router, dispatch]);
 
@@ -60,9 +73,7 @@ export default function Login() {
 
                 ToastMessage.notifySuccess('Login successful!');
 
-                const targetPath = redirectPath || '/dashboard';
-                dispatch(clearRedirectPath());
-                router.push(targetPath);
+                // The redirect will be handled by the useEffect above
             } else {
                 setError(result.message || 'Login failed');
                 ToastMessage.notifyError(result.message || 'Login failed');

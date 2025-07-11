@@ -1,9 +1,13 @@
 "use client"
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useDispatch } from 'react-redux';
+import { setCredentials } from '@/redux/features/auth/authSlice';
+import { ToastMessage } from '@/utils/ToastMessage';
 
 export default function AuthCallback() {
     const router = useRouter();
+    const dispatch = useDispatch();
     const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -29,17 +33,18 @@ export default function AuthCallback() {
                     // Parse user data
                     const userData = JSON.parse(decodeURIComponent(user));
 
-                    // Store token in localStorage (or use cookies/context)
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('user', JSON.stringify(userData));
+                    // Store token in localStorage and update Redux state
+                    dispatch(setCredentials({
+                        user: userData,
+                        token: token
+                    }));
 
                     console.log('Auth successful:', userData);
 
-                    // You can also set user context here if using React Context
-                    // setUser(userData);
+                    ToastMessage.notifySuccess('Login successful!');
 
-                    // Redirect to dashboard or home page
-                    router.push('/dashboard'); // Change this to your desired route
+                    // Redirect to homepage instead of dashboard
+                    router.push('/');
                 } else {
                     setError('Missing authentication data');
                     setLoading(false);
@@ -58,7 +63,7 @@ export default function AuthCallback() {
         };
 
         handleCallback();
-    }, [router, searchParams]);
+    }, [router, searchParams, dispatch]);
 
     if (loading) {
         return (
@@ -78,7 +83,7 @@ export default function AuthCallback() {
                     <div className="text-red-600 text-xl mb-4">⚠️</div>
                     <h2 className="text-xl font-semibold text-gray-800 mb-2">Authentication Error</h2>
                     <p className="text-gray-600 mb-4">{error}</p>
-                    <p className="text-sm text-gray-500">Redirecting to login...</p>
+                    <p className="text-sm text-gray-500">Redirecting to homepage...</p>
                 </div>
             </div>
         );

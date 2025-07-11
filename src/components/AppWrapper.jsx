@@ -21,6 +21,9 @@ const AppWrapper = ({ children }) => {
     const authPages = ['/login', '/register'];
     const shouldShowNavigation = !authPages.includes(pathname);
 
+    // Define protected routes
+    const protectedRoutes = ['/dashboard', '/profile'];
+
     useEffect(() => {
         // Check if user is already logged in on app initialization
         const token = localStorage.getItem('token');
@@ -39,9 +42,23 @@ const AppWrapper = ({ children }) => {
     }, [dispatch]);
 
     const handleLogout = () => {
+        // Set flag to indicate this is a logout action
+        sessionStorage.setItem('justLoggedOut', 'true');
+
         dispatch(logout());
         ToastMessage.notifySuccess('Logged out successfully');
-        router.push('/');
+
+        // Check if current route is protected
+        const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+        console.log("🚀 ~ handleLogout ~ isProtectedRoute:", isProtectedRoute)
+
+        if (isProtectedRoute) {
+            // If on a protected route, redirect to homepage
+            router.push('/');
+        } else {
+            // If on a non-protected route, stay on the same route
+            router.refresh(); // Refresh to update the UI state
+        }
     };
 
     return (
@@ -58,5 +75,6 @@ const AppWrapper = ({ children }) => {
         </div>
     );
 };
+
 
 export default AppWrapper;

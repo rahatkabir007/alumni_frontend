@@ -12,6 +12,7 @@ const ProtectedRoute = ({ children }) => {
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const [isLoading, setIsLoading] = useState(true);
+    const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
     useEffect(() => {
         const checkAuth = () => {
@@ -23,34 +24,36 @@ const ProtectedRoute = ({ children }) => {
                 try {
                     const user = JSON.parse(userData);
                     dispatch(initializeAuth({ user, token }));
-                    setIsLoading(false);
                 } catch (error) {
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
-                    setIsLoading(false);
                 }
-            } else {
-                setIsLoading(false);
             }
+
+            setIsLoading(false);
+            setHasCheckedAuth(true);
         };
 
         checkAuth();
     }, [dispatch]);
 
     useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            // Store the current path for redirect after login
-            dispatch(setRedirectPath(pathname));
+        if (hasCheckedAuth && !isLoading && !isAuthenticated) {
+            // Only set redirect path if user was not just logged out
+            const isFromLogout = sessionStorage.getItem('justLoggedOut');
 
-            // Show toast message
-            ToastMessage.notifyError('Please login first to access this page');
+            if (!isFromLogout) {
+                // Store the current path for redirect after login
+                dispatch(setRedirectPath(pathname));
+                ToastMessage.notifyError('Please login first to access this page');
+            }
 
-            // Redirect to login
-            router.push('/login');
+            // Clear the logout flag
+            sessionStorage.removeItem('justLoggedOut');
         }
-    }, [isAuthenticated, isLoading, pathname, dispatch, router]);
+    }, [isAuthenticated, isLoading, hasCheckedAuth, pathname, dispatch, router]);
 
-    if (isLoading) {
+    if (isLoading || !hasCheckedAuth) {
         return <FullScreenLoader />;
     }
 

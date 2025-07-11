@@ -37,10 +37,10 @@ export default function RegisterPage() {
     const [register, { isLoading }] = useRegisterMutation();
     const isAuthenticated = useSelector(selectIsAuthenticated);
 
-    // Redirect if already authenticated
+    // Redirect if already authenticated - go to homepage instead of dashboard
     useEffect(() => {
         if (isAuthenticated) {
-            router.push('/dashboard');
+            router.push('/');
         }
     }, [isAuthenticated, router]);
 
