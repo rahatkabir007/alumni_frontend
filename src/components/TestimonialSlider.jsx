@@ -105,7 +105,7 @@ const TestimonialSlider = () => {
                             {/* Content */}
                             <div className="flex-1 text-center md:text-left">
                                 <blockquote className="text-lg md:text-xl text-gray-200 italic mb-6 leading-relaxed">
-                                    "{testimonials[currentSlide].quote}"
+                                    &ldquo;{testimonials[currentSlide].quote}&rdquo;
                                 </blockquote>
                                 <div>
                                     <h4 className="text-xl font-bold text-white mb-1">

@@ -160,60 +160,6 @@ const Homepage = () => {
                 <section className="py-16 bg-gray-100">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="grid md:grid-cols-2 gap-12">
-                            {/* Announcements */}
-                            <ScrollReveal direction="left" delay={0.3}>
-                                <div>
-                                    <div className="flex items-center gap-4 mb-6">
-                                        <BlackTag>Latest</BlackTag>
-                                        <h3 className="text-2xl font-bold text-gray-900">Announcements</h3>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {[
-                                            {
-                                                title: 'Annual Alumni Reunion 2024',
-                                                date: 'December 15, 2024',
-                                                description: 'Join us for the biggest alumni gathering of the year at CIHS campus.',
-                                                type: 'Event'
-                                            },
-                                            {
-                                                title: 'Scholarship Program Launch',
-                                                date: 'January 1, 2024',
-                                                description: 'New merit-based scholarship program for current CIHS students funded by alumni.',
-                                                type: 'Program'
-                                            },
-                                            {
-                                                title: 'Alumni Achievement Awards',
-                                                date: 'November 30, 2024',
-                                                description: 'Nominate outstanding alumni for recognition in various categories.',
-                                                type: 'Award'
-                                            }
-                                        ].map((announcement, index) => (
-                                            <ElegantCard key={index} padding="md" className="hover:shadow-lg">
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
-                                                    <BlackTag size="xs">{announcement.type}</BlackTag>
-                                                </div>
-                                                <p className="text-sm text-blue-600 mb-2">{announcement.date}</p>
-                                                <p className="text-gray-600 text-sm">{announcement.description}</p>
-                                            </ElegantCard>
-                                        ))}
-                                    </div>
-                                    <div className="mt-6">
-                                        <BlackButton
-                                            variant="outline"
-                                            onClick={() => router.push('/events')}
-                                            icon={
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            }
-                                        >
-                                            View All Events
-                                        </BlackButton>
-                                    </div>
-                                </div>
-                            </ScrollReveal>
-
                             {/* Latest Blogs */}
                             <ScrollReveal direction="right" delay={0.3}>
                                 <div>
@@ -222,41 +168,39 @@ const Homepage = () => {
                                         <h3 className="text-2xl font-bold text-gray-900">Blog Posts</h3>
                                     </div>
                                     <div className="space-y-4">
-                                        {[
-                                            {
-                                                title: 'My Journey from CIHS to Silicon Valley',
-                                                author: 'Ahmed Rahman',
-                                                date: 'November 20, 2024',
-                                                excerpt: 'How the foundation laid at CIHS helped me succeed in the tech industry...',
-                                                category: 'Career'
-                                            },
-                                            {
-                                                title: 'Memories of Golden Days at CIHS',
-                                                author: 'Nasir Uddin',
-                                                date: 'November 15, 2024',
-                                                excerpt: 'Nostalgic memories of school days and the teachers who shaped our lives...',
-                                                category: 'Memories'
-                                            },
+                                        {{
+                                            title: 'My Journey from CIHS to Silicon Valley',
+                                            author: 'Ahmed Rahman',
+                                            date: 'November 20, 2024',
+                                            excerpt: 'How the foundation laid at CIHS helped me succeed in the tech industry...',
+                                            category: 'Career'
+                                        },
+                                        {
+                                            title: 'Memories of Golden Days at CIHS',
+                                            author: 'Nasir Uddin',
+                                            date: 'November 15, 2024',
+                                            excerpt: 'Nostalgic memories of school days and the teachers who shaped our lives...',
+                                            category: 'Memories'
+                                        },
                                             {
                                                 title: 'Building a Startup: Lessons from CIHS',
                                                 author: 'Fatima Sheikh',
                                                 date: 'November 10, 2024',
                                                 excerpt: 'How the entrepreneurial spirit was nurtured during my time at CIHS...',
                                                 category: 'Business'
-                                            }
-                                        ].map((blog, index) => (
-                                            <ElegantCard key={index} padding="md" className="hover:shadow-lg">
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-semibold text-gray-900">{blog.title}</h4>
-                                                    <BlackTag size="xs">{blog.category}</BlackTag>
-                                                </div>
-                                                <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
-                                                    <span>By {blog.author}</span>
-                                                    <span>{blog.date}</span>
-                                                </div>
-                                                <p className="text-gray-600 text-sm">{blog.excerpt}</p>
-                                            </ElegantCard>
-                                        ))}
+                                            }.map((blog, index) => (
+                                                <ElegantCard key={index} padding="md" className="hover:shadow-lg">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <h4 className="font-semibold text-gray-900">{blog.title}</h4>
+                                                        <BlackTag size="xs">{blog.category}</BlackTag>
+                                                    </div>
+                                                    <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
+                                                        <span>By {blog.author}</span>
+                                                        <span>{blog.date}</span>
+                                                    </div>
+                                                    <p className="text-gray-600 text-sm">{blog.excerpt}</p>
+                                                </ElegantCard>
+                                            ))}
                                     </div>
                                     <div className="mt-6">
                                         <BlackButton
