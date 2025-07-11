@@ -53,7 +53,7 @@ const StudentsPage = () => {
             profession: 'Pediatrician',
             location: 'Chittagong, Bangladesh',
             image: '/images/alumni/ayesha.jpg',
-            achievements: 'Founder of Children\'s Health Foundation'
+            achievements: 'Founder of Children&apos;s Health Foundation'
         },
         {
             id: 5,

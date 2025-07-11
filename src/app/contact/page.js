@@ -119,7 +119,7 @@ const ContactPage = () => {
                             Get in Touch
                         </h1>
                         <p className="text-xl max-w-3xl mx-auto text-gray-300">
-                            We're here to help! Whether you have questions, need assistance, or want to get involved with the CIHS alumni community, don't hesitate to reach out.
+                            We&apos;re here to help! Whether you have questions, need assistance, or want to get involved with the CIHS alumni community, don&apos;t hesitate to reach out.
                         </p>
                     </div>
                 </section>

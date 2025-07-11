@@ -162,38 +162,36 @@ const AboutPage = () => {
                         </ScrollReveal>
 
                         <StaggerContainer staggerDelay={0.2} className="grid md:grid-cols-3 gap-8">
-                            {[
-                                {
-                                    icon: '📚',
-                                    title: 'Academic Excellence',
-                                    description: 'Committed to providing the highest quality education and fostering a love for learning.'
-                                },
-                                {
-                                    icon: '🤝',
-                                    title: 'Integrity & Character',
-                                    description: 'Building strong moral character and ethical leadership in all our students.'
-                                },
-                                {
-                                    icon: '🌍',
-                                    title: 'Global Perspective',
-                                    description: 'Preparing students to be responsible global citizens and leaders.'
-                                },
-                                {
-                                    icon: '💡',
-                                    title: 'Innovation',
-                                    description: 'Encouraging creativity, critical thinking, and innovative problem-solving.'
-                                },
-                                {
-                                    icon: '🎯',
-                                    title: 'Excellence',
-                                    description: 'Striving for excellence in all aspects of education and personal development.'
-                                },
-                                {
-                                    icon: '❤️',
-                                    title: 'Community Service',
-                                    description: 'Instilling a spirit of service and contribution to the community.'
-                                }
-                            ].map((value, index) => (
+                            {[{
+                                icon: '📚',
+                                title: 'Academic Excellence',
+                                description: 'Committed to providing the highest quality education and fostering a love for learning.'
+                            },
+                            {
+                                icon: '🤝',
+                                title: 'Integrity & Character',
+                                description: 'Building strong moral character and ethical leadership in all our students.'
+                            },
+                            {
+                                icon: '🌍',
+                                title: 'Global Perspective',
+                                description: 'Preparing students to be responsible global citizens and leaders.'
+                            },
+                            {
+                                icon: '💡',
+                                title: 'Innovation',
+                                description: 'Encouraging creativity, critical thinking, and innovative problem-solving.'
+                            },
+                            {
+                                icon: '🎯',
+                                title: 'Excellence',
+                                description: 'Striving for excellence in all aspects of education and personal development.'
+                            },
+                            {
+                                icon: '❤️',
+                                title: 'Community Service',
+                                description: 'Instilling a spirit of service and contribution to the community.'
+                            }].map((value, index) => (
                                 <ElegantCard key={index} className="text-center group">
                                     <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">
                                         {value.icon}
@@ -219,26 +217,24 @@ const AboutPage = () => {
                         </ScrollReveal>
 
                         <div className="grid md:grid-cols-2 gap-8">
-                            {[
-                                {
-                                    title: 'Academic Recognition',
-                                    achievements: [
-                                        'Top 10 Schools in Chittagong Division',
-                                        '95% SSC Pass Rate (2023)',
-                                        'National Science Fair Winners',
-                                        'Inter-School Debate Champions'
-                                    ]
-                                },
-                                {
-                                    title: 'Alumni Success',
-                                    achievements: [
-                                        'Alumni in 25+ Countries',
-                                        'Prominent Leaders in Various Fields',
-                                        'Successful Entrepreneurs & Innovators',
-                                        'Dedicated Public Servants'
-                                    ]
-                                }
-                            ].map((section, index) => (
+                            {[{
+                                title: 'Academic Recognition',
+                                achievements: [
+                                    'Top 10 Schools in Chittagong Division',
+                                    '95% SSC Pass Rate (2023)',
+                                    'National Science Fair Winners',
+                                    'Inter-School Debate Champions'
+                                ]
+                            },
+                            {
+                                title: 'Alumni Success',
+                                achievements: [
+                                    'Alumni in 25+ Countries',
+                                    'Prominent Leaders in Various Fields',
+                                    'Successful Entrepreneurs & Innovators',
+                                    'Dedicated Public Servants'
+                                ]
+                            }].map((section, index) => (
                                 <ElegantCard key={index}>
                                     <h3 className="text-xl font-bold text-gray-900 mb-4">{section.title}</h3>
                                     <ul className="space-y-2">
