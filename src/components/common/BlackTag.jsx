@@ -19,13 +19,16 @@ const BlackTag = ({
         subtle: 'bg-gray-100 text-black'
     }
 
+    // Check if className contains custom styling
+    const hasCustomStyling = className.includes('bg-') || className.includes('text-')
+
     const baseClasses = `
         inline-flex items-center
         font-medium
         rounded-full
         transition-all duration-200
         ${sizeClasses[size]}
-        ${variantClasses[variant]}
+        ${hasCustomStyling ? '' : variantClasses[variant]}
         ${className}
     `.trim()
 

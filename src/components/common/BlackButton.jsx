@@ -29,10 +29,13 @@ const BlackButton = ({
 
     const disabledClasses = "opacity-50 cursor-not-allowed"
 
+    // If className contains custom styling, use it, otherwise use variant classes
+    const hasCustomStyling = className.includes('bg-') || className.includes('text-')
+
     const buttonClasses = `
         ${baseClasses} 
         ${sizeClasses[size]} 
-        ${variantClasses[variant]} 
+        ${hasCustomStyling ? '' : variantClasses[variant]} 
         ${disabled ? disabledClasses : 'hover:-translate-y-1'} 
         ${className}
     `.trim()
