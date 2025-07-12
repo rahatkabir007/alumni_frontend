@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useRegisterMutation } from '@/redux/features/auth/authApi';
 import { selectIsAuthenticated } from '@/redux/features/auth/authSlice';
 import { ToastMessage } from '@/utils/ToastMessage';
 
@@ -34,6 +35,7 @@ export default function RegisterPage() {
     const dispatch = useDispatch();
     const [submitError, setSubmitError] = useState(null);
 
+    const [register, { isLoading }] = useRegisterMutation();
     const isAuthenticated = useSelector(selectIsAuthenticated);
 
     // Redirect if already authenticated
@@ -47,39 +49,22 @@ export default function RegisterPage() {
         setSubmitError(null);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                    name: values.name,
-                    email: values.email,
-                    password: values.password,
-                }),
-            });
+            const result = await register({
+                name: values.name,
+                email: values.email,
+                password: values.password,
+            }).unwrap();
 
-            const result = await response.json();
-
-            if (response.ok && result.success) {
+            if (result.success) {
                 ToastMessage.notifySuccess('Account created successfully! Please login.');
                 router.push('/login?message=Account created successfully');
             } else {
-                const errorMessage = result.message || 'Something went wrong';
-                setSubmitError(errorMessage);
-                ToastMessage.notifyError(errorMessage);
+                setSubmitError(result.message || 'Something went wrong');
+                ToastMessage.notifyError(result.message || 'Something went wrong');
             }
         } catch (error) {
             console.error('Register error:', error);
-            let errorMessage = 'Network error. Please try again.';
-
-            if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                errorMessage = 'Unable to connect to server. Please check your connection.';
-            } else if (error.message) {
-                errorMessage = error.message;
-            }
-
+            const errorMessage = error.data?.message || 'Network error. Please try again.';
             setSubmitError(errorMessage);
             ToastMessage.notifyError(errorMessage);
         } finally {
