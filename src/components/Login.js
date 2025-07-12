@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useLoginMutation } from '@/redux/features/auth/authApi';
 import { setCredentials, selectIsAuthenticated, selectRedirectPath, clearRedirectPath } from '@/redux/features/auth/authSlice';
 import { ToastMessage } from '@/utils/ToastMessage';
 
@@ -17,8 +16,8 @@ export default function Login() {
         password: ''
     });
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const [login, { isLoading }] = useLoginMutation();
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const redirectPath = useSelector(selectRedirectPath);
 
@@ -62,11 +61,21 @@ export default function Login() {
     const handleEmailLogin = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
 
         try {
-            const result = await login(formData).unwrap();
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData),
+            });
 
-            if (result.success) {
+            const result = await response.json();
+
+            if (response.ok && result.success) {
                 dispatch(setCredentials({
                     user: result.data.user,
                     token: result.data.token
@@ -74,14 +83,25 @@ export default function Login() {
 
                 ToastMessage.notifySuccess('Login successful!');
             } else {
-                setError(result.message || 'Login failed');
-                ToastMessage.notifyError(result.message || 'Login failed');
+                const errorMessage = result.message || 'Login failed';
+                setError(errorMessage);
+                ToastMessage.notifyError(errorMessage);
             }
         } catch (err) {
             console.error('Login error:', err);
-            const errorMessage = err.data?.message || 'Network error. Please try again.';
+            let errorMessage = 'Network error. Please try again.';
+
+            // Better error handling for different scenarios
+            if (err.name === 'TypeError' && err.message.includes('fetch')) {
+                errorMessage = 'Unable to connect to server. Please check your connection.';
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+
             setError(errorMessage);
             ToastMessage.notifyError(errorMessage);
+        } finally {
+            setIsLoading(false);
         }
     };
 
