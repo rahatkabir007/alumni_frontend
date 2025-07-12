@@ -130,7 +130,7 @@ const TeacherDetailsPage = ({ params }) => {
                                 </div>
 
                                 <blockquote className="text-lg sm:text-xl italic text-gray-300 border-l-4 border-white pl-4">
-                                    "{teacher.quote}"
+                                    &ldquo;{teacher.quote}&rdquo;
                                 </blockquote>
                             </div>
 
@@ -301,7 +301,7 @@ const TeacherDetailsPage = ({ params }) => {
                                         <div className="space-y-4">
                                             {teacher.studentsFeedback.map((feedback, index) => (
                                                 <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                                                    <p className="text-gray-700 mb-2 italic">"{feedback.feedback}"</p>
+                                                    <p className="text-gray-700 mb-2 italic">&ldquo;{feedback.feedback}&rdquo;</p>
                                                     <div className="text-sm">
                                                         <p className="font-medium text-gray-900">{feedback.name}</p>
                                                         <p className="text-gray-500">{feedback.batch}</p>
