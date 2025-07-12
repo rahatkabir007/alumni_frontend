@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import ScrollReveal from '@/components/animations/ScrollReveal'
 import StaggerContainer from '@/components/animations/StaggerContainer'
@@ -10,6 +11,7 @@ import BlackTag from '@/components/common/BlackTag'
 import Link from 'next/link'
 
 const TeachersPage = () => {
+    const router = useRouter()
     const [selectedDepartment, setSelectedDepartment] = useState('all')
     const [selectedStatus, setSelectedStatus] = useState('all')
 
