@@ -43,10 +43,10 @@ const Homepage = () => {
         return (
             <div className="bg-gray-50">
                 {/* Static content for SSR */}
-                <div className="h-[70vh] bg-gradient-to-r from-black to-gray-800 flex items-center justify-center">
-                    <div className="text-center text-white">
-                        <h1 className="text-4xl md:text-6xl font-bold mb-4">CIHS Alumni Network</h1>
-                        <p className="text-xl">Chittagong Ideal High School</p>
+                <div className="h-[50vh] sm:h-[60vh] lg:h-[70vh] bg-gradient-to-r from-black to-gray-800 flex items-center justify-center">
+                    <div className="text-center text-white px-4">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold mb-2 sm:mb-4">CIHS Alumni Network</h1>
+                        <p className="text-sm sm:text-lg lg:text-xl">Chittagong Ideal High School</p>
                     </div>
                 </div>
             </div>
@@ -60,29 +60,30 @@ const Homepage = () => {
 
             {/* School Brief Section */}
             <ScrollReveal direction="up" delay={0.2}>
-                <section className="py-16 bg-white">
+                <section className="py-8 sm:py-12 lg:py-16 bg-white">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid md:grid-cols-2 gap-12 items-center">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                             <ScrollReveal direction="left" delay={0.3}>
-                                <div>
-                                    <BlackTag className="mb-4">Established 1998</BlackTag>
-                                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                                <div className="order-2 lg:order-1">
+                                    <BlackTag className="mb-3 sm:mb-4">Established 1998</BlackTag>
+                                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
                                         About Chittagong Ideal High School
                                     </h2>
-                                    <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                                    <p className="text-base sm:text-lg text-gray-600 mb-4 sm:mb-6 leading-relaxed">
                                         Established in 1998, Chittagong Ideal High School (CIHS) has been a beacon of
                                         educational excellence in Chittagong. From nursery to class 10, we have nurtured
                                         thousands of students who have gone on to become leaders in various fields around the world.
                                     </p>
-                                    <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                                    <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 leading-relaxed">
                                         Our commitment to quality education, moral values, and character building has
                                         produced graduates who are not only academically successful but also responsible
                                         citizens contributing to society.
                                     </p>
                                     <BlackButton
                                         onClick={() => router.push('/about')}
+                                        className="w-full sm:w-auto"
                                         icon={
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                             </svg>
                                         }
@@ -93,18 +94,18 @@ const Homepage = () => {
                             </ScrollReveal>
 
                             <ScrollReveal direction="right" delay={0.4}>
-                                <ElegantCard className="relative overflow-hidden">
+                                <ElegantCard className="relative overflow-hidden order-1 lg:order-2">
                                     <Image
                                         src="/images/cihs-main-building.jpg"
                                         alt="CIHS Main Building"
                                         width={500}
                                         height={256}
-                                        className="rounded-lg w-full h-64 object-cover"
+                                        className="rounded-lg w-full h-48 sm:h-56 lg:h-64 object-cover"
                                         style={{ backgroundColor: '#e5e7eb' }}
                                     />
-                                    <div className="absolute -bottom-4 -right-4 bg-black text-white p-4 rounded-lg shadow-lg">
-                                        <div className="text-2xl font-bold">27+</div>
-                                        <div className="text-sm">Years of Excellence</div>
+                                    <div className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 bg-black text-white p-2 sm:p-4 rounded-lg shadow-lg">
+                                        <div className="text-lg sm:text-2xl font-bold">27+</div>
+                                        <div className="text-xs sm:text-sm">Years of Excellence</div>
                                     </div>
                                 </ElegantCard>
                             </ScrollReveal>
@@ -115,16 +116,16 @@ const Homepage = () => {
 
             {/* Statistics Section */}
             <ScrollReveal direction="up" delay={0.3}>
-                <section className="py-16 bg-black text-white relative">
+                <section className="py-12 sm:py-16 bg-black text-white relative">
                     <FloatingElements count={6} className="opacity-10" />
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                         <ScrollReveal direction="fade" delay={0.1}>
-                            <h2 className="text-3xl font-bold text-center mb-12">
+                            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 px-4">
                                 CIHS Alumni Network by Numbers
                             </h2>
                         </ScrollReveal>
 
-                        <StaggerContainer staggerDelay={0.15} className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        <StaggerContainer staggerDelay={0.15} className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                             {[
                                 { number: 5000, label: 'Alumni Members', suffix: '+' },
                                 { number: 27, label: 'Years of Excellence', suffix: '+' },
@@ -136,10 +137,10 @@ const Homepage = () => {
                                         to={stat.number}
                                         suffix={stat.suffix}
                                         duration={2 + index * 0.3}
-                                        className="text-3xl md:text-4xl font-bold mb-2 block"
+                                        className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2 block"
                                         threshold={0.3}
                                     />
-                                    <div className="text-gray-300">{stat.label}</div>
+                                    <div className="text-gray-300 text-xs sm:text-sm lg:text-base px-1">{stat.label}</div>
                                 </AnimatedCard>
                             ))}
                         </StaggerContainer>
@@ -149,12 +150,12 @@ const Homepage = () => {
 
             {/* Testimonials Section with Slider */}
             <ScrollReveal direction="up" delay={0.2}>
-                <section className="py-16 bg-white">
+                <section className="py-12 sm:py-16 bg-white">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <ScrollReveal direction="scale" delay={0.1}>
-                            <div className="text-center mb-12">
-                                <BlackTag className="mb-4">Testimonials</BlackTag>
-                                <h2 className="text-3xl font-bold text-gray-900">
+                            <div className="text-center mb-8 sm:mb-12">
+                                <BlackTag className="mb-3 sm:mb-4">Testimonials</BlackTag>
+                                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 px-4">
                                     What Our Alumni & Teachers Say
                                 </h2>
                             </div>
@@ -167,17 +168,17 @@ const Homepage = () => {
 
             {/* Latest Announcements & Events */}
             <ScrollReveal direction="up" delay={0.2}>
-                <section className="py-16 bg-gray-100">
+                <section className="py-12 sm:py-16 bg-gray-100">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid md:grid-cols-2 gap-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                             {/* Announcements */}
                             <ScrollReveal direction="left" delay={0.3}>
                                 <div>
-                                    <div className="flex items-center gap-4 mb-6">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-6">
                                         <BlackTag>Latest</BlackTag>
-                                        <h3 className="text-2xl font-bold text-gray-900">Announcements</h3>
+                                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Announcements</h3>
                                     </div>
-                                    <div className="space-y-4">
+                                    <div className="space-y-3 sm:space-y-4">
                                         {[{
                                             title: 'Annual Alumni Reunion 2024',
                                             date: 'December 15, 2024',
@@ -198,19 +199,20 @@ const Homepage = () => {
                                         }
                                         ].map((announcement, index) => (
                                             <ElegantCard key={index} padding="md" className="hover:shadow-lg">
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
-                                                    <BlackTag size="xs">{announcement.type}</BlackTag>
+                                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-2">
+                                                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{announcement.title}</h4>
+                                                    <BlackTag size="xs" className="self-start">{announcement.type}</BlackTag>
                                                 </div>
-                                                <p className="text-sm text-blue-600 mb-2">{announcement.date}</p>
-                                                <p className="text-gray-600 text-sm">{announcement.description}</p>
+                                                <p className="text-xs sm:text-sm text-blue-600 mb-2">{announcement.date}</p>
+                                                <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">{announcement.description}</p>
                                             </ElegantCard>
                                         ))}
                                     </div>
-                                    <div className="mt-6">
+                                    <div className="mt-4 sm:mt-6">
                                         <BlackButton
                                             variant="outline"
                                             onClick={() => router.push('/events')}
+                                            className="w-full sm:w-auto"
                                             icon={
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -226,11 +228,11 @@ const Homepage = () => {
                             {/* Latest Blogs */}
                             <ScrollReveal direction="right" delay={0.3}>
                                 <div>
-                                    <div className="flex items-center gap-4 mb-6">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-6">
                                         <BlackTag>Featured</BlackTag>
-                                        <h3 className="text-2xl font-bold text-gray-900">Blog Posts</h3>
+                                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Blog Posts</h3>
                                     </div>
-                                    <div className="space-y-4">
+                                    <div className="space-y-3 sm:space-y-4">
                                         {[{
                                             title: 'My Journey from CIHS to Silicon Valley',
                                             author: 'Ahmed Rahman',
@@ -253,22 +255,23 @@ const Homepage = () => {
                                             category: 'Business'
                                         }].map((blog, index) => (
                                             <ElegantCard key={index} padding="md" className="hover:shadow-lg">
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-semibold text-gray-900">{blog.title}</h4>
-                                                    <BlackTag size="xs">{blog.category}</BlackTag>
+                                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 gap-2">
+                                                    <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{blog.title}</h4>
+                                                    <BlackTag size="xs" className="self-start">{blog.category}</BlackTag>
                                                 </div>
-                                                <div className="flex justify-between items-center text-sm text-gray-500 mb-2">
+                                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xs sm:text-sm text-gray-500 mb-2 gap-1">
                                                     <span>By {blog.author}</span>
                                                     <span>{blog.date}</span>
                                                 </div>
-                                                <p className="text-gray-600 text-sm">{blog.excerpt}</p>
+                                                <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">{blog.excerpt}</p>
                                             </ElegantCard>
                                         ))}
                                     </div>
-                                    <div className="mt-6">
+                                    <div className="mt-4 sm:mt-6">
                                         <BlackButton
                                             variant="outline"
                                             onClick={() => router.push('/blogs')}
+                                            className="w-full sm:w-auto"
                                             icon={
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -287,30 +290,30 @@ const Homepage = () => {
 
             {/* Call to Action Section */}
             <ScrollReveal direction="up" delay={0.3}>
-                <section className="py-16 bg-black text-white relative">
+                <section className="py-12 sm:py-16 bg-black text-white relative">
                     <FloatingElements count={5} />
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
                         <ScrollReveal direction="scale" delay={0.1}>
-                            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 px-4">
                                 Join the CIHS Alumni Community
                             </h2>
                         </ScrollReveal>
 
                         <ScrollReveal direction="fade" delay={0.2}>
-                            <p className="text-xl mb-8 text-gray-300">
+                            <p className="text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 text-gray-300 px-4">
                                 Connect with fellow alumni, share your success stories, and give back to your alma mater.
                             </p>
                         </ScrollReveal>
 
                         <ScrollReveal direction="up" delay={0.3}>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
                                 {!isAuthenticated ? (
                                     <>
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => router.push('/register')}
-                                            className="bg-white text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors"
+                                            className="bg-white text-black px-6 sm:px-8 py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-gray-100 transition-colors w-full sm:w-auto"
                                         >
                                             Join Alumni Network
                                         </motion.button>
@@ -318,7 +321,7 @@ const Homepage = () => {
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => router.push('/login')}
-                                            className="border-2 border-white text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-black transition-colors"
+                                            className="border-2 border-white text-white px-6 sm:px-8 py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-white hover:text-black transition-colors w-full sm:w-auto"
                                         >
                                             Sign In
                                         </motion.button>
@@ -328,7 +331,7 @@ const Homepage = () => {
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => router.push('/dashboard')}
-                                        className="bg-white text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors"
+                                        className="bg-white text-black px-6 sm:px-8 py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-gray-100 transition-colors w-full sm:w-auto max-w-xs"
                                     >
                                         Go to Dashboard
                                     </motion.button>

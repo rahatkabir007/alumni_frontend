@@ -217,13 +217,15 @@ const StudentsPage = () => {
                         <p className="text-lg text-gray-300 mb-8">
                             Join our alumni network and connect with your fellow graduates. Share your story and inspire current students.
                         </p>
-                        <BlackButton
-                            onClick={() => router.push('/register')}
-                            size="lg"
-                            className="bg-white text-black hover:bg-gray-200"
-                        >
-                            Join Alumni Network
-                        </BlackButton>
+                        <div className='flex justify-center items-center'>
+                            <BlackButton
+                                onClick={() => router.push('/register')}
+                                size="lg"
+                                className="bg-white text-black hover:bg-gray-200"
+                            >
+                                Join Alumni Network
+                            </BlackButton>
+                        </div>
                     </div>
                 </section>
             </ScrollReveal>

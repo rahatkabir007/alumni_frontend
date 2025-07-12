@@ -308,17 +308,19 @@ const EventsPage = () => {
                             Have an idea for an alumni event? We&apos;d love to help you bring the community together.
                             Contact our events team to discuss your proposal.
                         </p>
-                        <BlackButton
-                            size="lg"
-                            className="bg-white text-black hover:bg-gray-200"
-                            icon={
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            }
-                        >
-                            Propose an Event
-                        </BlackButton>
+                        <div className="flex justify-center items-center">
+                            <BlackButton
+                                size="lg"
+                                className="bg-white text-black hover:bg-gray-200"
+                                icon={
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                }
+                            >
+                                Propose an Event
+                            </BlackButton>
+                        </div>
                     </div>
                 </section>
             </ScrollReveal>

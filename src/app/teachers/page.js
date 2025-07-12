@@ -249,13 +249,15 @@ const TeachersPage = () => {
                         <p className="text-lg text-gray-300 mb-8">
                             Join our dedicated team of educators and help shape the next generation of leaders.
                         </p>
-                        <BlackButton
-                            onClick={() => router.push('/contact')}
-                            size="lg"
-                            className="bg-white text-black hover:bg-gray-200"
-                        >
-                            Contact HR Department
-                        </BlackButton>
+                        <div className='flex justify-center items-center'>
+                            <BlackButton
+                                onClick={() => router.push('/contact')}
+                                size="lg"
+                                className="bg-white text-black hover:bg-gray-200"
+                            >
+                                Contact HR Department
+                            </BlackButton>
+                        </div>
                     </div>
                 </section>
             </ScrollReveal>
