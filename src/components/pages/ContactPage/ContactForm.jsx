@@ -69,12 +69,12 @@ const ContactForm = () => {
                                 placeholder="Your full name"
                                 required
                                 useFormik={true}
-                                backgroundColor="bg-white"
-                                borderColor="border-gray-300"
-                                textColor="text-gray-900"
+                                backgroundColor="bg-white/10"
+                                borderColor="border-gray-600"
+                                textColor="text-white"
                                 placeholderColor="placeholder-gray-400"
-                                focusBorderColor="focus:border-black"
-                                focusRingColor="focus:ring-black/10"
+                                focusBorderColor="focus:border-white/30"
+                                focusRingColor="focus:ring-white/20"
                             />
 
                             <InputComponent1
