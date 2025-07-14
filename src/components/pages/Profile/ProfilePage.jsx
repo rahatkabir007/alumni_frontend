@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '@/redux/features/auth/authSlice'
 
 
-const DashboardPage = () => {
+const ProfilePage = () => {
   const user = useSelector(selectCurrentUser)
   return (
     <div className="bg-gray-50 py-8">
@@ -12,8 +12,8 @@ const DashboardPage = () => {
           Welcome back, {user?.name}!
         </h1>
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Dashboard Content</h2>
-          <p className="text-gray-600">This is your protected dashboard page.</p>
+          <h2 className="text-xl font-semibold mb-4">Profile Content</h2>
+          <p className="text-gray-600">This is your protected Profile page.</p>
 
           {user && (
             <div className="mt-6">
@@ -48,4 +48,4 @@ const DashboardPage = () => {
   )
 }
 
-export default DashboardPage
+export default ProfilePage

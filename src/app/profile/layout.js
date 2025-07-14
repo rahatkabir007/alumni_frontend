@@ -2,7 +2,7 @@
 
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
 
-const DashboardLayout = ({
+const ProfileLayout = ({
     children
 }) => {
     return (
@@ -12,4 +12,4 @@ const DashboardLayout = ({
     )
 }
 
-export default DashboardLayout
+export default ProfileLayout

@@ -92,21 +92,12 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                                     <div className="absolute right-0 mt-2 w-48 bg-gray-900 rounded-md shadow-xl border border-gray-700 py-1 z-50">
                                         <button
                                             onClick={() => {
-                                                router.push('/dashboard')
-                                                setIsDropdownOpen(false)
-                                            }}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white"
-                                        >
-                                            Dashboard
-                                        </button>
-                                        <button
-                                            onClick={() => {
                                                 router.push('/profile')
                                                 setIsDropdownOpen(false)
                                             }}
                                             className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white"
                                         >
-                                            My Profile
+                                            Profile
                                         </button>
                                         <hr className="my-1 border-gray-700" />
                                         <button
@@ -240,21 +231,12 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                                         </div>
                                         <button
                                             onClick={() => {
-                                                router.push('/dashboard')
-                                                setIsMobileMenuOpen(false)
-                                            }}
-                                            className="block w-full text-left text-gray-300 hover:text-white py-2 text-base"
-                                        >
-                                            Dashboard
-                                        </button>
-                                        <button
-                                            onClick={() => {
                                                 router.push('/profile')
                                                 setIsMobileMenuOpen(false)
                                             }}
                                             className="block w-full text-left text-gray-300 hover:text-white py-2 text-base"
                                         >
-                                            My Profile
+                                            Profile
                                         </button>
                                         <button
                                             onClick={() => {

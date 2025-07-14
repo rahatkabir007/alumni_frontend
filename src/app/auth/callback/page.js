@@ -43,7 +43,7 @@ function AuthCallbackContent() {
 
                     ToastMessage.notifySuccess('Login successful!');
 
-                    // Redirect to homepage instead of dashboard
+                    // Redirect to homepage instead of profile
                     router.push('/');
                 } else {
                     setError('Missing authentication data');

@@ -47,6 +47,7 @@ const ProtectedRoute = ({ children }) => {
                 // Store the current path for redirect after login
                 dispatch(setRedirectPath(pathname));
                 ToastMessage.notifyError('Please login first to access this page');
+                router.push("/login")
             }
 
             // Clear the logout flag

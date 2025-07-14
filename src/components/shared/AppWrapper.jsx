@@ -10,6 +10,7 @@ import {
     logout
 } from '@/redux/features/auth/authSlice';
 import { ToastMessage } from '@/utils/ToastMessage';
+import { authPages, protectedRoutes } from '@/datas/importanDatas';
 
 const AppWrapper = ({ children }) => {
     const pathname = usePathname();
@@ -18,12 +19,8 @@ const AppWrapper = ({ children }) => {
     const user = useSelector(selectCurrentUser);
     const [isInitialized, setIsInitialized] = useState(false);
 
-    // Pages where Navigation and Footer should be hidden
-    const authPages = ['/login', '/register'];
     const shouldShowNavigation = !authPages.includes(pathname);
 
-    // Define protected routes
-    const protectedRoutes = ['/dashboard', '/profile'];
 
     useEffect(() => {
         // Check if user is already logged in on app initialization

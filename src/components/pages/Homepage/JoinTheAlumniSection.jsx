@@ -46,10 +46,10 @@ const JoinTheAlumniSection = ({
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={() => router.push('/dashboard')}
+                                    onClick={() => router.push('/profile')}
                                     className="bg-white text-black px-6 sm:px-8 py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-gray-100 transition-colors w-full sm:w-auto max-w-xs"
                                 >
-                                    Go to Dashboard
+                                    Go to Profile
                                 </motion.button>
                             )}
                         </div>

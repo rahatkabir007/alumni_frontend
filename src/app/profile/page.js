@@ -1,6 +1,6 @@
 "use client";
 
-import DashboardPage from "@/components/pages/Dashboard/DashboardPage";
+import DashboardPage from "@/components/pages/Profile/ProfilePage";
 
 const page = ({
 
