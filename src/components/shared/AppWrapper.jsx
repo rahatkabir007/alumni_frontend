@@ -2,38 +2,53 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
-import Navigation from '@/components/shared/Navigation';
-import Footer from '@/components/shared/Footer';
 import {
     selectCurrentUser,
+    selectIsAuthenticated,
+    selectToken,
     initializeAuth,
     logout
 } from '@/redux/features/auth/authSlice';
+import { useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi';
 import { ToastMessage } from '@/utils/ToastMessage';
-import { authPages, protectedRoutes } from '@/datas/importanDatas';
+import Navigation from './Navigation';
+import Footer from './Footer';
 
 const AppWrapper = ({ children }) => {
     const pathname = usePathname();
     const router = useRouter();
     const dispatch = useDispatch();
     const user = useSelector(selectCurrentUser);
+    const isAuthenticated = useSelector(selectIsAuthenticated);
+    const token = useSelector(selectToken);
     const [isInitialized, setIsInitialized] = useState(false);
 
+    // Lazy query for fetching user data
+    const [triggerGetUser, { data: userData, isLoading: isFetchingUser }] = useLazyGetCurrentUserQuery();
+
+    // Pages where Navigation and Footer should be hidden
+    const authPages = ['/login', '/register'];
     const shouldShowNavigation = !authPages.includes(pathname);
 
+    // Define protected routes
+    const protectedRoutes = ['/dashboard', '/profile'];
 
     useEffect(() => {
         // Check if user is already logged in on app initialization
-        const initializeAuthState = () => {
-            const token = localStorage.getItem('token');
-            const userData = localStorage.getItem('user');
+        const initializeAuthState = async () => {
+            const storedToken = localStorage.getItem('token');
+            const storedUser = localStorage.getItem('user');
 
-            if (token && userData) {
+            if (storedToken && storedUser) {
                 try {
-                    const parsedUser = JSON.parse(userData);
-                    dispatch(initializeAuth({ user: parsedUser, token }));
+                    const parsedUser = JSON.parse(storedUser);
+                    dispatch(initializeAuth({ user: parsedUser, token: storedToken }));
+
+                    // Fetch fresh user data to ensure we have the latest information
+                    await triggerGetUser();
                 } catch (error) {
-                    // Invalid user data, clear storage
+                    console.error('Error initializing auth:', error);
+                    // Invalid stored data, clear it
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
                 }
@@ -44,7 +59,24 @@ const AppWrapper = ({ children }) => {
         };
 
         initializeAuthState();
-    }, [dispatch]);
+    }, [dispatch, triggerGetUser]);
+
+    // Update user data when API call completes
+    useEffect(() => {
+        if (userData) {
+            dispatch(initializeAuth({
+                user: userData,
+                token: token || localStorage.getItem('token')
+            }));
+        }
+    }, [userData, dispatch, token]);
+
+    // Auto-fetch user data when authenticated but user data is missing
+    useEffect(() => {
+        if (isAuthenticated && token && !user && !isFetchingUser) {
+            triggerGetUser();
+        }
+    }, [isAuthenticated, token, user, triggerGetUser, isFetchingUser]);
 
     const handleLogout = () => {
         // Set flag to indicate this is a logout action

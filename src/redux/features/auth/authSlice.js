@@ -5,7 +5,8 @@ const initialState = {
     token: null,
     isAuthenticated: false,
     isLoading: false,
-    redirectPath: null
+    redirectPath: null,
+    lastFetched: null, // Track when user data was last fetched
 };
 
 export const authSlice = createSlice({
@@ -17,14 +18,22 @@ export const authSlice = createSlice({
             state.user = user;
             state.token = token;
             state.isAuthenticated = true;
+            state.lastFetched = Date.now();
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
+        },
+        // New action to update user data without changing token
+        updateUserData: (state, action) => {
+            state.user = { ...state.user, ...action.payload };
+            state.lastFetched = Date.now();
+            localStorage.setItem('user', JSON.stringify(state.user));
         },
         logout: (state) => {
             state.user = null;
             state.token = null;
             state.isAuthenticated = false;
             state.redirectPath = null;
+            state.lastFetched = null;
             localStorage.removeItem('token');
             localStorage.removeItem('user');
         },
@@ -43,6 +52,7 @@ export const authSlice = createSlice({
                 state.user = user;
                 state.token = token;
                 state.isAuthenticated = true;
+                state.lastFetched = Date.now();
             }
         }
     }
@@ -50,6 +60,7 @@ export const authSlice = createSlice({
 
 export const {
     setCredentials,
+    updateUserData,
     logout,
     setLoading,
     setRedirectPath,
@@ -65,3 +76,4 @@ export const selectToken = (state) => state.auth.token;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectIsLoading = (state) => state.auth.isLoading;
 export const selectRedirectPath = (state) => state.auth.redirectPath;
+export const selectLastFetched = (state) => state.auth.lastFetched;

@@ -6,13 +6,16 @@ export const apiSlice = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: BASE_URL,
         mode: "cors",
-        credentials: 'include', // This is equivalent to withCredentials: true
+        credentials: 'include',
         prepareHeaders: (headers, { getState }) => {
-            // headers.set('authorization', `Bearer ${getState().authToken.token || localStorage.getItem('access_token')}`);
-            headers.set('authorization', `Bearer ${localStorage.getItem('token')}`);
+            const token = getState().auth.token || localStorage.getItem('token');
+            if (token) {
+                headers.set('authorization', `Bearer ${token}`);
+            }
             return headers
         },
     }),
-    // tagTypes: ['tour', 'stop', 'stop-custom-map'],
+    // Add tag types for caching and invalidation
+    tagTypes: ['User', 'Alumni', 'Teachers', 'Events', 'Blogs'],
     endpoints: builder => ({}),
 })

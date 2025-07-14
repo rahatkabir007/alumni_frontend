@@ -1,11 +1,15 @@
 "use client";
 
-import DashboardPage from "@/components/pages/Profile/ProfilePage";
+import ProfilePage from '@/components/pages/Profile/ProfilePage'
+import ProtectedRoute from '@/components/shared/ProtectedRoute';
 
-const page = ({
 
-}) => {
-    return <DashboardPage />
+const page = () => {
+    return (
+        <ProtectedRoute>
+            <ProfilePage />
+        </ProtectedRoute>
+    )
 }
 
 export default page
