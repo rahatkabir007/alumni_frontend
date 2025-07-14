@@ -1,8 +1,10 @@
 import { AnimatedCard, CountUp, FloatingElements, ScrollReveal, StaggerContainer } from "@/components/animations"
-import { statistics } from "@/datas/homepage"
+import BlackTag from "./BlackTag"
 
 const StatisticsSection = ({
-
+    tag = "",
+    title = "CIHS Alumni Network by Numbers",
+    statistics = statistics,
 }) => {
     return (
         <ScrollReveal direction="up" delay={0.3}>
@@ -10,9 +12,13 @@ const StatisticsSection = ({
                 <FloatingElements count={6} className="opacity-10" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <ScrollReveal direction="fade" delay={0.1}>
-                        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 px-4">
-                            CIHS Alumni Network by Numbers
-                        </h2>
+                        <div className="text-center mb-12">
+                            {tag && <BlackTag className="mb-4 bg-white text-black">{tag}</BlackTag>}
+                            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 px-4">
+                                {title}
+                            </h2>
+                        </div>
+
                     </ScrollReveal>
 
                     <StaggerContainer staggerDelay={0.15} className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
