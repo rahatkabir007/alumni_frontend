@@ -8,6 +8,7 @@ import AboutSection from './AboutSection'
 import TestimonialsSection from './TestimonialsSection'
 import AnnouncementsAndBlogsSection from './AnnouncementsAndBlogsSection'
 import JoinTheAlumniSection from './JoinTheAlumniSection'
+import { statistics } from '@/datas/homepage'
 
 const Homepage = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -49,7 +50,7 @@ const Homepage = () => {
             <AboutSection />
 
             {/* Statistics Section */}
-            <StatisticsSection />
+            <StatisticsSection statistics={statistics} />
 
             {/* Testimonials Section with Slider */}
             <TestimonialsSection />

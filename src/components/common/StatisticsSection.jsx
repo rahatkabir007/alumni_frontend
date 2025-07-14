@@ -4,7 +4,7 @@ import BlackTag from "./BlackTag"
 const StatisticsSection = ({
     tag = "",
     title = "CIHS Alumni Network by Numbers",
-    statistics = statistics,
+    statistics = "",
 }) => {
     return (
         <ScrollReveal direction="up" delay={0.3}>
