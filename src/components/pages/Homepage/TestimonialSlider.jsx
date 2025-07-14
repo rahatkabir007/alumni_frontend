@@ -1,57 +1,10 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { testimonials } from '@/datas/homepage'
 
 const TestimonialSlider = () => {
     const [currentSlide, setCurrentSlide] = useState(0)
-
-    const testimonials = [
-        {
-            id: 1,
-            name: 'Dr. Rahman Ahmed',
-            role: 'CIHS Alumni (Class of 1985) - Surgeon at Johns Hopkins',
-            quote: 'CIHS gave me the foundation that led to my success in medicine. The values and discipline I learned here shaped my entire career.',
-            avatar: 'RA',
-            type: 'alumni',
-            image: '/images/alumni/dr-rahman.jpg'
-        },
-        {
-            id: 2,
-            name: 'Mrs. Fatima Khatun',
-            role: 'Mathematics Teacher at CIHS (1975-2010)',
-            quote: 'Teaching at CIHS for 35 years was the most rewarding experience. Watching our students become global leaders fills my heart with pride.',
-            avatar: 'FK',
-            type: 'teacher',
-            image: '/images/teachers/fatima-khatun.jpg'
-        },
-        {
-            id: 3,
-            name: 'Eng. Karim Hassan',
-            role: 'CIHS Alumni (Class of 1992) - Software Engineer at Google',
-            quote: 'The analytical thinking and problem-solving skills I developed at CIHS directly contributed to my success in the tech industry.',
-            avatar: 'KH',
-            type: 'alumni',
-            image: '/images/alumni/karim-hassan.jpg'
-        },
-        {
-            id: 4,
-            name: 'Prof. Nasir Uddin',
-            role: 'Former Principal of CIHS (1980-2005)',
-            quote: 'Leading CIHS for 25 years, I witnessed countless young minds transform into responsible global citizens. The legacy continues.',
-            avatar: 'NU',
-            type: 'teacher',
-            image: '/images/teachers/nasir-uddin.jpg'
-        },
-        {
-            id: 5,
-            name: 'Dr. Ayesha Begum',
-            role: 'CIHS Alumni (Class of 1990) - Pediatrician & Humanitarian',
-            quote: 'The compassion and service mindset instilled at CIHS drives my work in providing healthcare to underprivileged children.',
-            avatar: 'AB',
-            type: 'alumni',
-            image: '/images/alumni/ayesha-begum.jpg'
-        }
-    ]
 
     useEffect(() => {
         const timer = setInterval(() => {

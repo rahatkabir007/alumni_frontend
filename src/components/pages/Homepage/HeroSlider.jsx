@@ -1,33 +1,11 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { slides } from '@/datas/homepage'
 
 const HeroSlider = () => {
     const [currentSlide, setCurrentSlide] = useState(0)
 
-    const slides = [
-        {
-            id: 1,
-            image: '/images/cihs-building.jpg',
-            title: 'Welcome to CIHS Alumni Network',
-            subtitle: 'Chittagong Ideal High School - Excellence in Education Since 1998',
-            description: 'Connecting generations of students who have walked through our halls'
-        },
-        {
-            id: 2,
-            image: '/images/cihs-students.jpg',
-            title: 'Our Distinguished Alumni',
-            subtitle: 'From Nursery to Class 10 - A Journey of Growth',
-            description: 'Celebrating the achievements of our graduates across the globe'
-        },
-        {
-            id: 3,
-            image: '/images/cihs-campus.jpg',
-            title: 'Building Future Leaders',
-            subtitle: 'Quality Education, Strong Values, Bright Future',
-            description: 'Join our community of successful alumni making a difference worldwide'
-        }
-    ]
 
     useEffect(() => {
         const timer = setInterval(() => {
