@@ -2,8 +2,9 @@ import { Figtree } from "next/font/google";
 import "@/styles/globals.css";
 import StoreProvider from "../redux/StoreProvider";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import AppWrapper from "@/components/AppWrapper";
+
 import { Suspense } from "react";
+import AppWrapper from "@/components/shared/AppWrapper";
 
 const figtree = Figtree({
   variable: "--font-figtree",

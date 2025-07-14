@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import Navigation from '@/components/shared/Navigation';
+import Footer from '@/components/shared/Footer';
 import {
     selectCurrentUser,
     initializeAuth,
