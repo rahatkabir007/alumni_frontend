@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { setCredentials, selectIsAuthenticated, selectRedirectPath, clearRedirectPath } from '@/redux/features/auth/authSlice';
 import { ToastMessage } from '@/utils/ToastMessage';
 
-export default function Login() {
+export default function LoginPage() {
     const router = useRouter();
     const dispatch = useDispatch();
     const searchParams = useSearchParams();
@@ -104,61 +104,6 @@ export default function Login() {
             setIsLoading(false);
         }
     };
-
-
-    // const handleEmailLogin = async (e) => {
-    //     e.preventDefault();
-    //     setError('');
-    //     setIsLoading(true);
-
-    //     try {
-    //         const myHeaders = new Headers();
-    //         myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-
-    //         const urlencoded = new URLSearchParams();
-    //         urlencoded.append("email", formData.email);
-    //         urlencoded.append("password", formData.password);
-
-    //         const requestOptions = {
-    //             method: "POST",
-    //             headers: myHeaders,
-    //             body: urlencoded,
-    //             redirect: "follow",
-    //             credentials: 'include'
-    //         };
-
-    //         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, requestOptions);
-    //         const result = await response.json();
-
-    //         if (response.ok && result.success) {
-    //             dispatch(setCredentials({
-    //                 user: result.data.user,
-    //                 token: result.data.token
-    //             }));
-
-    //             ToastMessage.notifySuccess('Login successful!');
-    //         } else {
-    //             const errorMessage = result.message || 'Login failed';
-    //             setError(errorMessage);
-    //             ToastMessage.notifyError(errorMessage);
-    //         }
-    //     } catch (err) {
-    //         console.error('Login error:', err);
-    //         let errorMessage = 'Network error. Please try again.';
-
-    //         // Better error handling for different scenarios
-    //         if (err.name === 'TypeError' && err.message.includes('fetch')) {
-    //             errorMessage = 'Unable to connect to server. Please check your connection.';
-    //         } else if (err.message) {
-    //             errorMessage = err.message;
-    //         }
-
-    //         setError(errorMessage);
-    //         ToastMessage.notifyError(errorMessage);
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // };
 
     const handleGoogleLogin = () => {
         window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
