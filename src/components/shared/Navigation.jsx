@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -8,6 +8,24 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
     const router = useRouter()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const dropdownRef = useRef(null)
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false)
+            }
+        }
+
+        if (isDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [isDropdownOpen])
 
     return (
         <nav className="sticky top-0 z-50 bg-black shadow-xl border-b border-gray-800">
@@ -39,6 +57,9 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                         </Link>
                         <Link href="/teachers" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
                             Teachers
+                        </Link>
+                        <Link href="/gallery" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            Gallery
                         </Link>
                         <Link href="/blogs" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
                             Blogs
@@ -73,7 +94,7 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                                 </button>
                             </div>
                         ) : (
-                            <div className="relative">
+                            <div className="relative" ref={dropdownRef}>
                                 <button
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     className="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
