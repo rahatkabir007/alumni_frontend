@@ -7,6 +7,7 @@ import ElegantCard from '@/components/common/ElegantCard'
 import BlackTag from '@/components/common/BlackTag'
 import { categories, events, statuses } from '@/datas/eventsPage'
 import EventCard from './EventCard'
+import IntroSection from '@/components/common/IntroSection'
 
 const EventsPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('all')
@@ -22,20 +23,11 @@ const EventsPage = () => {
     return (
         <div className="bg-gray-50 min-h-screen">
             {/* Header */}
-            <ScrollReveal direction="up" delay={0.2}>
-                <section className="py-16 bg-black text-white">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <BlackTag className="mb-4 bg-white text-black">Events</BlackTag>
-                        <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                            Alumni Events & Activities
-                        </h1>
-                        <p className="text-xl max-w-3xl mx-auto text-gray-300">
-                            Stay connected with the CIHS community through our exciting events. From reunions to professional development,
-                            there&apos;s always something happening in our alumni network.
-                        </p>
-                    </div>
-                </section>
-            </ScrollReveal>
+            <IntroSection
+                tag='Events'
+                title='Alumni Events & Activities'
+                description='Stay connected with the CIHS community through our exciting events. From reunions to professional development, there’s always something happening in our alumni network.'
+            />
 
             {/* Filters */}
             <ScrollReveal direction="up" delay={0.3}>
