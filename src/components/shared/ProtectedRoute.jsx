@@ -4,7 +4,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectIsAuthenticated, setRedirectPath, initializeAuth } from '@/redux/features/auth/authSlice';
 import { ToastMessage } from '@/utils/ToastMessage';
-import FullScreenLoader from './shared/Loader/FullScreenLoader';
+import FullScreenLoader from './Loader/FullScreenLoader';
+
 
 const ProtectedRoute = ({ children }) => {
     const router = useRouter();
