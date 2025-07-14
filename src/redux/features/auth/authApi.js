@@ -62,12 +62,6 @@ export const authApi = apiSlice.injectEndpoints({
                 body: passwordData,
             }),
         }),
-        refreshToken: builder.mutation({
-            query: () => ({
-                url: '/auth/refresh',
-                method: 'POST',
-            }),
-        }),
     })
 })
 
@@ -78,7 +72,6 @@ export const {
     useGetCurrentUserQuery,
     useUpdateProfileMutation,
     useChangePasswordMutation,
-    useRefreshTokenMutation,
     // Export lazy query for manual triggering
     useLazyGetCurrentUserQuery
 } = authApi
