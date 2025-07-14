@@ -1,5 +1,5 @@
 "use client"
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,8 @@ import { motion } from 'framer-motion';
 import { useRegisterMutation } from '@/redux/features/auth/authApi';
 import { selectIsAuthenticated } from '@/redux/features/auth/authSlice';
 import { ToastMessage } from '@/utils/ToastMessage';
+import InputComponent1 from '@/components/common/InputComponent1';
+import PasswordInputComponent1 from '@/components/common/PasswordInputComponent1';
 
 const RegisterSchema = Yup.object().shape({
     name: Yup.string()
@@ -82,12 +84,7 @@ export default function RegisterPage() {
                 <div className="absolute bottom-1/3 left-1/4 w-24 h-24 bg-white opacity-3 rounded-full"></div>
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="max-w-md w-full space-y-8 relative z-10"
-            >
+            <div className="max-w-md w-full space-y-8 relative z-10">
                 {/* Back to Home Button */}
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
@@ -135,115 +132,125 @@ export default function RegisterPage() {
                     validationSchema={RegisterSchema}
                     onSubmit={handleSubmit}
                 >
-                    {({ isSubmitting }) => (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                        >
-                            <Form className="space-y-6">
-                                {submitError && (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="bg-red-900/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg backdrop-blur-sm"
-                                    >
-                                        {submitError}
-                                    </motion.div>
-                                )}
+                    {({ isSubmitting, isValid, values, submitCount }) => {
+                        // Check if all required fields are filled
+                        const isFormValid = values.name.trim() &&
+                            values.email.trim() &&
+                            values.password.trim() &&
+                            values.confirmPassword.trim() &&
+                            isValid;
 
-                                <div className="space-y-4">
-                                    <div>
-                                        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                                            Full Name
-                                        </label>
-                                        <Field
-                                            id="name"
+                        return (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                            >
+                                <Form className="space-y-6">
+                                    {submitError && (
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="bg-red-900/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg backdrop-blur-sm"
+                                        >
+                                            {submitError}
+                                        </motion.div>
+                                    )}
+
+                                    <div className="space-y-4">
+                                        <InputComponent1
                                             name="name"
                                             type="text"
-                                            className="w-full px-4 py-3 bg-white/10 border border-gray-600 placeholder-gray-400 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all backdrop-blur-sm"
+                                            label="Full Name"
                                             placeholder="Enter your full name"
+                                            required
+                                            useFormik={true}
+                                            labelClassName="text-gray-300"
+                                            backgroundColor="bg-white/10"
+                                            borderColor="border-gray-600"
+                                            textColor="text-white"
+                                            placeholderColor="placeholder-gray-400"
+                                            focusBorderColor="focus:border-white/30"
+                                            focusRingColor="focus:ring-white/20"
+                                            errorClassName="text-red-300"
                                         />
-                                        <ErrorMessage name="name" component="div" className="mt-1 text-sm text-red-300" />
-                                    </div>
 
-                                    <div>
-                                        <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                                            Email Address
-                                        </label>
-                                        <Field
-                                            id="email"
+                                        <InputComponent1
                                             name="email"
                                             type="email"
-                                            className="w-full px-4 py-3 bg-white/10 border border-gray-600 placeholder-gray-400 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all backdrop-blur-sm"
+                                            label="Email Address"
                                             placeholder="Enter your email address"
+                                            required
+                                            useFormik={true}
+                                            labelClassName="text-gray-300"
+                                            backgroundColor="bg-white/10"
+                                            borderColor="border-gray-600"
+                                            textColor="text-white"
+                                            placeholderColor="placeholder-gray-400"
+                                            focusBorderColor="focus:border-white/30"
+                                            focusRingColor="focus:ring-white/20"
+                                            errorClassName="text-red-300"
                                         />
-                                        <ErrorMessage name="email" component="div" className="mt-1 text-sm text-red-300" />
-                                    </div>
 
-                                    <div>
-                                        <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-                                            Password
-                                        </label>
-                                        <Field
-                                            id="password"
+                                        <PasswordInputComponent1
                                             name="password"
-                                            type="password"
-                                            className="w-full px-4 py-3 bg-white/10 border border-gray-600 placeholder-gray-400 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all backdrop-blur-sm"
+                                            label="Password"
                                             placeholder="Create a strong password"
+                                            required
+                                            useFormik={true}
+                                            labelClassName="text-gray-300"
+                                            backgroundColor="bg-white/10"
+                                            borderColor="border-gray-600"
+                                            textColor="text-white"
+                                            placeholderColor="placeholder-gray-400"
+                                            focusBorderColor="focus:border-white/30"
+                                            focusRingColor="focus:ring-white/20"
+                                            iconColor="text-gray-400"
+                                            iconHoverColor="hover:text-white"
+                                            errorClassName="text-red-300"
                                         />
-                                        <ErrorMessage name="password" component="div" className="mt-1 text-sm text-red-300" />
-                                    </div>
 
-                                    <div>
-                                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
-                                            Confirm Password
-                                        </label>
-                                        <Field
-                                            id="confirmPassword"
+                                        <PasswordInputComponent1
                                             name="confirmPassword"
-                                            type="password"
-                                            className="w-full px-4 py-3 bg-white/10 border border-gray-600 placeholder-gray-400 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/30 transition-all backdrop-blur-sm"
+                                            label="Confirm Password"
                                             placeholder="Confirm your password"
+                                            required
+                                            useFormik={true}
+                                            labelClassName="text-gray-300"
+                                            backgroundColor="bg-white/10"
+                                            borderColor="border-gray-600"
+                                            textColor="text-white"
+                                            placeholderColor="placeholder-gray-400"
+                                            focusBorderColor="focus:border-white/30"
+                                            focusRingColor="focus:ring-white/20"
+                                            iconColor="text-gray-400"
+                                            iconHoverColor="hover:text-white"
+                                            errorClassName="text-red-300"
                                         />
-                                        <ErrorMessage name="confirmPassword" component="div" className="mt-1 text-sm text-red-300" />
                                     </div>
-                                </div>
 
-                                <motion.button
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="w-full bg-white text-black py-3 px-4 rounded-lg font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform"
-                                >
-                                    {isLoading ? (
-                                        <div className="flex items-center justify-center">
-                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
-                                            Creating Account...
-                                        </div>
-                                    ) : (
-                                        'Create Account'
-                                    )}
-                                </motion.button>
-
-                                <div className="text-center">
-                                    <p className="text-xs text-gray-500">
-                                        By creating an account, you agree to our{' '}
-                                        <Link href="/terms" className="text-gray-300 hover:text-white transition-colors">
-                                            Terms of Service
-                                        </Link>{' '}
-                                        and{' '}
-                                        <Link href="/privacy" className="text-gray-300 hover:text-white transition-colors">
-                                            Privacy Policy
-                                        </Link>
-                                    </p>
-                                </div>
-                            </Form>
-                        </motion.div>
-                    )}
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full bg-white text-black py-3 px-4 rounded-lg font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform cursor-pointer"
+                                    >
+                                        {isLoading ? (
+                                            <div className="flex items-center justify-center">
+                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
+                                                Creating Account...
+                                            </div>
+                                        ) : (
+                                            'Create Account'
+                                        )}
+                                    </motion.button>
+                                </Form>
+                            </motion.div>
+                        )
+                    }}
                 </Formik>
-            </motion.div>
+            </div>
         </div>
     );
 }

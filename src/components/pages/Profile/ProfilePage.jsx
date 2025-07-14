@@ -1,5 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react'
+import { Formik, Form } from 'formik'
+import * as Yup from 'yup'
 import { useUpdateProfileMutation, useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser, selectIsAuthenticated, selectToken } from '@/redux/features/auth/authSlice'
@@ -8,6 +10,29 @@ import BlackButton from '@/components/common/BlackButton'
 import ElegantCard from '@/components/common/ElegantCard'
 import BlackTag from '@/components/common/BlackTag'
 import ScrollReveal from '@/components/animations/ScrollReveal'
+import InputComponent1 from '@/components/common/InputComponent1'
+import TextareaComponent1 from '@/components/common/TextareaComponent1'
+
+const ProfileSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(50, 'Name must be less than 50 characters')
+    .required('Name is required'),
+  phone: Yup.string()
+    .matches(/^[\+]?[0-9\s\-\(\)]*$/, 'Invalid phone number format')
+    .min(10, 'Phone number must be at least 10 digits'),
+  bio: Yup.string()
+    .max(500, 'Bio must be less than 500 characters'),
+  location: Yup.string()
+    .max(100, 'Location must be less than 100 characters'),
+  profession: Yup.string()
+    .max(100, 'Profession must be less than 100 characters'),
+  graduationYear: Yup.number()
+    .min(1950, 'Graduation year must be after 1950')
+    .max(new Date().getFullYear(), 'Graduation year cannot be in the future'),
+  batch: Yup.string()
+    .max(20, 'Batch must be less than 20 characters')
+});
 
 const ProfilePage = () => {
   const user = useSelector(selectCurrentUser)
@@ -18,7 +43,6 @@ const ProfilePage = () => {
   const [triggerGetUser, { isLoading: isUserLoading }] = useLazyGetCurrentUserQuery()
 
   const [isEditing, setIsEditing] = useState(false)
-  const [editData, setEditData] = useState({})
 
   // Fetch user data when component mounts
   useEffect(() => {
@@ -46,33 +70,15 @@ const ProfilePage = () => {
 
   const handleEdit = () => {
     setIsEditing(true)
-    setEditData({
-      name: user.name || '',
-      email: user.email || '',
-      phone: user.phone || '',
-      bio: user.bio || '',
-      location: user.location || '',
-      profession: user.profession || '',
-      graduationYear: user.graduationYear || '',
-      batch: user.batch || '',
-    })
   }
 
   const handleCancel = () => {
     setIsEditing(false)
-    setEditData({})
   }
 
-  const handleInputChange = (e) => {
-    setEditData({
-      ...editData,
-      [e.target.name]: e.target.value
-    })
-  }
-
-  const handleSave = async () => {
+  const handleSave = async (values, { setSubmitting }) => {
     try {
-      await updateProfile(editData).unwrap()
+      await updateProfile(values).unwrap()
 
       // Refresh user data to get updated information
       await triggerGetUser().unwrap()
@@ -82,6 +88,8 @@ const ProfilePage = () => {
     } catch (error) {
       console.error('Failed to update profile:', error)
       ToastMessage.notifyError(error.data?.message || 'Failed to update profile')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -193,123 +201,239 @@ const ProfilePage = () => {
                       >
                         Cancel
                       </BlackButton>
-                      <BlackButton
-                        size="sm"
-                        onClick={handleSave}
-                        loading={isUpdating}
-                        disabled={isUpdating}
-                      >
-                        Save Changes
-                      </BlackButton>
                     </div>
+                  )}
+                  {!isEditing && (
+                    <BlackButton
+                      size="sm"
+                      onClick={handleEdit}
+                    >
+                      Edit Profile
+                    </BlackButton>
                   )}
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        name="name"
-                        value={editData.name}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{user.name || 'Not provided'}</p>
+                {isEditing ? (
+                  <Formik
+                    initialValues={{
+                      name: user.name || '',
+                      phone: user.phone || '',
+                      bio: user.bio || '',
+                      location: user.location || '',
+                      profession: user.profession || '',
+                      graduationYear: user.graduationYear || '',
+                      batch: user.batch || '',
+                    }}
+                    validationSchema={ProfileSchema}
+                    onSubmit={handleSave}
+                  >
+                    {({ isSubmitting }) => (
+                      <Form>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          {/* Name */}
+                          <InputComponent1
+                            name="name"
+                            label="Full Name"
+                            required
+                            useFormik={true}
+                            backgroundColor="bg-white"
+                            borderColor="border-gray-300"
+                            textColor="text-gray-900"
+                            focusBorderColor="focus:border-black"
+                            focusRingColor="focus:ring-black/10"
+                          />
+
+                          {/* Email - Always disabled */}
+                          <div>
+                            <InputComponent1
+                              name="email"
+                              label="Email"
+                              value={user.email}
+                              disabled={true}
+                              backgroundColor="bg-gray-50"
+                              borderColor="border-transparent"
+                              textColor="text-gray-900"
+                              className="cursor-default"
+                            />
+                            <span className="text-xs text-gray-500">Email cannot be changed</span>
+                          </div>
+
+                          {/* Phone */}
+                          <InputComponent1
+                            name="phone"
+                            type="tel"
+                            label="Phone"
+                            useFormik={true}
+                            backgroundColor="bg-white"
+                            borderColor="border-gray-300"
+                            textColor="text-gray-900"
+                            focusBorderColor="focus:border-black"
+                            focusRingColor="focus:ring-black/10"
+                          />
+
+                          {/* Location */}
+                          <InputComponent1
+                            name="location"
+                            label="Location"
+                            useFormik={true}
+                            backgroundColor="bg-white"
+                            borderColor="border-gray-300"
+                            textColor="text-gray-900"
+                            focusBorderColor="focus:border-black"
+                            focusRingColor="focus:ring-black/10"
+                          />
+
+                          {/* Profession */}
+                          <InputComponent1
+                            name="profession"
+                            label="Profession"
+                            useFormik={true}
+                            backgroundColor="bg-white"
+                            borderColor="border-gray-300"
+                            textColor="text-gray-900"
+                            focusBorderColor="focus:border-black"
+                            focusRingColor="focus:ring-black/10"
+                          />
+
+                          {/* Graduation Year */}
+                          <InputComponent1
+                            name="graduationYear"
+                            type="number"
+                            label="Graduation Year"
+                            useFormik={true}
+                            backgroundColor="bg-white"
+                            borderColor="border-gray-300"
+                            textColor="text-gray-900"
+                            focusBorderColor="focus:border-black"
+                            focusRingColor="focus:ring-black/10"
+                          />
+
+                          {/* Bio */}
+                          <div className="md:col-span-2">
+                            <TextareaComponent1
+                              name="bio"
+                              label="Bio"
+                              useFormik={true}
+                              rows={4}
+                              maxLength={500}
+                              showCharCount={true}
+                              placeholder="Tell us about yourself..."
+                              backgroundColor="bg-white"
+                              borderColor="border-gray-300"
+                              textColor="text-gray-900"
+                              focusBorderColor="focus:border-black"
+                              focusRingColor="focus:ring-black/10"
+                              resize="resize-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mt-6 flex justify-end">
+                          <BlackButton
+                            type="submit"
+                            size="sm"
+                            loading={isSubmitting || isUpdating}
+                            disabled={isSubmitting || isUpdating}
+                          >
+                            Save Changes
+                          </BlackButton>
+                        </div>
+                      </Form>
                     )}
-                  </div>
+                  </Formik>
+                ) : (
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Read-only view */}
+                    <InputComponent1
+                      name="name"
+                      label="Full Name"
+                      value={user.name || 'Not provided'}
+                      disabled={true}
+                      backgroundColor="bg-gray-50"
+                      borderColor="border-transparent"
+                      textColor="text-gray-900"
+                      className="cursor-default"
+                    />
 
-                  {/* Email */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <p className="text-gray-900">{user.email}</p>
-                    <span className="text-xs text-gray-500">Email cannot be changed</span>
-                  </div>
-
-                  {/* Phone */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    {isEditing ? (
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={editData.phone}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black"
+                    <div>
+                      <InputComponent1
+                        name="email"
+                        label="Email"
+                        value={user.email}
+                        disabled={true}
+                        backgroundColor="bg-gray-50"
+                        borderColor="border-transparent"
+                        textColor="text-gray-900"
+                        className="cursor-default"
                       />
-                    ) : (
-                      <p className="text-gray-900">{user.phone || 'Not provided'}</p>
-                    )}
-                  </div>
+                    </div>
 
-                  {/* Location */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        name="location"
-                        value={editData.location}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{user.location || 'Not provided'}</p>
-                    )}
-                  </div>
+                    {/* Phone */}
+                    <InputComponent1
+                      name="phone"
+                      label="Phone"
+                      value={user.phone || 'Not provided'}
+                      disabled={true}
+                      backgroundColor="bg-gray-50"
+                      borderColor="border-transparent"
+                      textColor="text-gray-900"
+                      className="cursor-default"
+                    />
 
-                  {/* Profession */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Profession</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        name="profession"
-                        value={editData.profession}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{user.profession || 'Not provided'}</p>
-                    )}
-                  </div>
+                    {/* Location */}
+                    <InputComponent1
+                      name="location"
+                      label="Location"
+                      value={user.location || 'Not provided'}
+                      disabled={true}
+                      backgroundColor="bg-gray-50"
+                      borderColor="border-transparent"
+                      textColor="text-gray-900"
+                      className="cursor-default"
+                    />
 
-                  {/* Graduation Year */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Graduation Year</label>
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        name="graduationYear"
-                        value={editData.graduationYear}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black"
-                      />
-                    ) : (
-                      <p className="text-gray-900">{user.graduationYear || 'Not provided'}</p>
-                    )}
-                  </div>
+                    {/* Profession */}
+                    <InputComponent1
+                      name="profession"
+                      label="Profession"
+                      value={user.profession || 'Not provided'}
+                      disabled={true}
+                      backgroundColor="bg-gray-50"
+                      borderColor="border-transparent"
+                      textColor="text-gray-900"
+                      className="cursor-default"
+                    />
 
-                  {/* Bio */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
-                    {isEditing ? (
-                      <textarea
+                    {/* Graduation Year */}
+                    <InputComponent1
+                      name="graduationYear"
+                      type="number"
+                      label="Graduation Year"
+                      value={user.graduationYear || 'Not provided'}
+                      disabled={true}
+                      backgroundColor="bg-gray-50"
+                      borderColor="border-transparent"
+                      textColor="text-gray-900"
+                      className="cursor-default"
+                    />
+
+                    {/* Bio */}
+                    <div className="md:col-span-2">
+                      <TextareaComponent1
                         name="bio"
+                        label="Bio"
+                        value={user.bio || 'No bio provided'}
+                        disabled={true}
                         rows={4}
-                        value={editData.bio}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-black resize-none"
-                        placeholder="Tell us about yourself..."
+                        backgroundColor="bg-gray-50"
+                        borderColor="border-transparent"
+                        textColor="text-gray-900"
+                        className="cursor-default"
+                        resize="resize-none"
                       />
-                    ) : (
-                      <p className="text-gray-900">{user.bio || 'No bio provided'}</p>
-                    )}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Account Information */}
                 <div className="mt-8 pt-6 border-t border-gray-200">
