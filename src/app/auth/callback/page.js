@@ -3,6 +3,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '@/redux/features/auth/authSlice';
+import { useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi';
 import { ToastMessage } from '@/utils/ToastMessage';
 
 function AuthCallbackContent() {
@@ -11,6 +12,9 @@ function AuthCallbackContent() {
     const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Add lazy query for fetching user data
+    const [triggerGetUser] = useLazyGetCurrentUserQuery();
 
     useEffect(() => {
         const handleCallback = async () => {
@@ -39,6 +43,16 @@ function AuthCallbackContent() {
                         token: token
                     }));
 
+                    // Fetch fresh user data from API after Google login
+                    try {
+                        console.log('Fetching fresh user data after Google login...');
+                        await triggerGetUser().unwrap();
+                        console.log('Fresh user data fetched successfully after Google login');
+                    } catch (fetchError) {
+                        console.warn('Failed to fetch fresh user data after Google login:', fetchError);
+                        // Don't fail the login process if user data fetch fails
+                    }
+
                     console.log('Auth successful:', userData);
 
                     ToastMessage.notifySuccess('Login successful!');
@@ -63,7 +77,7 @@ function AuthCallbackContent() {
         };
 
         handleCallback();
-    }, [router, searchParams, dispatch]);
+    }, [router, searchParams, dispatch, triggerGetUser]);
 
     if (loading) {
         return (
