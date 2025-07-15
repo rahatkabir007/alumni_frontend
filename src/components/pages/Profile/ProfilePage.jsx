@@ -79,7 +79,7 @@ const ProfilePage = () => {
       ToastMessage.notifyInfo('Profile data refreshed!')
     } catch (error) {
       console.error('Failed to refresh user data:', error);
-      
+
       if (error.status === 401 || error.status === 403) {
         dispatch(logout())
         localStorage.clear()
