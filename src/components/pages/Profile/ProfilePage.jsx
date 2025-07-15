@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react'
 import { Formik, Form } from 'formik'
 import * as Yup from 'yup'
 import { useUpdateProfileMutation, useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi'
-import { useSelector } from 'react-redux'
-import { selectCurrentUser, selectIsAuthenticated, selectToken } from '@/redux/features/auth/authSlice'
+import { useSelector, useDispatch } from 'react-redux'
+import { selectIsAuthenticated, selectToken, logout } from '@/redux/features/auth/authSlice'
 import { ToastMessage } from '@/utils/ToastMessage'
 import BlackButton from '@/components/common/BlackButton'
 import ElegantCard from '@/components/common/ElegantCard'
@@ -12,6 +12,7 @@ import BlackTag from '@/components/common/BlackTag'
 import ScrollReveal from '@/components/animations/ScrollReveal'
 import InputComponent1 from '@/components/common/InputComponent1'
 import TextareaComponent1 from '@/components/common/TextareaComponent1'
+import { useRouter } from 'next/navigation'
 
 const ProfileSchema = Yup.object().shape({
   name: Yup.string()
@@ -35,7 +36,8 @@ const ProfileSchema = Yup.object().shape({
 });
 
 const ProfilePage = () => {
-  const user = useSelector(selectCurrentUser)
+  const dispatch = useDispatch()
+  const router = useRouter()
   const isAuthenticated = useSelector(selectIsAuthenticated)
   const token = useSelector(selectToken)
 
@@ -43,30 +45,42 @@ const ProfilePage = () => {
   const [triggerGetUser, { isLoading: isUserLoading }] = useLazyGetCurrentUserQuery()
 
   const [isEditing, setIsEditing] = useState(false)
+  const [userData, setUserData] = useState(null)
+  const [fetchError, setFetchError] = useState(null)
 
   // Fetch user data when component mounts
   useEffect(() => {
-    if (isAuthenticated && token && !user) {
-      console.log('Fetching user data on profile page mount...');
-      triggerGetUser();
-    }
-  }, [isAuthenticated, token, user, triggerGetUser]);
+    const fetchUserData = async () => {
+      if (isAuthenticated && token) {
+        try {
+          console.log('Fetching user data on profile page mount...');
+          const result = await triggerGetUser().unwrap()
+          setUserData(result)
+          setFetchError(null)
+        } catch (error) {
+          console.error('Failed to fetch user data:', error);
+          setFetchError(error)
 
-  // Initialize edit data when user data is available
-  useEffect(() => {
-    if (user && !editData.name) {
-      setEditData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        bio: user.bio || '',
-        location: user.location || '',
-        profession: user.profession || '',
-        graduationYear: user.graduationYear || '',
-        batch: user.batch || '',
-      })
+          // If it's an authentication error, clear token and redirect
+          if (error.status === 401 || error.status === 403) {
+            console.log('Authentication failed, clearing token and redirecting...');
+            dispatch(logout())
+
+            // Clear localStorage and sessionStorage
+            localStorage.clear()
+            sessionStorage.clear()
+
+            ToastMessage.notifyError('Session expired. Please login again.')
+            router.push('/login')
+          } else {
+            ToastMessage.notifyError('Failed to load profile data')
+          }
+        }
+      }
     }
-  }, [user, editData.name])
+
+    fetchUserData()
+  }, [isAuthenticated, token, triggerGetUser, dispatch, router]);
 
   const handleEdit = () => {
     setIsEditing(true)
@@ -81,13 +95,24 @@ const ProfilePage = () => {
       await updateProfile(values).unwrap()
 
       // Refresh user data to get updated information
-      await triggerGetUser().unwrap()
+      const result = await triggerGetUser().unwrap()
+      setUserData(result)
 
       setIsEditing(false)
       ToastMessage.notifySuccess('Profile updated successfully!')
     } catch (error) {
       console.error('Failed to update profile:', error)
-      ToastMessage.notifyError(error.data?.message || 'Failed to update profile')
+
+      // Handle authentication errors during update
+      if (error.status === 401 || error.status === 403) {
+        dispatch(logout())
+        localStorage.clear()
+        sessionStorage.clear()
+        ToastMessage.notifyError('Session expired. Please login again.')
+        router.push('/login')
+      } else {
+        ToastMessage.notifyError(error.data?.message || 'Failed to update profile')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -96,15 +121,33 @@ const ProfilePage = () => {
   const handleRefreshData = async () => {
     try {
       console.log('Manually refreshing user data...');
-      await triggerGetUser().unwrap()
+      const result = await triggerGetUser().unwrap()
+      setUserData(result)
+      setFetchError(null)
       ToastMessage.notifyInfo('Profile data refreshed!')
     } catch (error) {
       console.error('Failed to refresh user data:', error);
-      ToastMessage.notifyError('Failed to refresh data')
+      setFetchError(error)
+
+      if (error.status === 401 || error.status === 403) {
+        dispatch(logout())
+        localStorage.clear()
+        sessionStorage.clear()
+        ToastMessage.notifyError('Session expired. Please login again.')
+        router.push('/login')
+      } else {
+        ToastMessage.notifyError('Failed to refresh data')
+      }
     }
   }
 
-  if (isUserLoading) {
+  const handleRetry = () => {
+    setFetchError(null)
+    handleRefreshData()
+  }
+
+  // Show loading state
+  if (isUserLoading && !userData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -115,7 +158,35 @@ const ProfilePage = () => {
     )
   }
 
-  if (!user) {
+  // Show error state
+  if (fetchError && !userData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <ElegantCard className="text-center max-w-md">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Failed to Load Profile</h2>
+          <p className="text-gray-600 mb-6">
+            {fetchError.status === 401 || fetchError.status === 403
+              ? 'Your session has expired. Please login again.'
+              : 'Unable to load your profile information. Please try again.'}
+          </p>
+          <div className="flex gap-3 justify-center">
+            <BlackButton onClick={handleRetry} disabled={isUserLoading}>
+              {isUserLoading ? 'Retrying...' : 'Try Again'}
+            </BlackButton>
+            <BlackButton
+              variant="outline"
+              onClick={() => router.push('/login')}
+            >
+              Go to Login
+            </BlackButton>
+          </div>
+        </ElegantCard>
+      </div>
+    )
+  }
+
+  // Show no data state
+  if (!userData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <ElegantCard className="text-center max-w-md">
@@ -139,30 +210,11 @@ const ProfilePage = () => {
               <div>
                 <BlackTag className="mb-4 bg-white text-black">Profile</BlackTag>
                 <h1 className="text-4xl font-bold mb-2">
-                  Welcome back, {user.name}!
+                  Welcome back, {userData.name}!
                 </h1>
                 <p className="text-gray-300">Manage your alumni profile and information</p>
               </div>
-              <div className="space-x-3">
-                <BlackButton
-                  variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-black"
-                  onClick={handleRefreshData}
-                  size="sm"
-                  loading={isUserLoading}
-                >
-                  Refresh Data
-                </BlackButton>
-                {!isEditing && (
-                  <BlackButton
-                    className="bg-white text-black hover:bg-gray-200"
-                    onClick={handleEdit}
-                    size="sm"
-                  >
-                    Edit Profile
-                  </BlackButton>
-                )}
-              </div>
+
             </div>
           </div>
         </section>
@@ -177,12 +229,12 @@ const ProfilePage = () => {
               <ElegantCard className="md:col-span-1">
                 <div className="text-center">
                   <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
-                    {user.name?.charAt(0).toUpperCase() || 'A'}
+                    {userData.name?.charAt(0).toUpperCase() || 'A'}
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{user.name}</h3>
-                  <p className="text-gray-600 mb-2">{user.profession || 'Alumni Member'}</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{userData.name}</h3>
+                  <p className="text-gray-600 mb-2">{userData.profession || 'Alumni Member'}</p>
                   <BlackTag variant="subtle" size="sm">
-                    {user.batch ? `Batch ${user.batch}` : 'CIHS Alumni'}
+                    {userData.batch ? `Batch ${userData.batch}` : 'CIHS Alumni'}
                   </BlackTag>
                 </div>
               </ElegantCard>
@@ -216,13 +268,13 @@ const ProfilePage = () => {
                 {isEditing ? (
                   <Formik
                     initialValues={{
-                      name: user.name || '',
-                      phone: user.phone || '',
-                      bio: user.bio || '',
-                      location: user.location || '',
-                      profession: user.profession || '',
-                      graduationYear: user.graduationYear || '',
-                      batch: user.batch || '',
+                      name: userData.name || '',
+                      phone: userData.phone || '',
+                      bio: userData.bio || '',
+                      location: userData.location || '',
+                      profession: userData.profession || '',
+                      graduationYear: userData.graduationYear || '',
+                      batch: userData.batch || '',
                     }}
                     validationSchema={ProfileSchema}
                     onSubmit={handleSave}
@@ -248,7 +300,7 @@ const ProfilePage = () => {
                             <InputComponent1
                               name="email"
                               label="Email"
-                              value={user.email}
+                              value={userData.email}
                               disabled={true}
                               backgroundColor="bg-gray-50"
                               borderColor="border-transparent"
@@ -347,7 +399,7 @@ const ProfilePage = () => {
                     <InputComponent1
                       name="name"
                       label="Full Name"
-                      value={user.name || 'Not provided'}
+                      value={userData.name || 'Not provided'}
                       disabled={true}
                       backgroundColor="bg-gray-50"
                       borderColor="border-transparent"
@@ -359,7 +411,7 @@ const ProfilePage = () => {
                       <InputComponent1
                         name="email"
                         label="Email"
-                        value={user.email}
+                        value={userData.email}
                         disabled={true}
                         backgroundColor="bg-gray-50"
                         borderColor="border-transparent"
@@ -372,7 +424,7 @@ const ProfilePage = () => {
                     <InputComponent1
                       name="phone"
                       label="Phone"
-                      value={user.phone || 'Not provided'}
+                      value={userData.phone || 'Not provided'}
                       disabled={true}
                       backgroundColor="bg-gray-50"
                       borderColor="border-transparent"
@@ -384,7 +436,7 @@ const ProfilePage = () => {
                     <InputComponent1
                       name="location"
                       label="Location"
-                      value={user.location || 'Not provided'}
+                      value={userData.location || 'Not provided'}
                       disabled={true}
                       backgroundColor="bg-gray-50"
                       borderColor="border-transparent"
@@ -396,7 +448,7 @@ const ProfilePage = () => {
                     <InputComponent1
                       name="profession"
                       label="Profession"
-                      value={user.profession || 'Not provided'}
+                      value={userData.profession || 'Not provided'}
                       disabled={true}
                       backgroundColor="bg-gray-50"
                       borderColor="border-transparent"
@@ -409,7 +461,7 @@ const ProfilePage = () => {
                       name="graduationYear"
                       type="number"
                       label="Graduation Year"
-                      value={user.graduationYear || 'Not provided'}
+                      value={userData.graduationYear || 'Not provided'}
                       disabled={true}
                       backgroundColor="bg-gray-50"
                       borderColor="border-transparent"
@@ -422,7 +474,7 @@ const ProfilePage = () => {
                       <TextareaComponent1
                         name="bio"
                         label="Bio"
-                        value={user.bio || 'No bio provided'}
+                        value={userData.bio || 'No bio provided'}
                         disabled={true}
                         rows={4}
                         backgroundColor="bg-gray-50"
@@ -441,18 +493,18 @@ const ProfilePage = () => {
                   <div className="grid md:grid-cols-2 gap-6 text-sm">
                     <div>
                       <span className="text-gray-500">User ID:</span>
-                      <span className="ml-2 text-gray-900">{user.id}</span>
+                      <span className="ml-2 text-gray-900">{userData.id}</span>
                     </div>
-                    {user.provider && (
+                    {userData.provider && (
                       <div>
                         <span className="text-gray-500">Login Provider:</span>
-                        <span className="ml-2 text-gray-900 capitalize">{user.provider}</span>
+                        <span className="ml-2 text-gray-900 capitalize">{userData.provider}</span>
                       </div>
                     )}
                     <div>
                       <span className="text-gray-500">Member Since:</span>
                       <span className="ml-2 text-gray-900">
-                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                        {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A'}
                       </span>
                     </div>
                   </div>
