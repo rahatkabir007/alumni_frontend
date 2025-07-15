@@ -37,7 +37,7 @@ const ReviewsTestimonials = ({ userData }) => {
     return (
         <div className="space-y-6">
             {/* Tab Navigation */}
-            <ElegantCard>
+            <ElegantCard hover={false}>
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-900">Reviews & Testimonials</h3>
                     {canGiveReview && (
@@ -54,8 +54,8 @@ const ReviewsTestimonials = ({ userData }) => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
-                                        ? 'border-black text-black'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    ? 'border-black text-black'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 {tab.label}
@@ -71,7 +71,7 @@ const ReviewsTestimonials = ({ userData }) => {
             </ElegantCard>
 
             {/* Tab Content */}
-            <ElegantCard>
+            <ElegantCard hover={false}>
                 {activeTab === 'my-reviews' && (
                     <div className="space-y-4">
                         <h4 className="text-lg font-semibold text-gray-900">My Reviews</h4>

@@ -25,7 +25,7 @@ const GalleryManagement = ({ userData }) => {
         <div className="space-y-6">
             {/* Upload Section */}
             {canUploadGallery && (
-                <ElegantCard>
+                <ElegantCard hover={false}>
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-xl font-bold text-gray-900">Upload Images</h3>
                         <BlackTag variant="outline">Gallery Upload</BlackTag>
@@ -48,7 +48,7 @@ const GalleryManagement = ({ userData }) => {
             )}
 
             {/* Gallery Display */}
-            <ElegantCard>
+            <ElegantCard hover={false}>
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-900">My Gallery</h3>
                     <BlackTag variant="subtle" size="sm">

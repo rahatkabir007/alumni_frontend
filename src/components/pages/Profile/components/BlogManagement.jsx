@@ -10,7 +10,7 @@ const BlogManagement = ({ userData }) => {
 
     return (
         <div className="space-y-6">
-            <ElegantCard>
+            <ElegantCard hover={false}>
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-900">Blog Management</h3>
                     {canPostBlog && (

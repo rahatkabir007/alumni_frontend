@@ -96,14 +96,16 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
     return (
         <div className="space-y-6">
             {/* Profile Summary */}
-            <ElegantCard>
-                <div className="text-center">
+            <ElegantCard hover={false}>
+                <div className="text-center flex flex-col items-center">
                     <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
                         {userData.profilePhoto ? (
                             <Image
                                 src={userData.profilePhoto}
                                 alt="Profile"
                                 className="w-full h-full object-cover"
+                                width={128}
+                                height={128}
                             />
                         ) : (
                             userData.name?.charAt(0).toUpperCase() || 'A'
@@ -138,7 +140,7 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
             </ElegantCard>
 
             {/* Navigation Menu */}
-            <ElegantCard>
+            <ElegantCard hover={false}>
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">Menu</h3>
                     <button
