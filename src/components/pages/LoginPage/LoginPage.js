@@ -99,7 +99,9 @@ export default function LoginPage() {
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+        // Add frontend callback URL parameter to ensure proper redirect
+        const frontendCallback = encodeURIComponent(`${window.location.origin}/auth/callback`);
+        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?callback=${frontendCallback}`;
     };
 
     return (

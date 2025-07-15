@@ -16,6 +16,6 @@ export const apiSlice = createApi({
         },
     }),
     // Add tag types for caching and invalidation
-    tagTypes: ['User', 'Alumni', 'Teachers', 'Events', 'Blogs'],
+    tagTypes: ['User', 'Alumni', 'Teachers', 'Events', 'Blogs', 'Auth'],
     endpoints: builder => ({}),
 })

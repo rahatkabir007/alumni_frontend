@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { Formik, Form } from 'formik'
 import * as Yup from 'yup'
-import { useUpdateProfileMutation } from '@/redux/features/auth/authApi'
+import { useUpdateProfileMutation, useUpdateProfilePhotoMutation } from '@/redux/features/auth/authApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
@@ -33,6 +33,7 @@ const ProfileSchema = Yup.object().shape({
 
 const BasicInfo = ({ userData, onUpdate }) => {
     const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation()
+    const [updateProfilePhoto, { isLoading: isUpdatingPhoto }] = useUpdateProfilePhotoMutation()
     const [isEditing, setIsEditing] = useState(false)
 
     const handleEdit = () => {
@@ -60,9 +61,15 @@ const BasicInfo = ({ userData, onUpdate }) => {
         }
     }
 
-    const handleProfilePhotoUpdate = (newPhotoUrl) => {
-        onUpdate({ ...userData, profilePhoto: newPhotoUrl })
-        ToastMessage.notifySuccess('Profile photo updated!')
+    const handleProfilePhotoUpdate = async (newPhotoUrl) => {
+        try {
+            const result = await updateProfilePhoto({ profilePhoto: newPhotoUrl }).unwrap()
+            onUpdate({ ...userData, profilePhoto: newPhotoUrl })
+            ToastMessage.notifySuccess('Profile photo updated!')
+        } catch (error) {
+            console.error('Failed to update profile photo:', error)
+            ToastMessage.notifyError('Failed to update profile photo')
+        }
     }
 
     return (
@@ -88,8 +95,9 @@ const BasicInfo = ({ userData, onUpdate }) => {
                             onUpload={handleProfilePhotoUpdate}
                             acceptedTypes={['image/jpeg', 'image/png', 'image/jpg']}
                             maxSizeMB={5}
-                            buttonText="Change Profile Photo"
+                            buttonText={isUpdatingPhoto ? "Updating..." : "Change Profile Photo"}
                             buttonVariant="outline"
+                            disabled={isUpdatingPhoto}
                         />
                         <p className="text-sm text-gray-500 mt-2">
                             Recommended: Square image, at least 200x200px, max 5MB

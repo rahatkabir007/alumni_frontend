@@ -54,6 +54,14 @@ export const authApi = apiSlice.injectEndpoints({
             // Invalidate user data to refetch after update
             invalidatesTags: ['User'],
         }),
+        updateProfilePhoto: builder.mutation({
+            query: (photoData) => ({
+                url: '/auth/profile-photo',
+                method: 'PATCH',
+                body: photoData,
+            }),
+            invalidatesTags: ['User'],
+        }),
         // Add other user-related endpoints that might be needed
         changePassword: builder.mutation({
             query: (passwordData) => ({
@@ -71,6 +79,7 @@ export const {
     useLogoutMutation,
     useGetCurrentUserQuery,
     useUpdateProfileMutation,
+    useUpdateProfilePhotoMutation,
     useChangePasswordMutation,
     // Export lazy query for manual triggering
     useLazyGetCurrentUserQuery

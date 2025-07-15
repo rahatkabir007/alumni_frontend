@@ -7,7 +7,8 @@ import {
     selectIsAuthenticated,
     selectToken,
     initializeAuth,
-    logout
+    logout,
+    setCredentials
 } from '@/redux/features/auth/authSlice';
 import { useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi';
 import { ToastMessage } from '@/utils/ToastMessage';
@@ -63,18 +64,23 @@ const AppWrapper = ({ children }) => {
 
     // Update user data when API call completes
     useEffect(() => {
-        if (userData) {
-            dispatch(initializeAuth({
+        if (userData && token) {
+            // Use setCredentials to update both user and token in Redux store
+            dispatch(setCredentials({
                 user: userData,
-                token: token || localStorage.getItem('token')
+                token: token
             }));
+            console.log('Updated user data in Redux:', userData);
         }
     }, [userData, dispatch, token]);
 
     // Auto-fetch user data when authenticated but user data is missing
     useEffect(() => {
         if (isAuthenticated && token && !user && !isFetchingUser) {
-            triggerGetUser();
+            triggerGetUser().catch(error => {
+                // Don't logout on API errors in AppWrapper, just log them
+                console.warn('Failed to fetch user data in AppWrapper:', error);
+            });
         }
     }, [isAuthenticated, token, user, triggerGetUser, isFetchingUser]);
 
@@ -100,7 +106,11 @@ const AppWrapper = ({ children }) => {
     return (
         <div className="min-h-screen flex flex-col">
             {shouldShowNavigation && (
-                <Navigation user={user} onLogout={handleLogout} isInitialized={isInitialized} />
+                <Navigation
+                    user={userData || user}
+                    onLogout={handleLogout}
+                    isInitialized={isInitialized}
+                />
             )}
 
             <main className="flex-grow">
