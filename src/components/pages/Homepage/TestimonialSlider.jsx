@@ -12,7 +12,7 @@ const TestimonialSlider = () => {
         }, 5000)
 
         return () => clearInterval(timer)
-    }, [testimonials.length])
+    }, [])
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % testimonials.length)

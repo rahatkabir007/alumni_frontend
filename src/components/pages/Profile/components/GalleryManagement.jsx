@@ -5,6 +5,7 @@ import BlackButton from '@/components/common/BlackButton'
 import BlackTag from '@/components/common/BlackTag'
 import ImageUploader from './ImageUploader'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
+import Image from 'next/image'
 
 const GalleryManagement = ({ userData }) => {
     const [uploadedImages, setUploadedImages] = useState([])
@@ -59,7 +60,7 @@ const GalleryManagement = ({ userData }) => {
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {uploadedImages.map((imageUrl, index) => (
                             <div key={index} className="relative group">
-                                <img
+                                <Image
                                     src={imageUrl}
                                     alt={`Gallery image ${index + 1}`}
                                     className="w-full h-32 object-cover rounded-lg"

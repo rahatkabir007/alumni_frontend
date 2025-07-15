@@ -46,7 +46,7 @@ const AnnouncementManagement = ({ userData }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                     <h4 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h4>
-                    <p className="text-gray-600">You don't have permission to manage announcements</p>
+                    <p className="text-gray-600">You don&apos;t have permission to manage announcements</p>
                 </div>
             </ElegantCard>
         )
@@ -73,8 +73,8 @@ const AnnouncementManagement = ({ userData }) => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
-                                        ? 'border-black text-black'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    ? 'border-black text-black'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 {tab.label}

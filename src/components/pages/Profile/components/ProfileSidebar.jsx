@@ -4,6 +4,7 @@ import ElegantCard from '@/components/common/ElegantCard'
 import BlackTag from '@/components/common/BlackTag'
 import BlackButton from '@/components/common/BlackButton'
 import { checkUserPermission, getHighestRole, PERMISSIONS } from '@/utils/rolePermissions'
+import Image from 'next/image'
 
 const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh }) => {
     const [isCollapsed, setIsCollapsed] = useState(false)
@@ -97,8 +98,16 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
             {/* Profile Summary */}
             <ElegantCard>
                 <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-xl font-bold mx-auto mb-4">
-                        {userData.name?.charAt(0).toUpperCase() || 'A'}
+                    <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+                        {userData.profilePhoto ? (
+                            <Image
+                                src={userData.profilePhoto}
+                                alt="Profile"
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            userData.name?.charAt(0).toUpperCase() || 'A'
+                        )}
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-1">{userData.name}</h3>
                     <p className="text-gray-600 text-sm mb-3">{userData.profession || 'Alumni Member'}</p>
@@ -148,8 +157,8 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                             key={item.id}
                             onClick={() => onSectionChange(item.id)}
                             className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${activeSection === item.id
-                                    ? 'bg-black text-white'
-                                    : 'text-gray-700 hover:bg-gray-100'
+                                ? 'bg-black text-white'
+                                : 'text-gray-700 hover:bg-gray-100'
                                 }`}
                         >
                             <span className="mr-3">{item.icon}</span>

@@ -9,6 +9,7 @@ import BlackButton from '@/components/common/BlackButton'
 import InputComponent1 from '@/components/common/InputComponent1'
 import TextareaComponent1 from '@/components/common/TextareaComponent1'
 import ImageUploader from './ImageUploader'
+import Image from 'next/image'
 
 const ProfileSchema = Yup.object().shape({
     name: Yup.string()
@@ -80,7 +81,7 @@ const BasicInfo = ({ userData, onUpdate }) => {
                 <div className="flex flex-col sm:flex-row items-center gap-6">
                     <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
                         {userData.profilePhoto ? (
-                            <img
+                            <Image
                                 src={userData.profilePhoto}
                                 alt="Profile"
                                 className="w-full h-full object-cover"

@@ -13,7 +13,7 @@ const HeroSlider = () => {
         }, 5000)
 
         return () => clearInterval(timer)
-    }, [slides.length])
+    }, [])
 
     return (
         <div className="relative h-[70vh] overflow-hidden">
