@@ -5,9 +5,7 @@ import {
     updateUser,
     removeUser,
     setLoading,
-    setError,
-    updateUserStatus,
-    updateUserRole
+    setError
 } from "./userSlice"
 
 export const userApi = apiSlice.injectEndpoints({
@@ -71,7 +69,7 @@ export const userApi = apiSlice.injectEndpoints({
             }
         }),
 
-        // Update user
+        // Update user - handles all user updates including profile, status, roles, etc.
         updateUser: builder.mutation({
             query: ({ userId, userData }) => ({
                 url: `/users/${userId}`,
@@ -117,60 +115,6 @@ export const userApi = apiSlice.injectEndpoints({
                     dispatch(removeUser(userId))
                 } catch (error) {
                     dispatch(setError(error.error?.message || 'Failed to delete user'))
-                }
-            }
-        }),
-
-        // Block/Unblock user
-        updateUserStatus: builder.mutation({
-            query: ({ userId, status }) => ({
-                url: `/users/${userId}/status`,
-                method: 'PATCH',
-                body: { status },
-            }),
-            invalidatesTags: (result, error, { userId }) => [
-                { type: 'User', id: userId },
-                'User'
-            ],
-            transformResponse: (response) => {
-                if (response.success) {
-                    return response.data
-                }
-                throw new Error(response.message || 'Failed to update user status')
-            },
-            async onQueryStarted({ userId, status }, { dispatch, queryFulfilled }) {
-                try {
-                    await queryFulfilled
-                    dispatch(updateUserStatus({ userId, status }))
-                } catch (error) {
-                    dispatch(setError(error.error?.message || 'Failed to update user status'))
-                }
-            }
-        }),
-
-        // Change user role
-        changeUserRole: builder.mutation({
-            query: ({ userId, roles }) => ({
-                url: `/users/${userId}/role`,
-                method: 'PATCH',
-                body: { roles },
-            }),
-            invalidatesTags: (result, error, { userId }) => [
-                { type: 'User', id: userId },
-                'User'
-            ],
-            transformResponse: (response) => {
-                if (response.success) {
-                    return response.data
-                }
-                throw new Error(response.message || 'Failed to change user role')
-            },
-            async onQueryStarted({ userId, roles }, { dispatch, queryFulfilled }) {
-                try {
-                    await queryFulfilled
-                    dispatch(updateUserRole({ userId, roles }))
-                } catch (error) {
-                    dispatch(setError(error.error?.message || 'Failed to change user role'))
                 }
             }
         })

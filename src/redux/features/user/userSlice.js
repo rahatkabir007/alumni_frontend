@@ -86,22 +86,6 @@ const userSlice = createSlice({
             state.currentPage = 1
         },
 
-        // Bulk operations
-        updateUserStatus: (state, action) => {
-            const { userId, status } = action.payload
-            const user = state.users.find(u => u.id === userId)
-            if (user) {
-                user.status = status
-            }
-        },
-        updateUserRole: (state, action) => {
-            const { userId, roles } = action.payload
-            const user = state.users.find(u => u.id === userId)
-            if (user) {
-                user.roles = roles
-            }
-        },
-
         // Reset state
         resetUserState: () => initialState
     }
@@ -120,8 +104,6 @@ export const {
     setFilters,
     setCurrentPage,
     resetFilters,
-    updateUserStatus,
-    updateUserRole,
     resetUserState
 } = userSlice.actions
 

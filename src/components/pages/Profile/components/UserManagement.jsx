@@ -7,8 +7,7 @@ import BlackTag from '@/components/common/BlackTag'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import {
     useGetUsersQuery,
-    useUpdateUserStatusMutation,
-    useChangeUserRoleMutation,
+    useUpdateUserMutation,
     useDeleteUserMutation
 } from '@/redux/features/user/userApi'
 import {
@@ -43,9 +42,8 @@ const UserManagement = ({ userData }) => {
     const canBlockUser = checkUserPermission(userData.roles, PERMISSIONS.BLOCK_USER)
     const canChangeUserRole = checkUserPermission(userData.roles, PERMISSIONS.CHANGE_USER_ROLE)
 
-    // Mutations
-    const [updateUserStatus] = useUpdateUserStatusMutation()
-    const [changeUserRole] = useChangeUserRoleMutation()
+    // Mutations - only updateUser and deleteUser needed
+    const [updateUser] = useUpdateUserMutation()
     const [deleteUser] = useDeleteUserMutation()
 
     // Debounce search input
@@ -103,7 +101,10 @@ const UserManagement = ({ userData }) => {
 
     const handleRoleChange = async (userId, newRole) => {
         try {
-            await changeUserRole({ userId, roles: [newRole] }).unwrap()
+            await updateUser({
+                userId,
+                userData: { roles: [newRole] }
+            }).unwrap()
             ToastMessage.notifySuccess(`User role updated to ${newRole}`)
             refetch()
         } catch (error) {
@@ -115,7 +116,10 @@ const UserManagement = ({ userData }) => {
         try {
             if (action === 'block' || action === 'unblock') {
                 const status = action === 'block' ? 'blocked' : 'active'
-                await updateUserStatus({ userId, status }).unwrap()
+                await updateUser({
+                    userId,
+                    userData: { status }
+                }).unwrap()
                 ToastMessage.notifySuccess(`User ${action}ed successfully`)
             } else if (action === 'delete') {
                 if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {

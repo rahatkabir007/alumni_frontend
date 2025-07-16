@@ -2,14 +2,12 @@
 import { useState } from 'react'
 import { Formik, Form } from 'formik'
 import * as Yup from 'yup'
-import { useUpdateProfileMutation, useUpdateProfilePhotoMutation } from '@/redux/features/auth/authApi'
+import { useUpdateUserMutation } from '@/redux/features/user/userApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
 import InputComponent1 from '@/components/common/InputComponent1'
 import TextareaComponent1 from '@/components/common/TextareaComponent1'
-import ImageUploader from './ImageUploader'
-import Image from 'next/image'
 
 const ProfileSchema = Yup.object().shape({
     name: Yup.string()
@@ -33,8 +31,7 @@ const ProfileSchema = Yup.object().shape({
 });
 
 const BasicInfo = ({ userData, onUpdate }) => {
-    const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation()
-    const [updateProfilePhoto, { isLoading: isUpdatingPhoto }] = useUpdateProfilePhotoMutation()
+    const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation()
     const [isEditing, setIsEditing] = useState(false)
 
     const handleEdit = () => {
@@ -47,68 +44,26 @@ const BasicInfo = ({ userData, onUpdate }) => {
 
     const handleSave = async (values, { setSubmitting }) => {
         try {
-            const result = await updateProfile(values).unwrap()
+            const result = await updateUser({
+                userId: userData.id,
+                userData: values
+            }).unwrap()
 
             // Update local state with new data
-            onUpdate(result.data || { ...userData, ...values })
+            onUpdate(result || { ...userData, ...values })
 
             setIsEditing(false)
             ToastMessage.notifySuccess('Profile updated successfully!')
         } catch (error) {
             console.error('Failed to update profile:', error)
-            ToastMessage.notifyError(error.data?.message || 'Failed to update profile')
+            ToastMessage.notifyError(error.message || 'Failed to update profile')
         } finally {
             setSubmitting(false)
         }
     }
 
-    const handleProfilePhotoUpdate = async (newPhotoUrl) => {
-        try {
-            const result = await updateProfilePhoto({ profilePhoto: newPhotoUrl }).unwrap()
-            onUpdate({ ...userData, profilePhoto: newPhotoUrl })
-            ToastMessage.notifySuccess('Profile photo updated!')
-        } catch (error) {
-            console.error('Failed to update profile photo:', error)
-            ToastMessage.notifyError('Failed to update profile photo')
-        }
-    }
-
     return (
         <div className="space-y-6">
-            {/* Profile Photo Section */}
-            <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Profile Photo</h3>
-                <div className="flex flex-col sm:flex-row items-center gap-6">
-                    <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
-                        {userData.profilePhoto ? (
-                            <Image
-                                src={userData.profilePhoto}
-                                alt="Profile"
-                                className="w-full h-full object-cover"
-                                width={128}
-                                height={128}
-                            />
-                        ) : (
-                            userData.name?.charAt(0).toUpperCase() || 'A'
-                        )}
-                    </div>
-
-                    <div className="flex-1">
-                        <ImageUploader
-                            onUpload={handleProfilePhotoUpdate}
-                            acceptedTypes={['image/jpeg', 'image/png', 'image/jpg']}
-                            maxSizeMB={5}
-                            buttonText={isUpdatingPhoto ? "Updating..." : "Change Profile Photo"}
-                            buttonVariant="outline"
-                            disabled={isUpdatingPhoto}
-                        />
-                        <p className="text-sm text-gray-500 mt-2">
-                            Recommended: Square image, at least 200x200px, max 5MB
-                        </p>
-                    </div>
-                </div>
-            </ElegantCard>
-
             {/* Basic Information */}
             <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                 <div className="flex justify-between items-center mb-6">
