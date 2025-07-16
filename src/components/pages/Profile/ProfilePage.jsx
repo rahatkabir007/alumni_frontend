@@ -97,8 +97,6 @@ const ProfilePage = () => {
         user: result,
         token: storedToken
       }));
-
-      ToastMessage.notifyInfo('Profile data refreshed!')
     } catch (error) {
       console.error('Profile Page - Failed to refresh user data:', error);
 
@@ -180,7 +178,10 @@ const ProfilePage = () => {
             <p>Has Tried Fetch: {hasTriedFetch ? 'Yes' : 'No'}</p>
             <p>Loading: {isUserLoading ? 'Yes' : 'No'}</p>
           </div>
-          <BlackButton onClick={handleRefreshData}>
+          <BlackButton onClick={() => {
+            handleRefreshData()
+            ToastMessage.notifyInfo('Profile data refreshed!')
+          }}>
             Try Again
           </BlackButton>
         </ElegantCard>

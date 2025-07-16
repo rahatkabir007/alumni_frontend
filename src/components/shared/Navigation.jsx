@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 
 const Navigation = ({ user, onLogout, isInitialized }) => {
     const router = useRouter()
@@ -99,8 +100,20 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     className="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                                 >
-                                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-lg">
-                                        {user.name?.charAt(0).toUpperCase() || 'A'}
+                                    <div className="flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative flex-col">
+                                        {user.profilePhoto ? (
+                                            <Image
+                                                src={user.profilePhoto}
+                                                alt="Profile"
+                                                className="w-8 h-8 object-cover rounded-full"
+                                                width={96}
+                                                height={96}
+                                            />
+                                        ) : (
+                                            <div className='w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-2xl font-bold'>
+                                                {user.name?.charAt(0).toUpperCase() || 'A'}
+                                            </div>
+                                        )}
                                     </div>
                                     <span>{user.name || 'Alumni'}</span>
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,8 +258,20 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                                 ) : (
                                     <div className="px-3">
                                         <div className="flex items-center space-x-3 py-2 mb-2">
-                                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                                                {user.name?.charAt(0).toUpperCase() || 'A'}
+                                            <div className="w-full mx-auto flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative flex-col">
+                                                {user.profilePhoto ? (
+                                                    <Image
+                                                        src={user.profilePhoto}
+                                                        alt="Profile"
+                                                        className="w-24 h-24 object-cover rounded-full"
+                                                        width={96}
+                                                        height={96}
+                                                    />
+                                                ) : (
+                                                    <div className='w-24 h-24 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-2xl font-bold'>
+                                                        {user.name?.charAt(0).toUpperCase() || 'A'}
+                                                    </div>
+                                                )}
                                             </div>
                                             <span className="text-white font-medium">{user.name || 'Alumni'}</span>
                                         </div>
