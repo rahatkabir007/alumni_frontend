@@ -8,13 +8,16 @@ import BlackTag from '@/components/common/BlackTag'
 import ImageUploader from './ImageUploader'
 import Image from 'next/image'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
+import { menuItems } from '@/datas/profilePage'
 
 const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh }) => {
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [updateUser, { isLoading: isUpdatingPhoto }] = useUpdateUserMutation()
+    const [isPhotoLoading, setIsPhotoLoading] = useState(false)
 
     const handleProfilePhotoUpdate = async (newPhotoUrl) => {
         try {
+            setIsPhotoLoading(true)
             // Use the updateUser API endpoint for profile photo update
             const result = await updateUser({
                 userId: userData.id,
@@ -22,61 +25,17 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
             }).unwrap()
 
             // Refresh the entire user data to get the updated profile
-            onRefresh()
+            await onRefresh()
             ToastMessage.notifySuccess('Profile photo updated!')
         } catch (error) {
             console.error('Failed to update profile photo:', error)
             ToastMessage.notifyError('Failed to update profile photo')
+        } finally {
+            setIsPhotoLoading(false)
         }
     }
 
-    const menuItems = [
-        {
-            id: 'basic-info',
-            label: 'Basic Information',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-            )
-        },
-        {
-            id: 'blogs',
-            label: 'Blog Management',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-            )
-        },
-        {
-            id: 'events',
-            label: 'Event Management',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-            )
-        },
-        {
-            id: 'gallery',
-            label: 'Gallery Management',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-            )
-        },
-        {
-            id: 'reviews',
-            label: 'Reviews & Testimonials',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
-            )
-        }
-    ]
+
 
     // Add admin-only menu items
     if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_USERS)) {
@@ -111,13 +70,23 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                     {/* Profile Picture */}
                     <div className="relative mb-4">
                         <div className="w-full mx-auto flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative flex-col">
-                            {userData.profilePhoto ? (
+                            {isPhotoLoading || isUpdatingPhoto ? (
+                                // Profile picture loading skeleton
+                                <div className="w-24 h-24 rounded-full bg-gray-200 animate-pulse flex items-center justify-center">
+                                    <svg className="w-8 h-8 text-gray-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                </div>
+                            ) : userData.profilePhoto ? (
                                 <Image
                                     src={userData.profilePhoto}
                                     alt="Profile"
-                                    className="w-24 h-24 object-cover rounded-full"
-                                    width={96}
-                                    height={96}
+                                    className="w-24 h-24 object-cover rounded-full bg-gray-200"
+                                    width={400}
+                                    height={400}
+                                    onLoad={() => setIsPhotoLoading(false)}
+                                    onError={() => setIsPhotoLoading(false)}
+
                                 />
                             ) : (
                                 <div className='w-24 h-24 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-2xl font-bold'>
@@ -131,8 +100,8 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                                     onUpload={handleProfilePhotoUpdate}
                                     acceptedTypes={['image/jpeg', 'image/png', 'image/jpg']}
                                     maxSizeMB={5}
-                                    buttonText={isUpdatingPhoto ? "Updating..." : "Change Photo"}
-                                    disabled={isUpdatingPhoto}
+                                    buttonText={isUpdatingPhoto || isPhotoLoading ? "Updating..." : "Change Photo"}
+                                    disabled={isUpdatingPhoto || isPhotoLoading}
                                     icon={true}
                                 />
                             </div>
@@ -143,43 +112,53 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                         </p>
                     </div>
 
-                    <h2 className="text-xl font-bold text-gray-900">{userData.name || 'Alumni'}</h2>
-                    <p className="text-gray-600 text-sm">{userData.email}</p>
+                    {/* User info with loading states */}
+                    {isPhotoLoading || isUpdatingPhoto ? (
+                        <div className="space-y-2">
+                            <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4 mx-auto"></div>
+                            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2 mx-auto"></div>
+                        </div>
+                    ) : (
+                        <>
+                            <h2 className="text-xl font-bold text-gray-900">{userData.name || 'Alumni'}</h2>
+                            <p className="text-gray-600 text-sm">{userData.email}</p>
 
-                    {userData.profession && (
-                        <p className="text-gray-500 text-sm mt-1">{userData.profession}</p>
+                            {userData.profession && (
+                                <p className="text-gray-500 text-sm mt-1">{userData.profession}</p>
+                            )}
+
+                            {/* Roles */}
+                            <div className="flex flex-wrap justify-center gap-1 mt-3">
+                                {userData.roles?.map((role, index) => (
+                                    <BlackTag
+                                        key={index}
+                                        variant={role === 'admin' ? 'filled' : 'outline'}
+                                        size="xs"
+                                        className={role === 'admin' ? 'bg-red-600 text-white' : ''}
+                                    >
+                                        {role}
+                                    </BlackTag>
+                                ))}
+                            </div>
+
+                            {/* Quick Stats */}
+                            <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
+                                <div className="text-center">
+                                    <div className="text-lg font-bold text-gray-900">
+                                        {userData.graduationYear || 'N/A'}
+                                    </div>
+                                    <div className="text-xs text-gray-500">Graduation</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-lg font-bold text-gray-900">
+                                        {userData.batch || 'N/A'}
+                                    </div>
+                                    <div className="text-xs text-gray-500">Batch</div>
+                                </div>
+                            </div>
+                        </>
                     )}
-
-                    {/* Roles */}
-                    <div className="flex flex-wrap justify-center gap-1 mt-3">
-                        {userData.roles?.map((role, index) => (
-                            <BlackTag
-                                key={index}
-                                variant={role === 'admin' ? 'filled' : 'outline'}
-                                size="xs"
-                                className={role === 'admin' ? 'bg-red-600 text-white' : ''}
-                            >
-                                {role}
-                            </BlackTag>
-                        ))}
-                    </div>
-
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
-                        <div className="text-center">
-                            <div className="text-lg font-bold text-gray-900">
-                                {userData.graduationYear || 'N/A'}
-                            </div>
-                            <div className="text-xs text-gray-500">Graduation</div>
-                        </div>
-                        <div className="text-center">
-                            <div className="text-lg font-bold text-gray-900">
-                                {userData.batch || 'N/A'}
-                            </div>
-                            <div className="text-xs text-gray-500">Batch</div>
-                        </div>
-                    </div>
-
                 </div>
             </ElegantCard>
 

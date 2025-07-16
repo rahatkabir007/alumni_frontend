@@ -12,7 +12,7 @@ const ImageUploader = ({
     size = "md",
     disabled = false,
     className = "",
-    icon = false // New prop to show edit icon instead of button
+    icon = false
 }) => {
     const [isUploading, setIsUploading] = useState(false)
     const fileInputRef = useRef(null)
@@ -33,6 +33,7 @@ const ImageUploader = ({
         }
 
         setIsUploading(true);
+        ToastMessage.notifyInfo('Uploading image...');
 
         try {
             const formData = new FormData();
@@ -47,7 +48,7 @@ const ImageUploader = ({
             if (!response.ok) throw new Error('Upload failed');
 
             const { data } = await response.json();
-            await onUpload(data?.url || data?.display_url); // Use actual field returned by imgbb
+            await onUpload(data?.url || data?.display_url);
         } catch (error) {
             console.error('Upload error:', error);
             ToastMessage.notifyError('Failed to upload image');
@@ -56,7 +57,6 @@ const ImageUploader = ({
             fileInputRef.current && (fileInputRef.current.value = '');
         }
     };
-
 
     const handleButtonClick = () => {
         if (!disabled && !isUploading) {
@@ -75,7 +75,6 @@ const ImageUploader = ({
             />
 
             {icon ? (
-                // Edit icon version
                 <button
                     onClick={handleButtonClick}
                     disabled={disabled || isUploading}
@@ -91,7 +90,6 @@ const ImageUploader = ({
                     )}
                 </button>
             ) : (
-                // Button version
                 <BlackButton
                     variant={buttonVariant}
                     size={size}

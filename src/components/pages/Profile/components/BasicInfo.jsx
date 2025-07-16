@@ -33,6 +33,7 @@ const ProfileSchema = Yup.object().shape({
 const BasicInfo = ({ userData, onUpdate }) => {
     const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation()
     const [isEditing, setIsEditing] = useState(false)
+    const [isDataLoading, setIsDataLoading] = useState(false)
 
     const handleEdit = () => {
         setIsEditing(true)
@@ -44,6 +45,7 @@ const BasicInfo = ({ userData, onUpdate }) => {
 
     const handleSave = async (values, { setSubmitting }) => {
         try {
+            setIsDataLoading(true)
             const result = await updateUser({
                 userId: userData.id,
                 userData: values
@@ -59,8 +61,21 @@ const BasicInfo = ({ userData, onUpdate }) => {
             ToastMessage.notifyError(error.message || 'Failed to update profile')
         } finally {
             setSubmitting(false)
+            setIsDataLoading(false)
         }
     }
+
+    // Loading skeleton component
+    const LoadingSkeleton = () => (
+        <div className="grid md:grid-cols-2 gap-6">
+            {Array.from({ length: 7 }).map((_, index) => (
+                <div key={index} className={index === 6 ? "md:col-span-2" : ""}>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+                    <div className={`h-10 bg-gray-200 rounded animate-pulse ${index === 6 ? 'h-20' : ''}`}></div>
+                </div>
+            ))}
+        </div>
+    )
 
     return (
         <div className="space-y-6">
@@ -68,14 +83,22 @@ const BasicInfo = ({ userData, onUpdate }) => {
             <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-900">Basic Information</h3>
-                    {!isEditing && (
+                    {!isEditing && !isDataLoading && (
                         <BlackButton size="sm" onClick={handleEdit}>
                             Edit Information
                         </BlackButton>
                     )}
+                    {isDataLoading && (
+                        <div className="flex items-center gap-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+                            <span className="text-sm text-gray-600">Updating...</span>
+                        </div>
+                    )}
                 </div>
 
-                {isEditing ? (
+                {isDataLoading ? (
+                    <LoadingSkeleton />
+                ) : isEditing ? (
                     <Formik
                         initialValues={{
                             name: userData.name || '',
@@ -199,17 +222,17 @@ const BasicInfo = ({ userData, onUpdate }) => {
                                         variant="outline"
                                         size="sm"
                                         onClick={handleCancel}
-                                        disabled={isSubmitting || isUpdating}
+                                        disabled={isSubmitting || isUpdating || isDataLoading}
                                     >
                                         Cancel
                                     </BlackButton>
                                     <BlackButton
                                         type="submit"
                                         size="sm"
-                                        loading={isSubmitting || isUpdating}
-                                        disabled={isSubmitting || isUpdating}
+                                        loading={isSubmitting || isUpdating || isDataLoading}
+                                        disabled={isSubmitting || isUpdating || isDataLoading}
                                     >
-                                        Save Changes
+                                        {isDataLoading ? 'Updating...' : 'Save Changes'}
                                     </BlackButton>
                                 </div>
                             </Form>

@@ -28,6 +28,7 @@ const ProfilePage = () => {
 
   const [activeSection, setActiveSection] = useState('basic-info')
   const [hasTriedFetch, setHasTriedFetch] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Debug log to see current user state
   useEffect(() => {
@@ -88,6 +89,7 @@ const ProfilePage = () => {
 
   const handleRefreshData = async () => {
     try {
+      setIsRefreshing(true)
       console.log('Profile Page - Manually refreshing user data...');
       const result = await triggerGetUser().unwrap()
       console.log('Profile Page - Refresh result:', result);
@@ -97,6 +99,8 @@ const ProfilePage = () => {
         user: result,
         token: storedToken
       }));
+
+      ToastMessage.notifyInfo('Profile data refreshed!')
     } catch (error) {
       console.error('Profile Page - Failed to refresh user data:', error);
 
@@ -107,6 +111,8 @@ const ProfilePage = () => {
       } else {
         ToastMessage.notifyError('Failed to refresh data')
       }
+    } finally {
+      setIsRefreshing(false)
     }
   }
 
@@ -200,12 +206,22 @@ const ProfilePage = () => {
               activeSection={activeSection}
               onSectionChange={setActiveSection}
               onRefresh={handleRefreshData}
+              isRefreshing={isRefreshing}
             />
           </div>
 
           {/* Main Content */}
           <div className="lg:col-span-3">
-            {renderActiveSection()}
+            {isRefreshing ? (
+              <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+                  <p className="text-gray-600">Refreshing profile data...</p>
+                </div>
+              </ElegantCard>
+            ) : (
+              renderActiveSection()
+            )}
           </div>
         </div>
       </div>
