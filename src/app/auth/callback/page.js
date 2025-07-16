@@ -19,63 +19,88 @@ function AuthCallbackContent() {
         const handleCallback = async () => {
             try {
                 const token = searchParams.get('token');
-                const user = searchParams.get('user');
+                const userParam = searchParams.get('user');
                 const authError = searchParams.get('error');
 
                 console.log('Auth callback - token:', !!token);
-                console.log('Auth callback - user param:', user);
+                console.log('Auth callback - user param:', userParam);
+                console.log('Auth callback - error:', authError);
 
                 if (authError) {
-                    setError(`Authentication failed: ${authError}`);
+                    setError(`Authentication failed: ${authError.replace(/_/g, ' ')}`);
+                    ToastMessage.notifyError(`Authentication failed: ${authError.replace(/_/g, ' ')}`);
                     setLoading(false);
                     setTimeout(() => {
-                        router.push('/');
+                        router.push('/login');
                     }, 3000);
                     return;
                 }
 
-                if (token) {
-                    console.log('Auth callback - Token received, storing and fetching user data...');
-
-                    // Store token temporarily
-                    localStorage.setItem('token', token);
-
-                    // Always fetch fresh user data from /auth/me for Google login
-                    try {
-                        console.log('Auth callback - Fetching user data from /auth/me...');
-                        const userData = await triggerGetUser().unwrap();
-                        console.log('Auth callback - User data fetched successfully:', userData);
-
-                        // Set credentials with complete user data
-                        dispatch(setCredentials({
-                            user: userData,
-                            token: token
-                        }));
-
-                        ToastMessage.notifySuccess('Login successful!');
-                        router.push('/');
-                    } catch (fetchError) {
-                        console.error('Auth callback - Failed to fetch user data:', fetchError);
-                        localStorage.removeItem('token');
-                        setError('Failed to load user profile after authentication');
-                        setLoading(false);
-                        setTimeout(() => {
-                            router.push('/login');
-                        }, 3000);
-                    }
-                } else {
+                if (!token) {
                     setError('Missing authentication token');
+                    ToastMessage.notifyError('Missing authentication token');
                     setLoading(false);
                     setTimeout(() => {
-                        router.push('/');
+                        router.push('/login');
+                    }, 3000);
+                    return;
+                }
+
+                console.log('Auth callback - Token received, storing and fetching user data...');
+
+                // Store token first so API calls work
+                localStorage.setItem('token', token);
+
+                // Always fetch complete user data from /auth/me regardless of what's in URL params
+                // This ensures we get the full user object with all fields
+                try {
+                    console.log('Auth callback - Fetching complete user data from /auth/me...');
+                    const userData = await triggerGetUser().unwrap();
+                    console.log('Auth callback - Complete user data fetched successfully:', userData);
+
+                    // Validate that we received a proper user object
+                    if (!userData || !userData.email || !userData.id) {
+                        throw new Error('Invalid user data received from server');
+                    }
+
+                    // Set credentials with complete user data and token
+                    dispatch(setCredentials({
+                        user: userData, // This is the complete user object from /auth/me
+                        token: token
+                    }));
+
+                    ToastMessage.notifySuccess('Login successful! Welcome back!');
+
+                    // Give a moment for the state to update before redirecting
+                    setTimeout(() => {
+                        router.replace('/');
+                    }, 500);
+
+                } catch (fetchError) {
+                    console.error('Auth callback - Failed to fetch user data:', fetchError);
+
+                    // Clean up token if user fetch fails
+                    localStorage.removeItem('token');
+
+                    const errorMsg = fetchError.status === 401 ?
+                        'Session expired. Please try logging in again.' :
+                        fetchError.message || 'Failed to load user profile. Please try again.';
+
+                    setError(errorMsg);
+                    ToastMessage.notifyError(errorMsg);
+                    setLoading(false);
+
+                    setTimeout(() => {
+                        router.push('/login');
                     }, 3000);
                 }
             } catch (err) {
                 console.error('Auth callback error:', err);
                 setError('Failed to process authentication');
+                ToastMessage.notifyError('Failed to process authentication');
                 setLoading(false);
                 setTimeout(() => {
-                    router.push('/');
+                    router.push('/login');
                 }, 3000);
             }
         };
@@ -85,10 +110,11 @@ function AuthCallbackContent() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-800">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Processing authentication...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                    <p className="text-white text-lg font-medium">Processing authentication...</p>
+                    <p className="text-gray-400 text-sm mt-2">Please wait while we log you in</p>
                 </div>
             </div>
         );
@@ -96,12 +122,20 @@ function AuthCallbackContent() {
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="text-red-600 text-xl mb-4">⚠️</div>
-                    <h2 className="text-xl font-semibold text-gray-800 mb-2">Authentication Error</h2>
-                    <p className="text-gray-600 mb-4">{error}</p>
-                    <p className="text-sm text-gray-500">Redirecting to homepage...</p>
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-800">
+                <div className="text-center max-w-md mx-auto p-6">
+                    <div className="text-red-400 text-4xl mb-4">⚠️</div>
+                    <h2 className="text-xl font-semibold text-white mb-2">Authentication Error</h2>
+                    <p className="text-gray-300 mb-6">{error}</p>
+                    <div className="bg-red-900/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg mb-4">
+                        <p className="text-sm">Redirecting to login page in a few seconds...</p>
+                    </div>
+                    <button
+                        onClick={() => router.push('/login')}
+                        className="bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                    >
+                        Go to Login Now
+                    </button>
                 </div>
             </div>
         );
@@ -113,10 +147,10 @@ function AuthCallbackContent() {
 export default function AuthCallback() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-800">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                    <p className="text-white">Loading...</p>
                 </div>
             </div>
         }>

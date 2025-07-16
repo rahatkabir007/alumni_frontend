@@ -117,9 +117,15 @@ export default function LoginPage() {
     };
 
     const handleGoogleLogin = () => {
+        // Store current page for redirect after login
+        const currentPath = window.location.pathname;
+        const redirectParam = currentPath !== '/' ? `&redirect=${encodeURIComponent(currentPath)}` : '';
+
         // Add frontend callback URL parameter to ensure proper redirect
         const frontendCallback = encodeURIComponent(`${window.location.origin}/auth/callback`);
-        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?callback=${frontendCallback}`;
+
+        console.log('Initiating Google login...');
+        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?callback=${frontendCallback}${redirectParam}`;
     };
 
     return (

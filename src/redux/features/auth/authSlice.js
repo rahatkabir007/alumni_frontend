@@ -16,12 +16,24 @@ export const authSlice = createSlice({
         setCredentials: (state, action) => {
             const { user, token } = action.payload;
 
-            console.log('authSlice - setCredentials called with:', { user: user?.email, token: !!token });
+            console.log('authSlice - setCredentials called with:', {
+                userEmail: user?.email,
+                userId: user?.id,
+                userName: user?.name,
+                token: !!token
+            });
 
-            // Validate that user is a proper object, not just an ID
-            if (!user || typeof user !== 'object' || typeof user === 'string' || typeof user === 'number') {
+            // Validate that user is a proper object with required fields
+            if (!user || typeof user !== 'object' || !user.email || !user.id) {
                 console.error('authSlice - Invalid user data provided:', user);
+                console.error('authSlice - User must be an object with email and id fields');
                 return; // Don't set invalid user data
+            }
+
+            // Validate token
+            if (!token || typeof token !== 'string') {
+                console.error('authSlice - Invalid token provided:', token);
+                return;
             }
 
             // Normalize user data field names if needed
@@ -45,11 +57,12 @@ export const authSlice = createSlice({
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(normalizedUser));
                 console.log('authSlice - Data stored in localStorage successfully');
+                console.log('authSlice - Stored user:', normalizedUser.email, normalizedUser.name);
             } catch (error) {
                 console.error('authSlice - Failed to store in localStorage:', error);
             }
 
-            console.log('authSlice - Credentials set successfully');
+            console.log('authSlice - Credentials set successfully for user:', normalizedUser.email);
         },
         updateUserData: (state, action) => {
             console.log('authSlice - updateUserData called');
