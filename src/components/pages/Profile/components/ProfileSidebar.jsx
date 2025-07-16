@@ -120,7 +120,9 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                                     height={96}
                                 />
                             ) : (
-                                userData.name?.charAt(0).toUpperCase() || 'A'
+                                <div className='w-24 h-24 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-2xl font-bold'>
+                                    {userData.name?.charAt(0).toUpperCase() || 'A'}
+                                </div>
                             )}
 
                             {/* Edit Icon Overlay */}
