@@ -13,7 +13,6 @@ function AuthCallbackContent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Add lazy query for fetching user data
     const [triggerGetUser] = useLazyGetCurrentUserQuery();
 
     useEffect(() => {
@@ -23,44 +22,49 @@ function AuthCallbackContent() {
                 const user = searchParams.get('user');
                 const authError = searchParams.get('error');
 
+                console.log('Auth callback - token:', !!token);
+                console.log('Auth callback - user param:', user);
+
                 if (authError) {
                     setError(`Authentication failed: ${authError}`);
                     setLoading(false);
-                    // Redirect to login after 3 seconds
                     setTimeout(() => {
                         router.push('/');
                     }, 3000);
                     return;
                 }
 
-                if (token && user) {
-                    // Parse user data
-                    const userData = JSON.parse(decodeURIComponent(user));
+                if (token) {
+                    console.log('Auth callback - Token received, storing and fetching user data...');
 
-                    // Store token in localStorage and update Redux state
-                    dispatch(setCredentials({
-                        user: userData,
-                        token: token
-                    }));
+                    // Store token temporarily
+                    localStorage.setItem('token', token);
 
-                    // Fetch fresh user data from API after Google login
+                    // Always fetch fresh user data from /auth/me for Google login
                     try {
-                        console.log('Fetching fresh user data after Google login...');
-                        await triggerGetUser().unwrap();
-                        console.log('Fresh user data fetched successfully after Google login');
+                        console.log('Auth callback - Fetching user data from /auth/me...');
+                        const userData = await triggerGetUser().unwrap();
+                        console.log('Auth callback - User data fetched successfully:', userData);
+
+                        // Set credentials with complete user data
+                        dispatch(setCredentials({
+                            user: userData,
+                            token: token
+                        }));
+
+                        ToastMessage.notifySuccess('Login successful!');
+                        router.push('/');
                     } catch (fetchError) {
-                        console.warn('Failed to fetch fresh user data after Google login:', fetchError);
-                        // Don't fail the login process if user data fetch fails
+                        console.error('Auth callback - Failed to fetch user data:', fetchError);
+                        localStorage.removeItem('token');
+                        setError('Failed to load user profile after authentication');
+                        setLoading(false);
+                        setTimeout(() => {
+                            router.push('/login');
+                        }, 3000);
                     }
-
-                    console.log('Auth successful:', userData);
-
-                    ToastMessage.notifySuccess('Login successful!');
-
-                    // Redirect to homepage instead of profile
-                    router.push('/');
                 } else {
-                    setError('Missing authentication data');
+                    setError('Missing authentication token');
                     setLoading(false);
                     setTimeout(() => {
                         router.push('/');

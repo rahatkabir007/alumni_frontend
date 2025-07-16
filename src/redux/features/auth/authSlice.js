@@ -6,7 +6,7 @@ const initialState = {
     isAuthenticated: false,
     isLoading: false,
     redirectPath: null,
-    lastFetched: null, // Track when user data was last fetched
+    lastFetched: null,
 };
 
 export const authSlice = createSlice({
@@ -15,27 +15,88 @@ export const authSlice = createSlice({
     reducers: {
         setCredentials: (state, action) => {
             const { user, token } = action.payload;
-            state.user = user;
+
+            console.log('authSlice - setCredentials called with:', { user: user?.email, token: !!token });
+
+            // Validate that user is a proper object, not just an ID
+            if (!user || typeof user !== 'object' || typeof user === 'string' || typeof user === 'number') {
+                console.error('authSlice - Invalid user data provided:', user);
+                return; // Don't set invalid user data
+            }
+
+            // Normalize user data field names if needed
+            const normalizedUser = {
+                ...user,
+                createdAt: user.createdAt || user.created_at,
+                updatedAt: user.updatedAt || user.updated_at,
+            };
+
+            // Remove snake_case versions
+            if (normalizedUser.created_at) delete normalizedUser.created_at;
+            if (normalizedUser.updated_at) delete normalizedUser.updated_at;
+
+            state.user = normalizedUser;
             state.token = token;
             state.isAuthenticated = true;
             state.lastFetched = Date.now();
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
+
+            // Store in localStorage - ensure we're storing the complete user object
+            try {
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(normalizedUser));
+                console.log('authSlice - Data stored in localStorage successfully');
+            } catch (error) {
+                console.error('authSlice - Failed to store in localStorage:', error);
+            }
+
+            console.log('authSlice - Credentials set successfully');
         },
-        // New action to update user data without changing token
         updateUserData: (state, action) => {
-            state.user = { ...state.user, ...action.payload };
+            console.log('authSlice - updateUserData called');
+
+            if (!state.user) {
+                console.error('authSlice - Cannot update user data: no user in state');
+                return;
+            }
+
+            // Normalize field names
+            const normalizedData = {
+                ...action.payload,
+                createdAt: action.payload.createdAt || action.payload.created_at,
+                updatedAt: action.payload.updatedAt || action.payload.updated_at,
+            };
+
+            // Remove snake_case versions
+            if (normalizedData.created_at) delete normalizedData.created_at;
+            if (normalizedData.updated_at) delete normalizedData.updated_at;
+
+            state.user = { ...state.user, ...normalizedData };
             state.lastFetched = Date.now();
-            localStorage.setItem('user', JSON.stringify(state.user));
+
+            // Update localStorage
+            try {
+                localStorage.setItem('user', JSON.stringify(state.user));
+                console.log('authSlice - User data updated in localStorage');
+            } catch (error) {
+                console.error('authSlice - Failed to update localStorage:', error);
+            }
         },
         logout: (state) => {
+            console.log('authSlice - Logging out user');
             state.user = null;
             state.token = null;
             state.isAuthenticated = false;
             state.redirectPath = null;
             state.lastFetched = null;
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+
+            // Clear localStorage
+            try {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                console.log('authSlice - Cleared localStorage');
+            } catch (error) {
+                console.error('authSlice - Failed to clear localStorage:', error);
+            }
         },
         setLoading: (state, action) => {
             state.isLoading = action.payload;
@@ -48,11 +109,29 @@ export const authSlice = createSlice({
         },
         initializeAuth: (state, action) => {
             const { user, token } = action.payload;
-            if (user && token) {
-                state.user = user;
+
+            console.log('authSlice - initializeAuth called');
+
+            if (user && token && typeof user === 'object' && user.email) {
+                // Normalize user data
+                const normalizedUser = {
+                    ...user,
+                    createdAt: user.createdAt || user.created_at,
+                    updatedAt: user.updatedAt || user.updated_at,
+                };
+
+                // Remove snake_case versions
+                if (normalizedUser.created_at) delete normalizedUser.created_at;
+                if (normalizedUser.updated_at) delete normalizedUser.updated_at;
+
+                state.user = normalizedUser;
                 state.token = token;
                 state.isAuthenticated = true;
                 state.lastFetched = Date.now();
+
+                console.log('authSlice - Auth initialized successfully');
+            } else {
+                console.error('authSlice - Invalid data for initializeAuth:', { hasUser: !!user, hasToken: !!token });
             }
         }
     }

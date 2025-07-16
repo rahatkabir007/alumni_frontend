@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { selectCurrentUser, selectIsAuthenticated, selectToken, logout } from '@/redux/features/auth/authSlice'
+import { selectCurrentUser, selectIsAuthenticated, selectToken, logout, setCredentials } from '@/redux/features/auth/authSlice'
 import { useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import { useRouter } from 'next/navigation'
@@ -26,64 +26,84 @@ const ProfilePage = () => {
 
   const [triggerGetUser, { isLoading: isUserLoading }] = useLazyGetCurrentUserQuery()
 
-  const [userData, setUserData] = useState(null)
-  const [fetchError, setFetchError] = useState(null)
   const [activeSection, setActiveSection] = useState('basic-info')
+  const [hasTriedFetch, setHasTriedFetch] = useState(false)
 
-  // Initialize userData with currentUser from Redux store
+  // Debug log to see current user state
   useEffect(() => {
-    if (currentUser) {
-      console.log('Setting userData from Redux store:', currentUser)
-      setUserData(currentUser)
-      setFetchError(null)
+    console.log('Profile Page - Current user from Redux:', currentUser);
+    console.log('Profile Page - Is authenticated:', isAuthenticated);
+    console.log('Profile Page - Token exists:', !!token);
+    console.log('Profile Page - Token value:', token);
+  }, [currentUser, isAuthenticated, token]);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated && !token) {
+      console.log('Not authenticated and no token, redirecting to login...');
+      router.push('/login')
+      return
     }
-  }, [currentUser])
+  }, [isAuthenticated, token, router])
 
-  // Only fetch fresh data if we don't have user data
+  // Fetch user data if we have token but no user data
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (isAuthenticated && token && !userData && !currentUser) {
+    const fetchUserDataIfNeeded = async () => {
+      // Check if we have token but no user data
+      const storedToken = token || localStorage.getItem('token');
+
+      if (storedToken && !currentUser && !hasTriedFetch && !isUserLoading) {
+        console.log('Profile Page - Have token but no user data, fetching...');
+        setHasTriedFetch(true)
+
         try {
-          console.log('Fetching user data from API...');
+          console.log('Profile Page - Fetching user data...');
           const result = await triggerGetUser().unwrap()
-          setUserData(result)
-          setFetchError(null)
+          console.log('Profile Page - User data fetched successfully:', result);
+
+          // Set credentials with the fetched user data and stored token
+          dispatch(setCredentials({
+            user: result,
+            token: storedToken
+          }));
+
         } catch (error) {
-          console.error('Failed to fetch user data:', error);
-          setFetchError(error)
+          console.error('Profile Page - Failed to fetch user data:', error);
 
           // Only logout on authentication errors
           if (error.status === 401 || error.status === 403) {
-            console.log('Authentication failed, clearing token and redirecting...');
+            console.log('Profile Page - Authentication failed, logging out...');
             dispatch(logout())
-            localStorage.clear()
-            sessionStorage.clear()
             ToastMessage.notifyError('Session expired. Please login again.')
             router.push('/login')
           } else {
-            ToastMessage.notifyWarning('Failed to load latest profile data')
+            ToastMessage.notifyWarning('Failed to load profile data')
           }
         }
       }
     }
 
-    fetchUserData()
-  }, [isAuthenticated, token, userData, currentUser, triggerGetUser, dispatch, router]);
+    fetchUserDataIfNeeded()
+  }, [currentUser, token, hasTriedFetch, isUserLoading, triggerGetUser, dispatch, router])
 
   const handleRefreshData = async () => {
     try {
-      console.log('Manually refreshing user data...');
+      console.log('Profile Page - Manually refreshing user data...');
       const result = await triggerGetUser().unwrap()
-      setUserData(result)
-      setFetchError(null)
+      console.log('Profile Page - Refresh result:', result);
+
+      const storedToken = token || localStorage.getItem('token');
+      dispatch(setCredentials({
+        user: result,
+        token: storedToken
+      }));
+
       ToastMessage.notifyInfo('Profile data refreshed!')
     } catch (error) {
-      console.error('Failed to refresh user data:', error);
+      console.error('Profile Page - Failed to refresh user data:', error);
 
       if (error.status === 401 || error.status === 403) {
         dispatch(logout())
-        localStorage.clear()
-        sessionStorage.clear()
         ToastMessage.notifyError('Session expired. Please login again.')
         router.push('/login')
       } else {
@@ -92,46 +112,50 @@ const ProfilePage = () => {
     }
   }
 
+  const handleUserUpdate = (updatedData) => {
+    console.log('Profile Page - Updating user data:', updatedData);
+    const storedToken = token || localStorage.getItem('token');
+    dispatch(setCredentials({
+      user: { ...currentUser, ...updatedData },
+      token: storedToken
+    }));
+  }
+
   const renderActiveSection = () => {
-    if (!userData) return null
+    if (!currentUser) {
+      console.log('No current user, not rendering section');
+      return null;
+    }
 
     switch (activeSection) {
       case 'basic-info':
-        return <BasicInfo userData={userData} onUpdate={setUserData} />
+        return <BasicInfo userData={currentUser} onUpdate={handleUserUpdate} />
       case 'blogs':
-        return <BlogManagement userData={userData} />
+        return <BlogManagement userData={currentUser} />
       case 'events':
-        return <EventManagement userData={userData} />
+        return <EventManagement userData={currentUser} />
       case 'gallery':
-        return <GalleryManagement userData={userData} />
+        return <GalleryManagement userData={currentUser} />
       case 'reviews':
-        return <ReviewsTestimonials userData={userData} />
+        return <ReviewsTestimonials userData={currentUser} />
       case 'users':
-        return checkUserPermission(userData.roles, PERMISSIONS.MANAGE_USERS) ?
-          <UserManagement userData={userData} /> : null
+        return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_USERS) ?
+          <UserManagement userData={currentUser} /> : null
       case 'announcements':
-        return checkUserPermission(userData.roles, PERMISSIONS.MANAGE_ANNOUNCEMENTS) ?
-          <AnnouncementManagement userData={userData} /> : null
+        return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_ANNOUNCEMENTS) ?
+          <AnnouncementManagement userData={currentUser} /> : null
       default:
-        return <BasicInfo userData={userData} onUpdate={setUserData} />
+        return <BasicInfo userData={currentUser} onUpdate={handleUserUpdate} />
     }
   }
 
-  // Check authentication first
-  if (!isAuthenticated) {
-    router.push('/login')
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirecting to login...</p>
-        </div>
-      </div>
-    )
+  // Don't render anything if not authenticated and no token
+  if (!isAuthenticated && !token && !localStorage.getItem('token')) {
+    return null
   }
 
-  // Show loading only if we're actually fetching and have no data
-  if (isUserLoading && !userData && !currentUser) {
+  // Show loading if we're fetching and have no data
+  if ((isUserLoading || !hasTriedFetch) && !currentUser) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -142,15 +166,20 @@ const ProfilePage = () => {
     )
   }
 
-  // Use userData or fallback to currentUser
-  const displayUserData = userData || currentUser
-
-  if (!displayUserData) {
+  // Show error state if we have no user data after trying to fetch
+  if (!currentUser && hasTriedFetch && !isUserLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <ElegantCard className="text-center max-w-md">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">No Profile Data</h2>
           <p className="text-gray-600 mb-6">Unable to load your profile information.</p>
+          <div className="space-y-2 text-sm text-gray-500 mb-4">
+            <p>Debug Info:</p>
+            <p>Authenticated: {isAuthenticated ? 'Yes' : 'No'}</p>
+            <p>Token: {(token || localStorage.getItem('token')) ? 'Present' : 'Missing'}</p>
+            <p>Has Tried Fetch: {hasTriedFetch ? 'Yes' : 'No'}</p>
+            <p>Loading: {isUserLoading ? 'Yes' : 'No'}</p>
+          </div>
           <BlackButton onClick={handleRefreshData}>
             Try Again
           </BlackButton>
@@ -159,6 +188,8 @@ const ProfilePage = () => {
     )
   }
 
+  console.log('Profile Page - Rendering profile with user:', currentUser);
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -166,7 +197,7 @@ const ProfilePage = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <ProfileSidebar
-              userData={displayUserData}
+              userData={currentUser}
               activeSection={activeSection}
               onSectionChange={setActiveSection}
               onRefresh={handleRefreshData}

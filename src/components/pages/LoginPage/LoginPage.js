@@ -62,29 +62,47 @@ export default function LoginPage() {
         setError('');
 
         try {
+            console.log('Attempting login with:', values.email);
             const result = await login(values).unwrap();
+            console.log('Login API response:', result);
 
-            if (result.success) {
-                // Set credentials in global state
-                dispatch(setCredentials({
-                    user: result.data.user,
-                    token: result.data.token
-                }));
+            if (result.success && result.data && result.data.token) {
+                const token = result.data.token;
+                console.log('Login successful, token received:', token);
 
-                // Fetch fresh user data from API to ensure we have complete profile
+                // Store token temporarily in localStorage to ensure API calls work
+                localStorage.setItem('token', token);
+
+                // Now fetch complete user data from /auth/me
                 try {
-                    console.log('Fetching fresh user data after login...');
-                    await triggerGetUser().unwrap();
-                    console.log('Fresh user data fetched successfully');
-                } catch (fetchError) {
-                    console.warn('Failed to fetch fresh user data after login:', fetchError);
-                    // Don't fail the login process if user data fetch fails
-                }
+                    console.log('Fetching user data from /auth/me...');
+                    const userData = await triggerGetUser().unwrap();
+                    console.log('User data from /auth/me:', userData);
 
-                ToastMessage.notifySuccess('Login successful!');
-                // Redirect will be handled by useEffect above
+                    // Now set credentials with complete user data and token
+                    dispatch(setCredentials({
+                        user: userData, // This is the complete user object from /auth/me
+                        token: token
+                    }));
+
+                    ToastMessage.notifySuccess('Login successful!');
+
+                    // Navigation will be handled by useEffect above
+                } catch (fetchError) {
+                    console.error('Failed to fetch user data after login:', fetchError);
+                    // Clean up token if user fetch fails
+                    localStorage.removeItem('token');
+
+                    const errorMsg = fetchError.status === 401 ?
+                        'Session expired. Please try logging in again.' :
+                        'Failed to load user profile. Please try again.';
+
+                    setError(errorMsg);
+                    ToastMessage.notifyError(errorMsg);
+                }
             } else {
-                const errorMessage = result.message || 'Login failed';
+                const errorMessage = result.message || 'Login failed - no token received';
+                console.error('Login failed:', result);
                 setError(errorMessage);
                 ToastMessage.notifyError(errorMessage);
             }
