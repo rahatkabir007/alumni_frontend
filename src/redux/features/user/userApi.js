@@ -69,6 +69,25 @@ export const userApi = apiSlice.injectEndpoints({
             }
         }),
 
+        getUserByEmail: builder.query({
+            query: (email) => `/users/${email}`,
+            providesTags: (result, error, userId) => [{ type: 'User', email: email }],
+            transformResponse: (response) => {
+                if (response.success) {
+                    return response.data
+                }
+                throw new Error(response.message || 'Failed to fetch user')
+            },
+            async onQueryStarted(email, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled
+                    dispatch(setSelectedUser(data))
+                } catch (error) {
+                    dispatch(setError(error.error?.message || 'Failed to fetch user'))
+                }
+            }
+        }),
+
         // Update user - handles all user updates including profile, status, roles, etc.
         updateUser: builder.mutation({
             query: ({ userId, userData }) => ({
@@ -124,11 +143,13 @@ export const userApi = apiSlice.injectEndpoints({
 export const {
     useGetUsersQuery,
     useGetUserByIdQuery,
+    useGetUserByEmailQuery,
     useUpdateUserMutation,
     useDeleteUserMutation,
     useUpdateUserStatusMutation,
     useChangeUserRoleMutation,
     // Lazy queries
     useLazyGetUsersQuery,
-    useLazyGetUserByIdQuery
+    useLazyGetUserByIdQuery,
+    useLazyGetUserByEmailQuery
 } = userApi

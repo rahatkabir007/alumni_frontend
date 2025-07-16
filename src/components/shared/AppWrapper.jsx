@@ -25,77 +25,68 @@ const AppWrapper = ({ children }) => {
     const [isInitialized, setIsInitialized] = useState(false);
 
     // Lazy query for fetching user data
-    const [triggerGetUser] = useLazyGetCurrentUserQuery();
+    const [triggerGetUser, { data: userData, isLoading: isFetchingUser }] = useLazyGetCurrentUserQuery();
 
     // Pages where Navigation and Footer should be hidden
     const authPages = ['/login', '/register'];
     const shouldShowNavigation = !authPages.includes(pathname);
 
     // Define protected routes
-    const protectedRoutes = ['/profile'];
+    const protectedRoutes = ['/dashboard', '/profile'];
 
     useEffect(() => {
         // Check if user is already logged in on app initialization
         const initializeAuthState = async () => {
-            try {
-                const storedToken = localStorage.getItem('token');
+            const storedToken = localStorage.getItem('token');
+            const storedUser = localStorage.getItem('user');
 
-                console.log('AppWrapper - Initializing auth state...');
-                console.log('AppWrapper - Stored token:', !!storedToken);
+            if (storedToken && storedUser) {
+                try {
+                    const parsedUser = JSON.parse(storedUser);
+                    dispatch(initializeAuth({ user: parsedUser, token: storedToken }));
 
-                if (storedToken) {
-                    // If token exists, always fetch fresh user data from API
-                    try {
-                        console.log('AppWrapper - Token found, fetching user data from API...');
-                        const userData = await triggerGetUser().unwrap();
-                        console.log('AppWrapper - User data fetched successfully:', userData);
-
-                        // Set credentials with fresh user data and stored token
-                        dispatch(setCredentials({
-                            user: userData,
-                            token: storedToken
-                        }));
-                    } catch (error) {
-                        console.error('AppWrapper - Failed to fetch user data:', error);
-                        if (error.status === 401 || error.status === 403) {
-                            console.log('AppWrapper - Token invalid, clearing storage...');
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('user');
-                            dispatch(logout());
-                        } else {
-                            console.warn('AppWrapper - Network error, keeping token for retry...');
-                            // For network errors, don't clear the token immediately
-                            // Just log the error and let the user try again
-                        }
-                    }
-                } else {
-                    console.log('AppWrapper - No stored token, clearing any invalid state...');
-                    // Clear any invalid state
+                    // Fetch fresh user data to ensure we have the latest information
+                    await triggerGetUser();
+                } catch (error) {
+                    console.error('Error initializing auth:', error);
+                    // Invalid stored data, clear it
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
-                    dispatch(logout());
                 }
-            } catch (error) {
-                console.error('AppWrapper - Error initializing auth:', error);
-                // Invalid stored data, clear it
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                dispatch(logout());
             }
 
+            // Mark as initialized after checking auth state
             setIsInitialized(true);
         };
 
         initializeAuthState();
     }, [dispatch, triggerGetUser]);
 
+    // Update user data when API call completes
+    useEffect(() => {
+        if (userData && token) {
+            // Use setCredentials to update both user and token in Redux store
+            dispatch(setCredentials({
+                user: userData,
+                token: token
+            }));
+            console.log('Updated user data in Redux:', userData);
+        }
+    }, [userData, dispatch, token]);
+
+    // Auto-fetch user data when authenticated but user data is missing
+    useEffect(() => {
+        if (isAuthenticated && token && !user && !isFetchingUser) {
+            triggerGetUser().catch(error => {
+                // Don't logout on API errors in AppWrapper, just log them
+                console.warn('Failed to fetch user data in AppWrapper:', error);
+            });
+        }
+    }, [isAuthenticated, token, user, triggerGetUser, isFetchingUser]);
+
     const handleLogout = () => {
         // Set flag to indicate this is a logout action
         sessionStorage.setItem('justLoggedOut', 'true');
-
-        // Clear all storage
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
 
         dispatch(logout());
         ToastMessage.notifySuccess('Logged out successfully');
@@ -116,7 +107,7 @@ const AppWrapper = ({ children }) => {
         <div className="min-h-screen flex flex-col">
             {shouldShowNavigation && (
                 <Navigation
-                    user={user}
+                    user={userData || user}
                     onLogout={handleLogout}
                     isInitialized={isInitialized}
                 />
@@ -132,4 +123,3 @@ const AppWrapper = ({ children }) => {
 };
 
 export default AppWrapper;
-

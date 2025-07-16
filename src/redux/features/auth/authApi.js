@@ -30,35 +30,15 @@ export const authApi = apiSlice.injectEndpoints({
             query: () => '/auth/me',
             // Cache user data with 'User' tag
             providesTags: ['User'],
-            // Transform response to ensure consistency and normalize field names
+            // Transform response to ensure consistency
             transformResponse: (response) => {
-                console.log('API Response for getCurrentUser:', response);
-                if (response.success && response.data) {
-                    // Normalize the field names to match frontend expectations
-                    const normalizedData = {
-                        ...response.data,
-                        createdAt: response.data.created_at,
-                        updatedAt: response.data.updated_at,
-                        // Remove the snake_case versions
-                        created_at: undefined,
-                        updated_at: undefined
-                    };
-
-                    // Clean up undefined fields
-                    Object.keys(normalizedData).forEach(key => {
-                        if (normalizedData[key] === undefined) {
-                            delete normalizedData[key];
-                        }
-                    });
-
-                    console.log('Normalized user data:', normalizedData);
-                    return normalizedData;
+                if (response.success) {
+                    return response.data;
                 }
                 throw new Error(response.message || 'Failed to fetch user data');
             },
             // Handle errors gracefully
             transformErrorResponse: (response) => {
-                console.error('API Error for getCurrentUser:', response);
                 return {
                     message: response.data?.message || 'Failed to fetch user data',
                     status: response.status
@@ -71,27 +51,6 @@ export const authApi = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: userData,
             }),
-            // Transform response to normalize field names
-            transformResponse: (response) => {
-                if (response.success && response.data) {
-                    const normalizedData = {
-                        ...response.data,
-                        createdAt: response.data.created_at,
-                        updatedAt: response.data.updated_at,
-                        created_at: undefined,
-                        updated_at: undefined
-                    };
-
-                    Object.keys(normalizedData).forEach(key => {
-                        if (normalizedData[key] === undefined) {
-                            delete normalizedData[key];
-                        }
-                    });
-
-                    return normalizedData;
-                }
-                return response;
-            },
             // Invalidate user data to refetch after update
             invalidatesTags: ['User'],
         }),
@@ -101,26 +60,6 @@ export const authApi = apiSlice.injectEndpoints({
                 method: 'PATCH',
                 body: photoData,
             }),
-            transformResponse: (response) => {
-                if (response.success && response.data) {
-                    const normalizedData = {
-                        ...response.data,
-                        createdAt: response.data.created_at,
-                        updatedAt: response.data.updated_at,
-                        created_at: undefined,
-                        updated_at: undefined
-                    };
-
-                    Object.keys(normalizedData).forEach(key => {
-                        if (normalizedData[key] === undefined) {
-                            delete normalizedData[key];
-                        }
-                    });
-
-                    return normalizedData;
-                }
-                return response;
-            },
             invalidatesTags: ['User'],
         }),
         // Add other user-related endpoints that might be needed

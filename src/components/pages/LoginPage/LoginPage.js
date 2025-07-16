@@ -62,47 +62,29 @@ export default function LoginPage() {
         setError('');
 
         try {
-            console.log('Attempting login with:', values.email);
             const result = await login(values).unwrap();
-            console.log('Login API response:', result);
 
-            if (result.success && result.data && result.data.token) {
-                const token = result.data.token;
-                console.log('Login successful, token received:', token);
+            if (result.success) {
+                // Set credentials in global state
+                dispatch(setCredentials({
+                    user: result.data.user,
+                    token: result.data.token
+                }));
 
-                // Store token temporarily in localStorage to ensure API calls work
-                localStorage.setItem('token', token);
-
-                // Now fetch complete user data from /auth/me
+                // Fetch fresh user data from API to ensure we have complete profile
                 try {
-                    console.log('Fetching user data from /auth/me...');
-                    const userData = await triggerGetUser().unwrap();
-                    console.log('User data from /auth/me:', userData);
-
-                    // Now set credentials with complete user data and token
-                    dispatch(setCredentials({
-                        user: userData, // This is the complete user object from /auth/me
-                        token: token
-                    }));
-
-                    ToastMessage.notifySuccess('Login successful!');
-
-                    // Navigation will be handled by useEffect above
+                    console.log('Fetching fresh user data after login...');
+                    await triggerGetUser().unwrap();
+                    console.log('Fresh user data fetched successfully');
                 } catch (fetchError) {
-                    console.error('Failed to fetch user data after login:', fetchError);
-                    // Clean up token if user fetch fails
-                    localStorage.removeItem('token');
-
-                    const errorMsg = fetchError.status === 401 ?
-                        'Session expired. Please try logging in again.' :
-                        'Failed to load user profile. Please try again.';
-
-                    setError(errorMsg);
-                    ToastMessage.notifyError(errorMsg);
+                    console.warn('Failed to fetch fresh user data after login:', fetchError);
+                    // Don't fail the login process if user data fetch fails
                 }
+
+                ToastMessage.notifySuccess('Login successful!');
+                // Redirect will be handled by useEffect above
             } else {
-                const errorMessage = result.message || 'Login failed - no token received';
-                console.error('Login failed:', result);
+                const errorMessage = result.message || 'Login failed';
                 setError(errorMessage);
                 ToastMessage.notifyError(errorMessage);
             }
@@ -117,15 +99,9 @@ export default function LoginPage() {
     };
 
     const handleGoogleLogin = () => {
-        // Store current page for redirect after login
-        const currentPath = window.location.pathname;
-        const redirectParam = currentPath !== '/' ? `&redirect=${encodeURIComponent(currentPath)}` : '';
-
         // Add frontend callback URL parameter to ensure proper redirect
         const frontendCallback = encodeURIComponent(`${window.location.origin}/auth/callback`);
-
-        console.log('Initiating Google login...');
-        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?callback=${frontendCallback}${redirectParam}`;
+        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?callback=${frontendCallback}`;
     };
 
     return (
