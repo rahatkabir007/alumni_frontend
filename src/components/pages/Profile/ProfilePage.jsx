@@ -170,7 +170,7 @@ const ProfilePage = () => {
   if (!currentUser && hasTriedFetch && !isUserLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <ElegantCard className="text-center max-w-md">
+        <ElegantCard className="text-center max-w-md" hover={false} initial={{ opacity: 0, y: 0 }}>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">No Profile Data</h2>
           <p className="text-gray-600 mb-6">Unable to load your profile information.</p>
           <div className="space-y-2 text-sm text-gray-500 mb-4">
@@ -187,8 +187,6 @@ const ProfilePage = () => {
       </div>
     )
   }
-
-  console.log('Profile Page - Rendering profile with user:', currentUser);
 
   return (
     <div className="bg-gray-50 min-h-screen">

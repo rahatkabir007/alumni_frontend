@@ -37,7 +37,7 @@ const ReviewsTestimonials = ({ userData }) => {
     return (
         <div className="space-y-6">
             {/* Tab Navigation */}
-            <ElegantCard hover={false}>
+            <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-900">Reviews & Testimonials</h3>
                     {canGiveReview && (

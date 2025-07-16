@@ -9,7 +9,8 @@ const ElegantCard = ({
     padding = 'md',
     shadow = 'md',
     border = true,
-    background = 'white'
+    background = 'white',
+    initial = { opacity: 0, y: 20 },
 }) => {
     const paddingClasses = {
         sm: 'p-4',

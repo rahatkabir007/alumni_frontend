@@ -4,6 +4,7 @@ import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
 import BlackTag from '@/components/common/BlackTag'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
+import { mockAnnouncements } from '@/datas/profilePage'
 
 const AnnouncementManagement = ({ userData }) => {
     const [activeTab, setActiveTab] = useState('my-announcements')
@@ -12,26 +13,7 @@ const AnnouncementManagement = ({ userData }) => {
     const canManageAnnouncements = checkUserPermission(userData.roles, PERMISSIONS.MANAGE_ANNOUNCEMENTS)
 
     // Mock announcement data
-    const mockAnnouncements = [
-        {
-            id: 1,
-            title: 'Annual Alumni Reunion 2024',
-            content: 'Join us for the biggest alumni gathering of the year...',
-            status: 'published',
-            priority: 'high',
-            createdAt: '2024-01-15',
-            author: userData.name
-        },
-        {
-            id: 2,
-            title: 'New Scholarship Program',
-            content: 'We are excited to announce a new merit-based scholarship...',
-            status: 'draft',
-            priority: 'medium',
-            createdAt: '2024-01-10',
-            author: userData.name
-        }
-    ]
+
 
     const tabs = [
         { id: 'my-announcements', label: 'My Announcements', count: mockAnnouncements.length },
@@ -40,7 +22,7 @@ const AnnouncementManagement = ({ userData }) => {
 
     if (!canPostAnnouncement && !canManageAnnouncements) {
         return (
-            <ElegantCard>
+            <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                 <div className="text-center py-12">
                     <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -55,7 +37,7 @@ const AnnouncementManagement = ({ userData }) => {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <ElegantCard>
+            <ElegantCard initial={{ opacity: 0, y: 0 }} hover={false}>
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-900">Announcement Management</h3>
                     {canPostAnnouncement && (
@@ -88,7 +70,7 @@ const AnnouncementManagement = ({ userData }) => {
             </ElegantCard>
 
             {/* Announcements List */}
-            <ElegantCard>
+            <ElegantCard initial={{ opacity: 0, y: 0 }} hover={false}>
                 {activeTab === 'my-announcements' && (
                     <div className="space-y-4">
                         <h4 className="text-lg font-semibold text-gray-900">My Announcements</h4>

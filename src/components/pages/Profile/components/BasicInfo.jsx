@@ -76,7 +76,7 @@ const BasicInfo = ({ userData, onUpdate }) => {
     return (
         <div className="space-y-6">
             {/* Profile Photo Section */}
-            <ElegantCard hover={false}>
+            <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Profile Photo</h3>
                 <div className="flex flex-col sm:flex-row items-center gap-6">
                     <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
@@ -110,7 +110,7 @@ const BasicInfo = ({ userData, onUpdate }) => {
             </ElegantCard>
 
             {/* Basic Information */}
-            <ElegantCard hover={false}>
+            <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-900">Basic Information</h3>
                     {!isEditing && (
