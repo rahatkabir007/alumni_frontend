@@ -9,25 +9,64 @@ import BlackButton from '@/components/common/BlackButton'
 import InputComponent1 from '@/components/common/InputComponent1'
 import TextareaComponent1 from '@/components/common/TextareaComponent1'
 
+// Enhanced validation schema based on backend model
 const ProfileSchema = Yup.object().shape({
     name: Yup.string()
-        .min(2, 'Name must be at least 2 characters')
-        .max(50, 'Name must be less than 50 characters')
+        .min(1, 'Name is required')
+        .max(100, 'Name cannot exceed 100 characters')
+        .test('no-harmful-chars', 'Name contains invalid characters', (value) => {
+            if (!value) return true;
+            return !/<script|javascript:|on\w+=/i.test(value);
+        })
         .required('Name is required'),
     phone: Yup.string()
-        .matches(/^[\+]?[0-9\s\-\(\)]*$/, 'Invalid phone number format')
-        .min(10, 'Phone number must be at least 10 digits'),
-    bio: Yup.string()
-        .max(500, 'Bio must be less than 500 characters'),
+        .max(20, 'Phone number cannot exceed 20 characters')
+        .matches(/^[\d\s\-\(\)\+]*$/, 'Phone number contains invalid characters'),
     location: Yup.string()
-        .max(100, 'Location must be less than 100 characters'),
+        .max(500, 'Location cannot exceed 500 characters')
+        .test('no-harmful-chars', 'Location contains invalid characters', (value) => {
+            if (!value) return true;
+            return !/<script|javascript:|on\w+=/i.test(value);
+        }),
     profession: Yup.string()
-        .max(100, 'Profession must be less than 100 characters'),
+        .max(255, 'Profession cannot exceed 255 characters')
+        .test('no-harmful-chars', 'Profession contains invalid characters', (value) => {
+            if (!value) return true;
+            return !/<script|javascript:|on\w+=/i.test(value);
+        }),
     graduationYear: Yup.number()
         .min(1950, 'Graduation year must be after 1950')
-        .max(new Date().getFullYear(), 'Graduation year cannot be in the future'),
+        .max(new Date().getFullYear() + 10, `Graduation year cannot exceed ${new Date().getFullYear() + 10}`)
+        .nullable()
+        .transform((value, originalValue) => {
+            // Transform empty string to null
+            return originalValue === '' ? null : value;
+        }),
     batch: Yup.string()
-        .max(20, 'Batch must be less than 20 characters')
+        .max(100, 'Batch cannot exceed 100 characters')
+        .test('no-harmful-chars', 'Batch contains invalid characters', (value) => {
+            if (!value) return true;
+            return !/<script|javascript:|on\w+=/i.test(value);
+        }),
+    bio: Yup.string()
+        .max(2000, 'Bio cannot exceed 2000 characters')
+        .test('no-harmful-chars', 'Bio contains invalid characters', (value) => {
+            if (!value) return true;
+            return !/<script|javascript:|on\w+=/i.test(value);
+        }),
+    isGraduated: Yup.boolean(),
+    leftAt: Yup.number()
+        .min(1998, 'Left at year must be after 1998')
+        .max(new Date().getFullYear(), `Left at year cannot exceed ${new Date().getFullYear()}`)
+        .nullable()
+        .transform((value, originalValue) => {
+            return originalValue === '' ? null : value;
+        })
+        .when('isGraduated', {
+            is: false,
+            then: (schema) => schema.required('Left at year is required when not graduated'),
+            otherwise: (schema) => schema.nullable()
+        })
 });
 
 const BasicInfo = ({ userData, onUpdate }) => {
@@ -46,9 +85,28 @@ const BasicInfo = ({ userData, onUpdate }) => {
     const handleSave = async (values, { setSubmitting }) => {
         try {
             setIsDataLoading(true)
+
+            // Transform data to match backend expectations
+            const transformedValues = {
+                ...values,
+                email: values.email || userData.email,
+                graduation_year: values.graduationYear || null,
+                left_at: values.leftAt || null,
+                // Remove camelCase versions for backend
+                graduationYear: undefined,
+                leftAt: undefined
+            };
+
+            // Clean up undefined values
+            Object.keys(transformedValues).forEach(key => {
+                if (transformedValues[key] === undefined) {
+                    delete transformedValues[key];
+                }
+            });
+
             const result = await updateUser({
                 userId: userData.id,
-                userData: values
+                userData: transformedValues
             }).unwrap()
 
             // Update local state with new data
@@ -68,7 +126,7 @@ const BasicInfo = ({ userData, onUpdate }) => {
     // Loading skeleton component
     const LoadingSkeleton = () => (
         <div className="grid md:grid-cols-2 gap-6">
-            {Array.from({ length: 7 }).map((_, index) => (
+            {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className={index === 6 ? "md:col-span-2" : ""}>
                     <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
                     <div className={`h-10 bg-gray-200 rounded animate-pulse ${index === 6 ? 'h-20' : ''}`}></div>
@@ -103,16 +161,18 @@ const BasicInfo = ({ userData, onUpdate }) => {
                         initialValues={{
                             name: userData.name || '',
                             phone: userData.phone || '',
-                            bio: userData.bio || '',
                             location: userData.location || '',
                             profession: userData.profession || '',
-                            graduationYear: userData.graduationYear || '',
+                            graduationYear: userData.graduationYear || userData.graduation_year || '',
                             batch: userData.batch || '',
+                            bio: userData.bio || '',
+                            isGraduated: userData.isGraduated !== undefined ? userData.isGraduated : true,
+                            leftAt: userData.leftAt || userData.left_at || ''
                         }}
                         validationSchema={ProfileSchema}
                         onSubmit={handleSave}
                     >
-                        {({ isSubmitting }) => (
+                        {({ isSubmitting, values, setFieldValue }) => (
                             <Form>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <InputComponent1
@@ -144,7 +204,8 @@ const BasicInfo = ({ userData, onUpdate }) => {
                                     <InputComponent1
                                         name="phone"
                                         type="tel"
-                                        label="Phone"
+                                        label="Phone Number"
+                                        placeholder="+880-XXX-XXXXXXX"
                                         useFormik={true}
                                         backgroundColor="bg-white"
                                         borderColor="border-gray-300"
@@ -155,7 +216,8 @@ const BasicInfo = ({ userData, onUpdate }) => {
 
                                     <InputComponent1
                                         name="location"
-                                        label="Location"
+                                        label="Location/Address"
+                                        placeholder="Your current location"
                                         useFormik={true}
                                         backgroundColor="bg-white"
                                         borderColor="border-gray-300"
@@ -166,19 +228,8 @@ const BasicInfo = ({ userData, onUpdate }) => {
 
                                     <InputComponent1
                                         name="profession"
-                                        label="Profession"
-                                        useFormik={true}
-                                        backgroundColor="bg-white"
-                                        borderColor="border-gray-300"
-                                        textColor="text-gray-900"
-                                        focusBorderColor="focus:border-black"
-                                        focusRingColor="focus:ring-black/10"
-                                    />
-
-                                    <InputComponent1
-                                        name="graduationYear"
-                                        type="number"
-                                        label="Graduation Year"
+                                        label="Current Profession/Job"
+                                        placeholder="Your current job or profession"
                                         useFormik={true}
                                         backgroundColor="bg-white"
                                         borderColor="border-gray-300"
@@ -189,7 +240,8 @@ const BasicInfo = ({ userData, onUpdate }) => {
 
                                     <InputComponent1
                                         name="batch"
-                                        label="Batch"
+                                        label="Batch/Class"
+                                        placeholder="e.g., Batch 2020, Class of 2020"
                                         useFormik={true}
                                         backgroundColor="bg-white"
                                         borderColor="border-gray-300"
@@ -198,15 +250,74 @@ const BasicInfo = ({ userData, onUpdate }) => {
                                         focusRingColor="focus:ring-black/10"
                                     />
 
+                                    {/* Graduation Status */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Education Status
+                                        </label>
+                                        <div className="flex items-center space-x-6">
+                                            <label className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="isGraduated"
+                                                    checked={values.isGraduated === true}
+                                                    onChange={() => setFieldValue('isGraduated', true)}
+                                                    className="mr-2 text-black focus:ring-black"
+                                                />
+                                                <span className="text-sm text-gray-900">Graduated</span>
+                                            </label>
+                                            <label className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="isGraduated"
+                                                    checked={values.isGraduated === false}
+                                                    onChange={() => setFieldValue('isGraduated', false)}
+                                                    className="mr-2 text-black focus:ring-black"
+                                                />
+                                                <span className="text-sm text-gray-900">Left Early</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Conditional Year Fields */}
+                                    {values.isGraduated ? (
+                                        <InputComponent1
+                                            name="graduationYear"
+                                            type="number"
+                                            label="Graduation Year"
+                                            placeholder="Year you graduated"
+                                            useFormik={true}
+                                            backgroundColor="bg-white"
+                                            borderColor="border-gray-300"
+                                            textColor="text-gray-900"
+                                            focusBorderColor="focus:border-black"
+                                            focusRingColor="focus:ring-black/10"
+                                        />
+                                    ) : (
+                                        <InputComponent1
+                                            name="leftAt"
+                                            type="number"
+                                            label="Year Left School"
+                                            placeholder="Year you left school"
+                                            required
+                                            useFormik={true}
+                                            backgroundColor="bg-white"
+                                            borderColor="border-gray-300"
+                                            textColor="text-gray-900"
+                                            focusBorderColor="focus:border-black"
+                                            focusRingColor="focus:ring-black/10"
+                                        />
+                                    )}
+
                                     <div className="md:col-span-2">
                                         <TextareaComponent1
                                             name="bio"
-                                            label="Bio"
+                                            label="Bio/About Me"
                                             useFormik={true}
                                             rows={4}
-                                            maxLength={500}
+                                            maxLength={2000}
                                             showCharCount={true}
-                                            placeholder="Tell us about yourself..."
+                                            placeholder="Tell us about yourself, your achievements, current work, etc..."
                                             backgroundColor="bg-white"
                                             borderColor="border-gray-300"
                                             textColor="text-gray-900"
@@ -265,7 +376,7 @@ const BasicInfo = ({ userData, onUpdate }) => {
 
                         <InputComponent1
                             name="phone"
-                            label="Phone"
+                            label="Phone Number"
                             value={userData.phone || 'Not provided'}
                             disabled={true}
                             backgroundColor="bg-gray-50"
@@ -276,7 +387,7 @@ const BasicInfo = ({ userData, onUpdate }) => {
 
                         <InputComponent1
                             name="location"
-                            label="Location"
+                            label="Location/Address"
                             value={userData.location || 'Not provided'}
                             disabled={true}
                             backgroundColor="bg-gray-50"
@@ -287,7 +398,7 @@ const BasicInfo = ({ userData, onUpdate }) => {
 
                         <InputComponent1
                             name="profession"
-                            label="Profession"
+                            label="Current Profession"
                             value={userData.profession || 'Not provided'}
                             disabled={true}
                             backgroundColor="bg-gray-50"
@@ -297,9 +408,9 @@ const BasicInfo = ({ userData, onUpdate }) => {
                         />
 
                         <InputComponent1
-                            name="graduationYear"
-                            label="Graduation Year"
-                            value={userData.graduationYear || 'Not provided'}
+                            name="batch"
+                            label="Batch/Class"
+                            value={userData.batch || 'Not provided'}
                             disabled={true}
                             backgroundColor="bg-gray-50"
                             borderColor="border-transparent"
@@ -308,9 +419,23 @@ const BasicInfo = ({ userData, onUpdate }) => {
                         />
 
                         <InputComponent1
-                            name="batch"
-                            label="Batch"
-                            value={userData.batch || 'Not provided'}
+                            name="educationStatus"
+                            label="Education Status"
+                            value={userData.isGraduated ? 'Graduated' : 'Left Early'}
+                            disabled={true}
+                            backgroundColor="bg-gray-50"
+                            borderColor="border-transparent"
+                            textColor="text-gray-900"
+                            className="cursor-default"
+                        />
+
+                        <InputComponent1
+                            name="year"
+                            label={userData.isGraduated ? "Graduation Year" : "Year Left School"}
+                            value={userData.isGraduated
+                                ? (userData.graduationYear || userData.graduation_year || 'Not provided')
+                                : (userData.leftAt || userData.left_at || 'Not provided')
+                            }
                             disabled={true}
                             backgroundColor="bg-gray-50"
                             borderColor="border-transparent"
@@ -321,7 +446,7 @@ const BasicInfo = ({ userData, onUpdate }) => {
                         <div className="md:col-span-2">
                             <TextareaComponent1
                                 name="bio"
-                                label="Bio"
+                                label="Bio/About Me"
                                 value={userData.bio || 'No bio provided'}
                                 disabled={true}
                                 rows={4}
@@ -343,6 +468,12 @@ const BasicInfo = ({ userData, onUpdate }) => {
                             <span className="text-gray-500">User ID:</span>
                             <span className="ml-2 text-gray-900">{userData.id}</span>
                         </div>
+                        <div>
+                            <span className="text-gray-500">Account Status:</span>
+                            <span className={`ml-2 ${userData.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                                {userData.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </div>
                         {userData.provider && (
                             <div>
                                 <span className="text-gray-500">Login Provider:</span>
@@ -352,13 +483,15 @@ const BasicInfo = ({ userData, onUpdate }) => {
                         <div>
                             <span className="text-gray-500">Member Since:</span>
                             <span className="ml-2 text-gray-900">
-                                {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A'}
+                                {userData.createdAt || userData.created_at ?
+                                    new Date(userData.createdAt || userData.created_at).toLocaleDateString() : 'N/A'}
                             </span>
                         </div>
                         <div>
                             <span className="text-gray-500">Last Updated:</span>
                             <span className="ml-2 text-gray-900">
-                                {userData.updatedAt ? new Date(userData.updatedAt).toLocaleDateString() : 'N/A'}
+                                {userData.updatedAt || userData.updated_at ?
+                                    new Date(userData.updatedAt || userData.updated_at).toLocaleDateString() : 'N/A'}
                             </span>
                         </div>
                     </div>
