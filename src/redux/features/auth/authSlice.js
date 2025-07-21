@@ -16,13 +16,6 @@ export const authSlice = createSlice({
         setCredentials: (state, action) => {
             const { user, token } = action.payload;
 
-            console.log('authSlice - setCredentials called with:', {
-                userEmail: user?.email,
-                userId: user?.id,
-                userName: user?.name,
-                token: !!token
-            });
-
             // Validate that user is a proper object with required fields
             if (!user || typeof user !== 'object' || !user.email || !user.id) {
                 console.error('authSlice - Invalid user data provided:', user);
@@ -63,6 +56,9 @@ export const authSlice = createSlice({
             }
 
             console.log('authSlice - Credentials set successfully for user:', normalizedUser.email);
+        },
+        setUser: (state, action) => {
+            state.user = action.payload;
         },
         updateUserData: (state, action) => {
             console.log('authSlice - updateUserData called');
@@ -152,6 +148,7 @@ export const authSlice = createSlice({
 
 export const {
     setCredentials,
+    setUser,
     updateUserData,
     logout,
     setLoading,

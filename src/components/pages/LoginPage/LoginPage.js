@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useLoginMutation, useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi';
-import { setCredentials, selectIsAuthenticated, selectRedirectPath, clearRedirectPath } from '@/redux/features/auth/authSlice';
+import { setCredentials, selectIsAuthenticated, selectRedirectPath, clearRedirectPath, setUser } from '@/redux/features/auth/authSlice';
 import { ToastMessage } from '@/utils/ToastMessage';
 import InputComponent1 from '@/components/common/InputComponent1';
 import PasswordInputComponent1 from '@/components/common/PasswordInputComponent1';
@@ -62,6 +62,41 @@ export default function LoginPage() {
         setError('');
 
         try {
+            const response = await login(values)
+
+            // Check if login was successful
+            if (response.data.success) {
+                const { token } = response.data.data;
+
+                localStorage.setItem('token', token);
+
+
+                const { data } = await triggerGetUser()
+                if (data) {
+                    dispatch(setUser(data));
+                    // Add success handling
+                    ToastMessage.notifySuccess('Login successful!');
+
+                    const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+                    let targetPath = justLoggedOut ? '/' : (redirectPath || '/');
+
+                    if (justLoggedOut) {
+                        sessionStorage.removeItem('justLoggedOut');
+                    }
+
+                    dispatch(clearRedirectPath());
+                    router.replace(targetPath);
+                }
+
+                else {
+                    setError(userResponse.data.message || 'Failed to fetch user data');
+                    ToastMessage.notifyError(userResponse.data.message || 'Failed to fetch user data');
+                }
+
+
+            } else {
+                setError(response.data.message || 'Login failed');
+            }
 
         } catch (err) {
             console.error('Login error:', err);
@@ -72,7 +107,6 @@ export default function LoginPage() {
             setSubmitting(false);
         }
     };
-
     const handleGoogleLogin = () => {
         // Add frontend callback URL parameter to ensure proper redirect
         const frontendCallback = encodeURIComponent(`${window.location.origin}/auth/callback`);

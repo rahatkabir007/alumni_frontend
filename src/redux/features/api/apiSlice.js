@@ -8,7 +8,7 @@ export const apiSlice = createApi({
         mode: "cors",
         credentials: 'include',
         prepareHeaders: (headers, { getState }) => {
-            const token = getState().auth.token || localStorage.getItem('token');
+            const token = localStorage.getItem('token');
             if (token) {
                 headers.set('authorization', `Bearer ${token}`);
             }
