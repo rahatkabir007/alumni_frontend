@@ -33,7 +33,6 @@ export default function LoginPage() {
     const redirectPath = useSelector(selectRedirectPath);
 
     // Redirect if already authenticated
-    // Redirect if already authenticated
     useEffect(() => {
         if (isAuthenticated) {
             const justLoggedOut = sessionStorage.getItem('justLoggedOut');

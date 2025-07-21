@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 
-const Navigation = ({ user, onLogout, isInitialized }) => {
+const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
     const router = useRouter()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -137,9 +137,10 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                                                 onLogout()
                                                 setIsDropdownOpen(false)
                                             }}
-                                            className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800"
+                                            disabled={isLoggingOut}
+                                            className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            Logout
+                                            {isLoggingOut ? 'Logging out...' : 'Logout'}
                                         </button>
                                     </div>
                                 )}

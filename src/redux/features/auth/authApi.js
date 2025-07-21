@@ -16,21 +16,22 @@ export const authApi = apiSlice.injectEndpoints({
                 body: credentials,
             }),
             // Invalidate user data to refetch after login
-            invalidatesTags: ['User'],
+            invalidatesTags: ['Auth'],
         }),
 
         logout: builder.mutation({
-            query: () => ({
+            query: (token) => ({
                 url: '/auth/logout',
                 method: 'POST',
+                body: { token },
             }),
             // Invalidate user data after logout
-            invalidatesTags: ['User'],
+            invalidatesTags: ['User', 'Auth'],
         }),
         getCurrentUser: builder.query({
             query: () => '/auth/me',
             // Cache user data with 'User' tag
-            providesTags: ['User'],
+            providesTags: ['User', 'Auth'],
             // Transform response to ensure consistency
             transformResponse: (response) => {
                 if (response.success) {

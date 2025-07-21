@@ -10,7 +10,7 @@ import {
     logout,
     setUser
 } from '@/redux/features/auth/authSlice';
-import { useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi';
+import { useLazyGetCurrentUserQuery, useLogoutMutation } from '@/redux/features/auth/authApi';
 import { ToastMessage } from '@/utils/ToastMessage';
 import Navigation from './Navigation';
 import Footer from './Footer';
@@ -26,6 +26,7 @@ const AppWrapper = ({ children }) => {
 
     // Lazy query for fetching user data
     const [triggerGetUser, { isLoading: isFetchingUser }] = useLazyGetCurrentUserQuery();
+    const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation();
 
     // Pages where Navigation and Footer should be hidden
     const authPages = ['/login', '/register'];
@@ -80,37 +81,61 @@ const AppWrapper = ({ children }) => {
         }
     }, [isAuthenticated, token, user, triggerGetUser, isFetchingUser, isInitialized]);
 
-    const handleLogout = () => {
-        // Set flag to indicate this is a logout action
-        sessionStorage.setItem('justLoggedOut', 'true');
+    const handleLogout = async () => {
+        try {
+            // Set flag to indicate this is a logout action
+            sessionStorage.setItem('justLoggedOut', 'true');
 
-        // Clear all possible localStorage items
-        const keysToRemove = ['token', 'user', 'refreshToken', 'authData'];
-        keysToRemove.forEach(key => localStorage.removeItem(key));
+            // Call logout API to invalidate token on server
+            try {
+                const token = localStorage.getItem('token');
+                await logoutMutation(token).unwrap();
+            } catch (apiError) {
+                // Even if API call fails, continue with local logout
+                console.warn('Logout API call failed, continuing with local logout:', apiError);
+            }
 
-        // Or if you want to clear ALL localStorage (be careful with this)
-        // localStorage.clear();
+            // Clear all possible localStorage items
+            const keysToRemove = ['token', 'user', 'refreshToken', 'authData'];
+            keysToRemove.forEach(key => localStorage.removeItem(key));
 
-        // Clear all sessionStorage except the justLoggedOut flag
-        const justLoggedOut = sessionStorage.getItem('justLoggedOut');
-        sessionStorage.clear();
-        sessionStorage.setItem('justLoggedOut', justLoggedOut);
+            // Clear all sessionStorage except the justLoggedOut flag
+            const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+            sessionStorage.clear();
+            sessionStorage.setItem('justLoggedOut', justLoggedOut);
 
-        // Dispatch logout action to clear Redux state
-        dispatch(logout());
+            // Dispatch logout action to clear Redux state
+            dispatch(logout());
 
-        // Show success message
-        ToastMessage.notifySuccess('Logged out successfully');
+            // Show success message
+            ToastMessage.notifySuccess('Logged out successfully');
 
-        // Check if current route is protected
-        const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+            // Check if current route is protected
+            const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
-        if (isProtectedRoute) {
-            // If on a protected route, redirect to homepage
-            router.push('/');
-        } else {
-            // If on a non-protected route, stay on the same route
-            router.refresh(); // Refresh to update the UI state
+            if (isProtectedRoute) {
+                // If on a protected route, redirect to homepage
+                router.push('/');
+            } else {
+                // If on a non-protected route, stay on the same route
+                router.refresh(); // Refresh to update the UI state
+            }
+
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Even if there's an error, clear local state
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            dispatch(logout());
+            ToastMessage.notifyError('Logout completed with errors');
+
+            // Still redirect if on protected route
+            const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+            if (isProtectedRoute) {
+                router.push('/');
+            } else {
+                router.refresh();
+            }
         }
     };
 
@@ -121,6 +146,7 @@ const AppWrapper = ({ children }) => {
                     user={user}
                     onLogout={handleLogout}
                     isInitialized={isInitialized}
+                    isLoggingOut={isLoggingOut}
                 />
             )}
 
