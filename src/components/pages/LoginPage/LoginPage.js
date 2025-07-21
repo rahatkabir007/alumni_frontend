@@ -82,7 +82,10 @@ export default function LoginPage() {
                 try {
                     const { data: userData } = await triggerGetUser();
                     if (userData) {
-                        dispatch(setUser(userData));
+                        dispatch(setCredentials({
+                            user: userData,
+                            token: token
+                        }));
                     }
                 } catch (userFetchError) {
                     console.warn('Could not fetch fresh user data, using login response data');

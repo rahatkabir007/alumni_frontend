@@ -121,8 +121,6 @@ export const authSlice = createSlice({
         initializeAuth: (state, action) => {
             const { user, token } = action.payload;
 
-            console.log('authSlice - initializeAuth called');
-
             // Always set the token if provided
             if (token && typeof token === 'string') {
                 state.token = token;
