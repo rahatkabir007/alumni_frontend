@@ -73,80 +73,76 @@ const Navigation = ({ user, onLogout, isInitialized }) => {
                         </Link>
 
                         {/* Desktop Auth Section */}
-                        {!isInitialized ? (
-                            <div className="flex items-center space-x-2 px-3 py-2">
-                                <div className="animate-pulse bg-gray-700 w-8 h-8 rounded-full"></div>
-                                <div className="animate-pulse bg-gray-700 h-4 w-20 rounded"></div>
-                                <div className="animate-pulse bg-gray-700 w-4 h-4 rounded"></div>
-                            </div>
-                        ) : !user ? (
-                            <div className="flex items-center space-x-2">
-                                <button
-                                    onClick={() => router.push('/login')}
-                                    className="text-white px-4 py-2 rounded-md text-sm font-medium border border-white hover:bg-white hover:text-black transition-colors"
-                                >
-                                    Login
-                                </button>
-                                <button
-                                    onClick={() => router.push('/register')}
-                                    className="bg-white text-black hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-lg"
-                                >
-                                    Join Alumni
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="relative" ref={dropdownRef}>
-                                <button
-                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                    className="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                                >
-                                    <div className="flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative flex-col">
-                                        {user.profilePhoto ? (
-                                            <Image
-                                                src={user.profilePhoto}
-                                                alt="Profile"
-                                                className="w-8 h-8 object-cover rounded-full"
-                                                width={96}
-                                                height={96}
-                                            />
-                                        ) : (
-                                            <div className='w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-2xl font-bold'>
-                                                {user.name?.charAt(0).toUpperCase() || 'A'}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <span>{user.name || 'Alumni'}</span>
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </button>
+                        {
 
-                                {/* Dropdown Menu */}
-                                {isDropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-gray-900 rounded-md shadow-xl border border-gray-700 py-1 z-50">
-                                        <button
-                                            onClick={() => {
-                                                router.push('/profile')
-                                                setIsDropdownOpen(false)
-                                            }}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white"
-                                        >
-                                            Profile
-                                        </button>
-                                        <hr className="my-1 border-gray-700" />
-                                        <button
-                                            onClick={() => {
-                                                onLogout()
-                                                setIsDropdownOpen(false)
-                                            }}
-                                            className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800"
-                                        >
-                                            Logout
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                            !user ? (
+                                <div className="flex items-center space-x-2">
+                                    <button
+                                        onClick={() => router.push('/login')}
+                                        className="text-white px-4 py-2 rounded-md text-sm font-medium border border-white hover:bg-white hover:text-black transition-colors"
+                                    >
+                                        Login
+                                    </button>
+                                    <button
+                                        onClick={() => router.push('/register')}
+                                        className="bg-white text-black hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-lg"
+                                    >
+                                        Join Alumni
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="relative" ref={dropdownRef}>
+                                    <button
+                                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                        className="flex items-center space-x-2 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                                    >
+                                        <div className="flex items-center justify-center text-white text-2xl font-bold overflow-hidden relative flex-col">
+                                            {user.profilePhoto ? (
+                                                <Image
+                                                    src={user.profilePhoto}
+                                                    alt="Profile"
+                                                    className="w-8 h-8 object-cover rounded-full"
+                                                    width={96}
+                                                    height={96}
+                                                />
+                                            ) : (
+                                                <div className='w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-2xl font-bold'>
+                                                    {user.name?.charAt(0).toUpperCase() || 'A'}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span>{user.name || 'Alumni'}</span>
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+
+                                    {/* Dropdown Menu */}
+                                    {isDropdownOpen && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-gray-900 rounded-md shadow-xl border border-gray-700 py-1 z-50">
+                                            <button
+                                                onClick={() => {
+                                                    router.push('/profile')
+                                                    setIsDropdownOpen(false)
+                                                }}
+                                                className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white"
+                                            >
+                                                Profile
+                                            </button>
+                                            <hr className="my-1 border-gray-700" />
+                                            <button
+                                                onClick={() => {
+                                                    onLogout()
+                                                    setIsDropdownOpen(false)
+                                                }}
+                                                className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800"
+                                            >
+                                                Logout
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                     </div>
 
                     {/* Mobile menu button */}

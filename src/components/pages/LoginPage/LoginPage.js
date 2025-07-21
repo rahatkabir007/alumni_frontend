@@ -33,22 +33,22 @@ export default function LoginPage() {
     const redirectPath = useSelector(selectRedirectPath);
 
     // Redirect if already authenticated
-    useEffect(() => {
-        if (isAuthenticated) {
-            const justLoggedOut = sessionStorage.getItem('justLoggedOut');
-            let targetPath;
+    // useEffect(() => {
+    //     if (isAuthenticated) {
+    //         const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+    //         let targetPath;
 
-            if (justLoggedOut) {
-                targetPath = '/';
-                sessionStorage.removeItem('justLoggedOut');
-            } else {
-                targetPath = redirectPath || '/';
-            }
+    //         if (justLoggedOut) {
+    //             targetPath = '/';
+    //             sessionStorage.removeItem('justLoggedOut');
+    //         } else {
+    //             targetPath = redirectPath || '/';
+    //         }
 
-            dispatch(clearRedirectPath());
-            router.replace(targetPath);
-        }
-    }, [isAuthenticated, redirectPath, router, dispatch]);
+    //         dispatch(clearRedirectPath());
+    //         router.replace(targetPath);
+    //     }
+    // }, [isAuthenticated, redirectPath, router, dispatch]);
 
     // Check for error in URL params
     useEffect(() => {
@@ -62,32 +62,7 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const result = await login(values).unwrap();
 
-            if (result.success) {
-                // Set credentials in global state
-                dispatch(setCredentials({
-                    user: result.data.user,
-                    token: result.data.token
-                }));
-
-                // Fetch fresh user data from API to ensure we have complete profile
-                try {
-                    console.log('Fetching fresh user data after login...');
-                    await triggerGetUser().unwrap();
-                    console.log('Fresh user data fetched successfully');
-                } catch (fetchError) {
-                    console.warn('Failed to fetch fresh user data after login:', fetchError);
-                    // Don't fail the login process if user data fetch fails
-                }
-
-                ToastMessage.notifySuccess('Login successful!');
-                // Redirect will be handled by useEffect above
-            } else {
-                const errorMessage = result.message || 'Login failed';
-                setError(errorMessage);
-                ToastMessage.notifyError(errorMessage);
-            }
         } catch (err) {
             console.error('Login error:', err);
             const errorMessage = err.data?.message || 'Network error. Please try again.';
