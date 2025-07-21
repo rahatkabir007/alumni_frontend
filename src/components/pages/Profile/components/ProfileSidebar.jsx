@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useUpdateUserMutation } from '@/redux/features/user/userApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import ElegantCard from '@/components/common/ElegantCard'
@@ -8,17 +8,52 @@ import BlackTag from '@/components/common/BlackTag'
 import ImageUploader from './ImageUploader'
 import Image from 'next/image'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
-import { menuItems } from '@/datas/profilePage'
+import { menuItems as baseMenuItems } from '@/datas/profilePage'
 
 const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh }) => {
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [updateUser, { isLoading: isUpdatingPhoto }] = useUpdateUserMutation()
     const [isPhotoLoading, setIsPhotoLoading] = useState(false)
 
+    // Create menu items with useMemo to prevent duplicates
+    const menuItems = useMemo(() => {
+        const items = [...baseMenuItems]
+
+
+        if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_USERS)) {
+            if (!items.some(item => item.id === 'users')) {
+                items.push({
+                    id: 'users',
+                    label: 'User Management',
+                    icon: (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        </svg>
+                    )
+                })
+            }
+        }
+
+        if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_ANNOUNCEMENTS) || checkUserPermission(userData.roles, PERMISSIONS.POST_ANNOUNCEMENT)) {
+            if (!items.some(item => item.id === 'announcements')) {
+                items.push({
+                    id: 'announcements',
+                    label: 'Announcements',
+                    icon: (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                        </svg>
+                    )
+                })
+            }
+        }
+
+        return items
+    }, [userData.roles])
+
     const handleProfilePhotoUpdate = async (newPhotoUrl) => {
         try {
             setIsPhotoLoading(true)
-            // Use the updateUser API endpoint for profile photo update
             const result = await updateUser({
                 userId: userData.id,
                 userData: { profilePhoto: newPhotoUrl }
@@ -33,33 +68,6 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
         } finally {
             setIsPhotoLoading(false)
         }
-    }
-
-
-
-    // Add admin-only menu items
-    if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_USERS)) {
-        menuItems.push({
-            id: 'users',
-            label: 'User Management',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-            )
-        })
-    }
-
-    if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_ANNOUNCEMENTS)) {
-        menuItems.push({
-            id: 'announcements',
-            label: 'Announcements',
-            icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                </svg>
-            )
-        })
     }
 
     return (
