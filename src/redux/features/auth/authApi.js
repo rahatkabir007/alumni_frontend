@@ -2,6 +2,13 @@ import { apiSlice } from "../api/apiSlice"
 
 export const authApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
+        register: builder.mutation({
+            query: (userData) => ({
+                url: '/auth/register',
+                method: 'POST',
+                body: userData,
+            }),
+        }),
         login: builder.mutation({
             query: (credentials) => ({
                 url: '/auth/login',
@@ -11,13 +18,7 @@ export const authApi = apiSlice.injectEndpoints({
             // Invalidate user data to refetch after login
             invalidatesTags: ['User'],
         }),
-        register: builder.mutation({
-            query: (userData) => ({
-                url: '/auth/register',
-                method: 'POST',
-                body: userData,
-            }),
-        }),
+
         logout: builder.mutation({
             query: () => ({
                 url: '/auth/logout',
@@ -45,31 +46,7 @@ export const authApi = apiSlice.injectEndpoints({
                 };
             }
         }),
-        updateProfile: builder.mutation({
-            query: (userData) => ({
-                url: '/auth/profile',
-                method: 'PUT',
-                body: userData,
-            }),
-            // Invalidate user data to refetch after update
-            invalidatesTags: ['User'],
-        }),
-        updateProfilePhoto: builder.mutation({
-            query: (photoData) => ({
-                url: '/auth/profile-photo',
-                method: 'PATCH',
-                body: photoData,
-            }),
-            invalidatesTags: ['User'],
-        }),
-        // Add other user-related endpoints that might be needed
-        changePassword: builder.mutation({
-            query: (passwordData) => ({
-                url: '/auth/change-password',
-                method: 'POST',
-                body: passwordData,
-            }),
-        }),
+
     })
 })
 

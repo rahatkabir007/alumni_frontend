@@ -172,7 +172,7 @@ export default function RegisterPage() {
                                             placeholderColor="placeholder-gray-400"
                                             focusBorderColor="focus:border-white/30"
                                             focusRingColor="focus:ring-white/20"
-                                            errorClassName="text-red-300"
+                                            errorclassname="text-red-300"
                                         />
 
                                         <InputComponent1
@@ -189,7 +189,7 @@ export default function RegisterPage() {
                                             placeholderColor="placeholder-gray-400"
                                             focusBorderColor="focus:border-white/30"
                                             focusRingColor="focus:ring-white/20"
-                                            errorClassName="text-red-300"
+                                            errorclassname="text-red-300"
                                         />
 
                                         <PasswordInputComponent1
@@ -207,7 +207,7 @@ export default function RegisterPage() {
                                             focusRingColor="focus:ring-white/20"
                                             iconColor="text-gray-400"
                                             iconHoverColor="hover:text-white"
-                                            errorClassName="text-red-300"
+                                            errorclassname="text-red-300"
                                         />
 
                                         <PasswordInputComponent1
@@ -225,7 +225,7 @@ export default function RegisterPage() {
                                             focusRingColor="focus:ring-white/20"
                                             iconColor="text-gray-400"
                                             iconHoverColor="hover:text-white"
-                                            errorClassName="text-red-300"
+                                            errorclassname="text-red-300"
                                         />
                                     </div>
 
