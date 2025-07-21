@@ -8,9 +8,9 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useRegisterMutation } from '@/redux/features/auth/authApi';
 import { selectIsAuthenticated } from '@/redux/features/auth/authSlice';
-import { ToastMessage } from '@/utils/ToastMessage';
 import InputComponent1 from '@/components/common/InputComponent1';
 import PasswordInputComponent1 from '@/components/common/PasswordInputComponent1';
+import { handleApiError, handleApiSuccess } from '@/utils/errorHandler';
 
 const RegisterSchema = Yup.object().shape({
     name: Yup.string()
@@ -58,17 +58,16 @@ export default function RegisterPage() {
             }).unwrap();
 
             if (result.success) {
-                ToastMessage.notifySuccess('Account created successfully! Please login.');
+                handleApiSuccess(result, 'Account created successfully! Please login.');
                 router.push('/login?message=Account created successfully');
             } else {
-                setSubmitError(result.message || 'Something went wrong');
-                ToastMessage.notifyError(result.message || 'Something went wrong');
+                handleApiError(
+                    { data: { message: result.message || 'Something went wrong' } },
+                    setSubmitError
+                );
             }
         } catch (error) {
-            console.error('Register error:', error);
-            const errorMessage = error.data?.message || 'Network error. Please try again.';
-            setSubmitError(errorMessage);
-            ToastMessage.notifyError(errorMessage);
+            handleApiError(error, setSubmitError, true, 'Network error. Please try again.');
         } finally {
             setSubmitting(false);
         }

@@ -7,10 +7,10 @@ import { motion } from 'framer-motion';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useLoginMutation, useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi';
-import { setCredentials, selectIsAuthenticated, selectRedirectPath, clearRedirectPath, setUser } from '@/redux/features/auth/authSlice';
-import { ToastMessage } from '@/utils/ToastMessage';
+import { setCredentials, selectIsAuthenticated, selectRedirectPath, clearRedirectPath } from '@/redux/features/auth/authSlice';
 import InputComponent1 from '@/components/common/InputComponent1';
 import PasswordInputComponent1 from '@/components/common/PasswordInputComponent1';
+import { handleApiError, handleApiSuccess } from '@/utils/errorHandler';
 
 const LoginSchema = Yup.object().shape({
     email: Yup.string()
@@ -62,11 +62,11 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const response = await login(values)
+            const response = await login(values).unwrap();
 
             // Check if login was successful
-            if (response.data.success) {
-                const { token, user } = response.data.data;
+            if (response.success) {
+                const { token, user } = response.data;
 
                 // Store token in localStorage
                 localStorage.setItem('token', token);
@@ -90,7 +90,7 @@ export default function LoginPage() {
                     console.warn('Could not fetch fresh user data, using login response data');
                 }
 
-                ToastMessage.notifySuccess('Login successful!');
+                handleApiSuccess(response, 'Login successful!');
 
                 const justLoggedOut = sessionStorage.getItem('justLoggedOut');
                 let targetPath = justLoggedOut ? '/' : (redirectPath || '/');
@@ -103,14 +103,12 @@ export default function LoginPage() {
                 router.replace(targetPath);
 
             } else {
-                setError(response.data.message || 'Login failed');
+                const errorMessage = response.message || response.error || 'Login failed';
+                handleApiError({ data: { message: errorMessage } }, setError);
             }
 
         } catch (err) {
-            console.error('Login error:', err);
-            const errorMessage = err.data?.message || 'Network error. Please try again.';
-            setError(errorMessage);
-            ToastMessage.notifyError(errorMessage);
+            handleApiError(err, setError, true, 'Network error. Please try again.');
         } finally {
             setSubmitting(false);
         }
