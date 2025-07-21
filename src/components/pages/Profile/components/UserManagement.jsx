@@ -1,40 +1,27 @@
 "use client"
 import { useState, useEffect, useRef } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
 import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
 import BlackTag from '@/components/common/BlackTag'
+import Pagination from '@/components/common/Pagination'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import {
     useGetUsersQuery,
     useUpdateUserMutation,
     useDeleteUserMutation
 } from '@/redux/features/user/userApi'
-import {
-    selectUsers,
-    selectUserLoading,
-    selectUserError,
-    selectUserFilters,
-    selectUserPagination,
-    setFilters,
-    setCurrentPage
-} from '@/redux/features/user/userSlice'
 import { ToastMessage } from '@/utils/ToastMessage'
+import { handleApiError } from '@/utils/errorHandler'
 
 const UserManagement = ({ userData }) => {
-    const dispatch = useDispatch()
     const [activeTab, setActiveTab] = useState('all-users')
     const [searchTerm, setSearchTerm] = useState('')
     const [debouncedSearch, setDebouncedSearch] = useState('')
     const [openDropdown, setOpenDropdown] = useState(null)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [sortBy, setSortBy] = useState('created_at')
+    const [sortOrder, setSortOrder] = useState('desc')
     const dropdownRef = useRef(null)
-
-    // Redux state
-    const users = useSelector(selectUsers)
-    const isLoading = useSelector(selectUserLoading)
-    const error = useSelector(selectUserError)
-    const filters = useSelector(selectUserFilters)
-    const pagination = useSelector(selectUserPagination)
 
     // Permissions
     const canManageUsers = checkUserPermission(userData.roles, PERMISSIONS.MANAGE_USERS)
@@ -42,7 +29,7 @@ const UserManagement = ({ userData }) => {
     const canBlockUser = checkUserPermission(userData.roles, PERMISSIONS.BLOCK_USER)
     const canChangeUserRole = checkUserPermission(userData.roles, PERMISSIONS.CHANGE_USER_ROLE)
 
-    // Mutations - only updateUser and deleteUser needed
+    // Mutations
     const [updateUser] = useUpdateUserMutation()
     const [deleteUser] = useDeleteUserMutation()
 
@@ -50,23 +37,35 @@ const UserManagement = ({ userData }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm)
+            setCurrentPage(1) // Reset to first page when searching
         }, 500)
 
         return () => clearTimeout(timer)
     }, [searchTerm])
 
     // Fetch users with server-side filtering
-    const { data, isLoading: isFetching, refetch } = useGetUsersQuery({
-        page: pagination.currentPage,
+    const { data, isLoading, isFetching, error, refetch } = useGetUsersQuery({
+        page: currentPage,
         limit: 10,
         search: debouncedSearch,
-        status: activeTab === 'active-users' ? 'active' : activeTab === 'blocked-users' ? 'blocked' : 'all',
+        isActive: activeTab === 'active-users' ? true : activeTab === 'blocked-users' ? false : 'all',
         role: activeTab === 'moderators' ? 'moderator' : 'all',
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder
+        sortBy,
+        sortOrder
     }, {
         skip: !canManageUsers
     })
+
+    // Extract users and pagination from API response
+    const users = data?.users || []
+    const pagination = {
+        currentPage: data?.currentPage || 1,
+        totalPages: data?.totalPages || 1,
+        totalItems: data?.totalItems || 0,
+        itemsPerPage: data?.itemsPerPage || 10,
+        hasNextPage: data?.hasNextPage || false,
+        hasPrevPage: data?.hasPrevPage || false
+    }
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -82,21 +81,22 @@ const UserManagement = ({ userData }) => {
 
     const handleSearchChange = (value) => {
         setSearchTerm(value)
-        dispatch(setCurrentPage(1))
     }
 
     const handleTabChange = (tabId) => {
         setActiveTab(tabId)
-        dispatch(setCurrentPage(1))
+        setCurrentPage(1)
     }
 
     const handlePageChange = (page) => {
-        dispatch(setCurrentPage(page))
+        setCurrentPage(page)
     }
 
     const handleSort = (field) => {
-        const newOrder = filters.sortBy === field && filters.sortOrder === 'asc' ? 'desc' : 'asc'
-        dispatch(setFilters({ sortBy: field, sortOrder: newOrder }))
+        const newOrder = sortBy === field && sortOrder === 'asc' ? 'desc' : 'asc'
+        setSortBy(field)
+        setSortOrder(newOrder)
+        setCurrentPage(1)
     }
 
     const handleRoleChange = async (userId, newRole) => {
@@ -108,17 +108,17 @@ const UserManagement = ({ userData }) => {
             ToastMessage.notifySuccess(`User role updated to ${newRole}`)
             refetch()
         } catch (error) {
-            ToastMessage.notifyError(error.message || 'Failed to update user role')
+            handleApiError(error, null, true, 'Failed to update user role')
         }
     }
 
     const handleUserAction = async (userId, action) => {
         try {
             if (action === 'block' || action === 'unblock') {
-                const status = action === 'block' ? 'blocked' : 'active'
+                const isActive = action === 'block' ? false : true
                 await updateUser({
                     userId,
-                    userData: { status }
+                    userData: { isActive }
                 }).unwrap()
                 ToastMessage.notifySuccess(`User ${action}ed successfully`)
             } else if (action === 'delete') {
@@ -129,13 +129,25 @@ const UserManagement = ({ userData }) => {
             }
             refetch()
         } catch (error) {
-            ToastMessage.notifyError(error.message || `Failed to ${action} user`)
+            handleApiError(error, null, true, `Failed to ${action} user`)
         }
     }
 
     // Helper functions
     const isAdminUser = (user) => user.roles?.includes('admin')
     const canModifyUser = (targetUser) => !isAdminUser(targetUser)
+
+    // Calculate tab counts (these should ideally come from a separate API endpoint)
+    const getTabCounts = () => {
+        return {
+            'all-users': pagination.totalItems,
+            'active-users': users.filter(u => u.isActive).length,
+            'blocked-users': users.filter(u => !u.isActive).length,
+            'moderators': users.filter(u => u.roles?.includes('moderator')).length
+        }
+    }
+
+    const tabCounts = getTabCounts()
 
     const ActionDropdown = ({ user }) => {
         const isOpen = openDropdown === user.id
@@ -187,7 +199,7 @@ const UserManagement = ({ userData }) => {
                             {canBlockUser && (
                                 <button
                                     onClick={() => {
-                                        handleUserAction(user.id, user.status === 'active' ? 'block' : 'unblock')
+                                        handleUserAction(user.id, user.isActive ? 'block' : 'unblock')
                                         setOpenDropdown(null)
                                     }}
                                     className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -195,7 +207,7 @@ const UserManagement = ({ userData }) => {
                                     <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
                                     </svg>
-                                    {user.status === 'active' ? 'Block User' : 'Unblock User'}
+                                    {user.isActive ? 'Block User' : 'Unblock User'}
                                 </button>
                             )}
 
@@ -220,12 +232,11 @@ const UserManagement = ({ userData }) => {
         )
     }
 
-    // Calculate tab counts from API response
     const tabs = [
-        { id: 'all-users', label: 'All Users', count: pagination.totalUsers },
-        { id: 'active-users', label: 'Active', count: users.filter(u => u.status === 'active').length },
-        { id: 'blocked-users', label: 'Blocked', count: users.filter(u => u.status === 'blocked').length },
-        { id: 'moderators', label: 'Moderators', count: users.filter(u => u.roles?.includes('moderator')).length }
+        { id: 'all-users', label: 'All Users', count: tabCounts['all-users'] },
+        { id: 'active-users', label: 'Active', count: tabCounts['active-users'] },
+        { id: 'blocked-users', label: 'Blocked', count: tabCounts['blocked-users'] },
+        { id: 'moderators', label: 'Moderators', count: tabCounts['moderators'] }
     ]
 
     const SortableHeader = ({ field, children }) => (
@@ -235,9 +246,9 @@ const UserManagement = ({ userData }) => {
         >
             <div className="flex items-center gap-1">
                 {children}
-                {filters.sortBy === field && (
+                {sortBy === field && (
                     <span className="text-black">
-                        {filters.sortOrder === 'asc' ? '↑' : '↓'}
+                        {sortOrder === 'asc' ? '↑' : '↓'}
                     </span>
                 )}
             </div>
@@ -266,14 +277,6 @@ const UserManagement = ({ userData }) => {
                     <h3 className="text-xl font-bold text-gray-900">User Management</h3>
                     <div className="flex items-center gap-2">
                         {canManageUsers && <BlackTag variant="outline">Admin Access</BlackTag>}
-                        <BlackButton
-                            variant="outline"
-                            size="sm"
-                            onClick={() => refetch()}
-                            disabled={isFetching}
-                        >
-                            {isFetching ? 'Refreshing...' : 'Refresh'}
-                        </BlackButton>
                     </div>
                 </div>
 
@@ -314,7 +317,7 @@ const UserManagement = ({ userData }) => {
             {error && (
                 <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                     <div className="text-center py-6 text-red-600">
-                        <p>Error: {error}</p>
+                        <p>Error: {error.message || 'Something went wrong'}</p>
                         <BlackButton
                             variant="outline"
                             size="sm"
@@ -329,7 +332,7 @@ const UserManagement = ({ userData }) => {
 
             {/* Users List */}
             <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
-                {isLoading || isFetching ? (
+                {isLoading ? (
                     <div className="text-center py-12">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
                         <p className="text-gray-600">Loading users...</p>
@@ -344,8 +347,8 @@ const UserManagement = ({ userData }) => {
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Roles
                                         </th>
-                                        <SortableHeader field="status">Status</SortableHeader>
-                                        <SortableHeader field="createdAt">Joined</SortableHeader>
+                                        <SortableHeader field="isActive">Status</SortableHeader>
+                                        <SortableHeader field="created_at">Joined</SortableHeader>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Actions
                                         </th>
@@ -382,19 +385,19 @@ const UserManagement = ({ userData }) => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <BlackTag
-                                                    variant={user.status === 'active' ? 'solid' : 'outline'}
+                                                    variant={user.isActive ? 'solid' : 'outline'}
                                                     size="xs"
                                                     className={
-                                                        user.status === 'active'
+                                                        user.isActive
                                                             ? 'bg-green-600 text-white'
                                                             : 'border-red-500 text-red-600'
                                                     }
                                                 >
-                                                    {user.status}
+                                                    {user.isActive ? 'Active' : 'Blocked'}
                                                 </BlackTag>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                                                {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <ActionDropdown user={user} />
@@ -406,62 +409,14 @@ const UserManagement = ({ userData }) => {
                         </div>
 
                         {/* Pagination */}
-                        {pagination.totalPages > 1 && (
-                            <div className="flex items-center justify-between mt-6 pt-4 border-t">
-                                <div className="text-sm text-gray-700">
-                                    Showing {((pagination.currentPage - 1) * 10) + 1} to{' '}
-                                    {Math.min(pagination.currentPage * 10, pagination.totalUsers)} of{' '}
-                                    {pagination.totalUsers} users
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <BlackButton
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                        disabled={pagination.currentPage <= 1 || isFetching}
-                                    >
-                                        Previous
-                                    </BlackButton>
-
-                                    {/* Page numbers */}
-                                    {[...Array(Math.min(pagination.totalPages, 7))].map((_, index) => {
-                                        let page
-                                        if (pagination.totalPages <= 7) {
-                                            page = index + 1
-                                        } else {
-                                            if (pagination.currentPage <= 4) {
-                                                page = index + 1
-                                            } else if (pagination.currentPage >= pagination.totalPages - 3) {
-                                                page = pagination.totalPages - 6 + index
-                                            } else {
-                                                page = pagination.currentPage - 3 + index
-                                            }
-                                        }
-
-                                        return (
-                                            <BlackButton
-                                                key={page}
-                                                size="sm"
-                                                variant={page === pagination.currentPage ? "solid" : "outline"}
-                                                onClick={() => handlePageChange(page)}
-                                                disabled={isFetching}
-                                            >
-                                                {page}
-                                            </BlackButton>
-                                        )
-                                    })}
-
-                                    <BlackButton
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                        disabled={pagination.currentPage >= pagination.totalPages || isFetching}
-                                    >
-                                        Next
-                                    </BlackButton>
-                                </div>
-                            </div>
-                        )}
+                        <Pagination
+                            currentPage={pagination.currentPage}
+                            totalPages={pagination.totalPages}
+                            totalItems={pagination.totalItems}
+                            itemsPerPage={pagination.itemsPerPage}
+                            onPageChange={handlePageChange}
+                            isLoading={isFetching}
+                        />
 
                         {users.length === 0 && !isLoading && !isFetching && (
                             <div className="text-center py-8">

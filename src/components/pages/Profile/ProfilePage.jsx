@@ -90,9 +90,7 @@ const ProfilePage = () => {
   const handleRefreshData = async () => {
     try {
       setIsRefreshing(true)
-      console.log('Profile Page - Manually refreshing user data...');
       const result = await triggerGetUser().unwrap()
-      console.log('Profile Page - Refresh result:', result);
 
       const storedToken = token || localStorage.getItem('token');
       dispatch(setCredentials({
@@ -100,7 +98,7 @@ const ProfilePage = () => {
         token: storedToken
       }));
 
-      ToastMessage.notifyInfo('Profile data refreshed!')
+      // ToastMessage.notifyInfo('Profile data refreshed!')
     } catch (error) {
       console.error('Profile Page - Failed to refresh user data:', error);
 
