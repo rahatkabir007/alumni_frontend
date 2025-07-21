@@ -8,14 +8,20 @@ export const apiSlice = createApi({
         mode: "cors",
         credentials: 'include',
         prepareHeaders: (headers, { getState }) => {
-            const token = localStorage.getItem('token');
+            // Try to get token from Redux state first
+            let token = getState().auth.token;
+
+            // If not in Redux, try localStorage as fallback
+            if (!token) {
+                token = localStorage.getItem('token');
+            }
+
             if (token) {
                 headers.set('authorization', `Bearer ${token}`);
             }
-            return headers
+            return headers;
         },
     }),
-    // Add tag types for caching and invalidation
     tagTypes: ['User', 'Alumni', 'Teachers', 'Events', 'Blogs', 'Auth'],
     endpoints: builder => ({}),
-})
+});

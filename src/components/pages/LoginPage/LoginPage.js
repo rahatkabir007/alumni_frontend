@@ -33,22 +33,23 @@ export default function LoginPage() {
     const redirectPath = useSelector(selectRedirectPath);
 
     // Redirect if already authenticated
-    // useEffect(() => {
-    //     if (isAuthenticated) {
-    //         const justLoggedOut = sessionStorage.getItem('justLoggedOut');
-    //         let targetPath;
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+            let targetPath;
 
-    //         if (justLoggedOut) {
-    //             targetPath = '/';
-    //             sessionStorage.removeItem('justLoggedOut');
-    //         } else {
-    //             targetPath = redirectPath || '/';
-    //         }
+            if (justLoggedOut) {
+                targetPath = '/';
+                sessionStorage.removeItem('justLoggedOut');
+            } else {
+                targetPath = redirectPath || '/';
+            }
 
-    //         dispatch(clearRedirectPath());
-    //         router.replace(targetPath);
-    //     }
-    // }, [isAuthenticated, redirectPath, router, dispatch]);
+            dispatch(clearRedirectPath());
+            router.replace(targetPath);
+        }
+    }, [isAuthenticated, redirectPath, router, dispatch]);
 
     // Check for error in URL params
     useEffect(() => {
@@ -66,33 +67,38 @@ export default function LoginPage() {
 
             // Check if login was successful
             if (response.data.success) {
-                const { token } = response.data.data;
+                const { token, user } = response.data.data;
 
+                // Store token in localStorage
                 localStorage.setItem('token', token);
 
+                // Set both user and token in Redux state
+                dispatch(setCredentials({
+                    user: user,
+                    token: token
+                }));
 
-                const { data } = await triggerGetUser()
-                if (data) {
-                    dispatch(setUser(data));
-                    // Add success handling
-                    ToastMessage.notifySuccess('Login successful!');
-
-                    const justLoggedOut = sessionStorage.getItem('justLoggedOut');
-                    let targetPath = justLoggedOut ? '/' : (redirectPath || '/');
-
-                    if (justLoggedOut) {
-                        sessionStorage.removeItem('justLoggedOut');
+                // Optionally fetch fresh user data
+                try {
+                    const { data: userData } = await triggerGetUser();
+                    if (userData) {
+                        dispatch(setUser(userData));
                     }
-
-                    dispatch(clearRedirectPath());
-                    router.replace(targetPath);
+                } catch (userFetchError) {
+                    console.warn('Could not fetch fresh user data, using login response data');
                 }
 
-                else {
-                    setError(userResponse.data.message || 'Failed to fetch user data');
-                    ToastMessage.notifyError(userResponse.data.message || 'Failed to fetch user data');
+                ToastMessage.notifySuccess('Login successful!');
+
+                const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+                let targetPath = justLoggedOut ? '/' : (redirectPath || '/');
+
+                if (justLoggedOut) {
+                    sessionStorage.removeItem('justLoggedOut');
                 }
 
+                dispatch(clearRedirectPath());
+                router.replace(targetPath);
 
             } else {
                 setError(response.data.message || 'Login failed');
@@ -107,6 +113,7 @@ export default function LoginPage() {
             setSubmitting(false);
         }
     };
+
     const handleGoogleLogin = () => {
         // Add frontend callback URL parameter to ensure proper redirect
         const frontendCallback = encodeURIComponent(`${window.location.origin}/auth/callback`);

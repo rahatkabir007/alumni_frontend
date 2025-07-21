@@ -91,21 +91,23 @@ export const authSlice = createSlice({
             }
         },
         logout: (state) => {
-            console.log('authSlice - Logging out user');
+            console.log('authSlice - logout called');
+
+            // Clear all auth state
             state.user = null;
             state.token = null;
             state.isAuthenticated = false;
+            state.isLoading = false;
             state.redirectPath = null;
             state.lastFetched = null;
 
-            // Clear localStorage
-            try {
+            // Clear localStorage as well (double safety)
+            if (typeof window !== 'undefined') {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                console.log('authSlice - Cleared localStorage');
-            } catch (error) {
-                console.error('authSlice - Failed to clear localStorage:', error);
             }
+
+            console.log('authSlice - logout completed, state cleared');
         },
         setLoading: (state, action) => {
             state.isLoading = action.payload;
@@ -121,27 +123,28 @@ export const authSlice = createSlice({
 
             console.log('authSlice - initializeAuth called');
 
-            if (user && token && typeof user === 'object' && user.email) {
-                // Normalize user data
+            // Always set the token if provided
+            if (token && typeof token === 'string') {
+                state.token = token;
+                state.isAuthenticated = true; // Set authenticated true when token exists
+            }
+
+            // Set user if provided and valid
+            if (user && typeof user === 'object' && user.email) {
                 const normalizedUser = {
                     ...user,
                     createdAt: user.createdAt || user.created_at,
                     updatedAt: user.updatedAt || user.updated_at,
                 };
 
-                // Remove snake_case versions
                 if (normalizedUser.created_at) delete normalizedUser.created_at;
                 if (normalizedUser.updated_at) delete normalizedUser.updated_at;
 
                 state.user = normalizedUser;
-                state.token = token;
-                state.isAuthenticated = true;
                 state.lastFetched = Date.now();
-
-                console.log('authSlice - Auth initialized successfully');
-            } else {
-                console.error('authSlice - Invalid data for initializeAuth:', { hasUser: !!user, hasToken: !!token });
             }
+
+            console.log('authSlice - Auth initialized successfully', { hasUser: !!state.user, hasToken: !!state.token, isAuthenticated: state.isAuthenticated });
         }
     }
 });
