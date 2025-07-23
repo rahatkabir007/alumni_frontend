@@ -138,7 +138,7 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
 
                             {/* Roles */}
                             {
-                                (userData?.roles.includes('admin') || userData?.roles.includes('moderator')) && <div className="flex flex-wrap justify-center gap-1 mt-3">
+                                (userData?.roles.includes('admin') || userData?.roles.includes('moderator')) && <div className="flex flex-wrap justify-center gap-1 mt-3 capitalize">
                                     {userData.roles?.map((role, index) => (
                                         <BlackTag
                                             key={index}

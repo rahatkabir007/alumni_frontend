@@ -28,14 +28,14 @@ const ProfileSchema = Yup.object().shape({
             if (!value) return true;
             return !/<script|javascript:|on\w+=/i.test(value);
         }),
-    profession: Yup.string()
-        .max(255, 'Profession cannot exceed 255 characters')
-        .test('no-harmful-chars', 'Profession contains invalid characters', (value) => {
+    blood_group: Yup.string()
+        .max(3, 'Blood group cannot exceed 3 characters')
+        .test('no-harmful-chars', 'Blood group contains invalid characters', (value) => {
             if (!value) return true;
             return !/<script|javascript:|on\w+=/i.test(value);
         }),
     graduationYear: Yup.number()
-        .min(1950, 'Graduation year must be after 1950')
+        .min(1998, 'Graduation year must be after 1998')
         .max(new Date().getFullYear() + 10, `Graduation year cannot exceed ${new Date().getFullYear() + 10}`)
         .nullable()
         .transform((value, originalValue) => {
@@ -92,6 +92,7 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                 email: values.email || userData.email,
                 graduation_year: values.graduationYear || null,
                 left_at: values.leftAt || null,
+                isGraduated: values.isGraduated !== undefined ? values.isGraduated : true,
                 // Remove camelCase versions for backend
                 graduationYear: undefined,
                 leftAt: undefined
@@ -164,6 +165,7 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                             phone: userData.phone || '',
                             location: userData.location || '',
                             profession: userData.profession || '',
+                            blood_group: userData.blood_group || '',
                             graduationYear: userData.graduationYear || userData.graduation_year || '',
                             batch: userData.batch || '',
                             bio: userData.bio || '',

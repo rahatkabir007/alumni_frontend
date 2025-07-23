@@ -7,7 +7,6 @@ const UserManagementTable = ({
     users,
     pagination,
     isLoading,
-    onTableChange,
     onPageChange,
     onActiveToggle,
     onConfirmModal,
