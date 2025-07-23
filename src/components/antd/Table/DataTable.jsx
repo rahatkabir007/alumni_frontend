@@ -89,7 +89,6 @@ const DataTable = ({
                     className={`custom-table-1 ${className} ${customStyles}`}
                     dataSource={finalData}
                     pagination={false}
-                    // scroll={{ x: scrollWidth }}
                     scroll={{ x: "max-content" }}
                     rowClassName={rowClassName}
                     onChange={onChange}

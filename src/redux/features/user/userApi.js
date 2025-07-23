@@ -4,7 +4,7 @@ export const userApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getUsers: builder.query({
             query: (params = {}) => {
-                const { page = 1, limit = 10, search = '', isActive = 'all', role = 'all', sortBy = 'created_at', sortOrder = 'desc' } = params
+                const { page = 1, limit = 10, search = '', status = 'all', role = 'all', sortBy = 'created_at', sortOrder = 'desc' } = params
 
                 const queryParams = new URLSearchParams({
                     page: page.toString(),
@@ -14,7 +14,7 @@ export const userApi = apiSlice.injectEndpoints({
                 })
 
                 if (search) queryParams.append('search', search)
-                if (isActive !== 'all') queryParams.append('isActive', isActive)
+                if (status !== 'all') queryParams.append('status', status)
                 if (role !== 'all') queryParams.append('role', role)
 
                 return `/users?${queryParams.toString()}`
@@ -46,6 +46,15 @@ export const userApi = apiSlice.injectEndpoints({
             invalidatesTags: ['User'],
         }),
 
+        updateStatus: builder.mutation({
+            query: ({ userId, status }) => ({
+                url: `/users/${userId}/status`,
+                method: 'PATCH',
+                body: { status },
+            }),
+            invalidatesTags: ['User'],
+        }),
+
         deleteUser: builder.mutation({
             query: (userId) => ({
                 url: `/users/${userId}`,
@@ -59,5 +68,6 @@ export const userApi = apiSlice.injectEndpoints({
 export const {
     useGetUsersQuery,
     useUpdateUserMutation,
+    useUpdateStatusMutation,
     useDeleteUserMutation,
 } = userApi

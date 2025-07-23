@@ -1,4 +1,5 @@
 "use client"
+import { Select } from 'antd'
 import BlackTag from '@/components/common/BlackTag'
 import CustomSwitch from '@/components/antd/Swtich/CustomSwitch'
 import ActionPopover from '@/components/antd/Popover/ActionPopover'
@@ -8,10 +9,22 @@ const UserTableColumns = ({
     onActiveToggle,
     onConfirmModal,
     onRoleChange,
+    onStatusChange,
     canModifyUser,
     canBlockUser,
     permissions
 }) => {
+    const statusOptions = [
+        { value: 'active', label: 'Active', color: 'bg-green-600 text-white border-green-600' },
+        { value: 'inactive', label: 'Inactive', color: 'border-red-500 text-red-600 bg-red-50' },
+        { value: 'pending', label: 'Pending', color: 'border-yellow-500 text-yellow-600 bg-yellow-50' }
+    ]
+
+    const getStatusColor = (status) => {
+        const statusOption = statusOptions.find(option => option.value === status)
+        return statusOption ? statusOption.color : 'border-gray-500 text-gray-600 bg-gray-50'
+    }
+
     return [
         {
             title: 'User',
@@ -78,30 +91,35 @@ const UserTableColumns = ({
         },
         {
             title: 'Status',
-            dataIndex: 'isActive',
-            key: 'isActive',
+            dataIndex: 'status',
+            key: 'status',
             width: '20%',
-            render: (isActive, record) => (
-                <div className="flex items-center gap-3">
-                    <CustomSwitch
-                        checked={isActive}
-                        onChange={(checked) => onActiveToggle(record.id, checked)}
-                        disabled={!canModifyUser(record) || !canBlockUser}
-                        size="small"
-                    />
-                    <BlackTag
-                        variant={isActive ? 'solid' : 'outline'}
-                        size="xs"
-                        className={
-                            isActive
-                                ? 'bg-green-600 text-white border-green-600'
-                                : 'border-red-500 text-red-600 bg-red-50'
-                        }
-                    >
-                        {isActive ? 'Active' : 'Blocked'}
-                    </BlackTag>
-                </div>
-            ),
+            render: (status, record) => {
+                const currentStatus = status || 'pending'
+                const canModify = canModifyUser(record) && canBlockUser
+
+                return (
+                    <div className="flex items-center gap-3">
+                        {canModify ? (
+                            <Select
+                                value={currentStatus}
+                                onChange={(newStatus) => onStatusChange(record.id, newStatus)}
+                                size="small"
+                                className="min-w-[100px]"
+                                options={statusOptions}
+                            />
+                        ) : (
+                            <BlackTag
+                                variant={currentStatus === 'active' ? 'solid' : 'outline'}
+                                size="xs"
+                                className={getStatusColor(currentStatus)}
+                            >
+                                {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
+                            </BlackTag>
+                        )}
+                    </div>
+                )
+            },
         },
         {
             title: 'Joined',

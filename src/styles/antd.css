@@ -61,6 +61,25 @@
   border-bottom: none;
 }
 
+/* Status Select Styling in Table */
+.user-management-table .ant-select {
+  border-radius: 6px;
+}
+
+.user-management-table .ant-select-selector {
+  border-color: #d1d5db !important;
+  border-radius: 6px !important;
+}
+
+.user-management-table .ant-select:hover .ant-select-selector {
+  border-color: #000000 !important;
+}
+
+.user-management-table .ant-select-focused .ant-select-selector {
+  border-color: #000000 !important;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2) !important;
+}
+
 /* Custom Antd Pagination Styling */
 .ant-pagination {
   display: flex;
