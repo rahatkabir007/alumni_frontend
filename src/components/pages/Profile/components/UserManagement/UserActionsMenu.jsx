@@ -27,15 +27,6 @@ const UserActionsMenu = ({ user, onRoleChange, onConfirmModal, permissions }) =>
         menuItems.push({ type: 'divider' })
     }
 
-    if (canBlockUser) {
-        menuItems.push({
-            key: user.isActive ? 'block' : 'unblock',
-            label: user.isActive ? 'Block User' : 'Unblock User',
-            icon: user.isActive ? <StopOutlined /> : <CheckOutlined />,
-            onClick: () => onConfirmModal(user.isActive ? 'block' : 'unblock', user)
-        })
-    }
-
     if (canDeleteUser) {
         menuItems.push({
             key: 'delete',

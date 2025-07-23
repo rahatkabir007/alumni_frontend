@@ -475,12 +475,6 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                                 {userData.isActive ? 'Active' : 'Inactive'}
                             </span>
                         </div>
-                        {/* {userData.provider && (
-                            <div>
-                                <span className="text-gray-500">Login Provider:</span>
-                                <span className="ml-2 text-gray-900 capitalize">{userData.provider}</span>
-                            </div>
-                        )} */}
                         <div>
                             <span className="text-gray-500">Member Since:</span>
                             <span className="ml-2 text-gray-900">
