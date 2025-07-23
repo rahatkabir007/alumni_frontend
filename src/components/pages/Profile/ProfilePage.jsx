@@ -13,7 +13,7 @@ import BlogManagement from './components/BlogManagement'
 import EventManagement from './components/EventManagement'
 import GalleryManagement from './components/GalleryManagement'
 import ReviewsTestimonials from './components/ReviewsTestimonials'
-import UserManagement from './components/UserManagement'
+import UserManagement from './components/UserManagement/UserManagement'
 import AnnouncementManagement from './components/AnnouncementManagement'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 
