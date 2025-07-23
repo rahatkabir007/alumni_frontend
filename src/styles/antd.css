@@ -31,6 +31,36 @@
   border-bottom: none;
 }
 
+/* User Management Table Specific Styling */
+.user-management-table .ant-table {
+  border-radius: 8px;
+}
+
+.user-management-table .ant-table-thead > tr > th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 16px 12px;
+}
+
+.user-management-table .ant-table-tbody > tr > td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.user-management-table .ant-table-tbody > tr:hover > td {
+  background: #f8fafc;
+}
+
+.user-management-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
 /* Custom Antd Pagination Styling */
 .ant-pagination {
   display: flex;
@@ -65,6 +95,52 @@
 .ant-pagination-disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Pagination styling for user management */
+.user-management-table .pagination-container {
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  margin-top: 0;
+}
+
+.user-management-table .showing-result-number {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.user-management-table .ant-pagination {
+  margin: 0;
+}
+
+.user-management-table .ant-pagination-item {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.user-management-table .ant-pagination-item-active {
+  background: #000000;
+  border-color: #000000;
+  color: white;
+}
+
+.user-management-table .ant-pagination-item:hover,
+.user-management-table .ant-pagination-prev:hover,
+.user-management-table .ant-pagination-next:hover {
+  border-color: #000000;
+  color: #000000;
+}
+
+.user-management-table .ant-pagination-prev,
+.user-management-table .ant-pagination-next {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #374151;
+  font-weight: 500;
 }
 
 /* Custom Antd Switch Styling */

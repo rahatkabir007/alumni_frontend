@@ -17,11 +17,36 @@ const UserTableColumns = ({
             title: 'User',
             dataIndex: 'name',
             key: 'name',
-            sorter: true,
+            width: '30%',
             render: (text, record) => (
-                <div>
-                    <div className="text-sm font-medium text-gray-900">{record.name}</div>
-                    <div className="text-sm text-gray-500">{record.email}</div>
+                <div className="flex items-center space-x-3">
+                    {/* Profile Picture or Initial */}
+                    <div className="flex-shrink-0">
+                        {record.profilePhoto ? (
+                            <img
+                                className="h-10 w-10 rounded-full object-cover"
+                                src={record.profilePhoto}
+                                alt={record.name}
+                            />
+                        ) : (
+                            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white font-semibold text-sm">
+                                {record.name?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                        )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-gray-900 truncate">
+                            {record.name || 'Unknown User'}
+                        </div>
+                        <div className="text-sm text-gray-500 truncate">
+                            {record.email}
+                        </div>
+                        {record.alumni_type && (
+                            <div className="text-xs text-gray-400 capitalize">
+                                {record.alumni_type}
+                            </div>
+                        )}
+                    </div>
                 </div>
             ),
         },
@@ -29,6 +54,7 @@ const UserTableColumns = ({
             title: 'Roles',
             dataIndex: 'roles',
             key: 'roles',
+            width: '20%',
             render: (roles) => (
                 <div className="flex flex-wrap gap-1">
                     {roles?.map((role, index) => (
@@ -38,13 +64,13 @@ const UserTableColumns = ({
                             size="xs"
                             className={
                                 role === 'admin'
-                                    ? 'bg-red-600 text-white'
+                                    ? 'bg-red-600 text-white border-red-600'
                                     : role === 'moderator'
-                                        ? 'border-orange-500 text-orange-600'
-                                        : 'border-blue-500 text-blue-600'
+                                        ? 'border-orange-500 text-orange-600 bg-orange-50'
+                                        : 'border-blue-500 text-blue-600 bg-blue-50'
                             }
                         >
-                            {role}
+                            {role.charAt(0).toUpperCase() + role.slice(1)}
                         </BlackTag>
                     ))}
                 </div>
@@ -54,21 +80,22 @@ const UserTableColumns = ({
             title: 'Status',
             dataIndex: 'isActive',
             key: 'isActive',
-            sorter: true,
+            width: '20%',
             render: (isActive, record) => (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                     <CustomSwitch
                         checked={isActive}
                         onChange={(checked) => onActiveToggle(record.id, checked)}
                         disabled={!canModifyUser(record) || !canBlockUser}
+                        size="small"
                     />
                     <BlackTag
                         variant={isActive ? 'solid' : 'outline'}
                         size="xs"
                         className={
                             isActive
-                                ? 'bg-green-600 text-white'
-                                : 'border-red-500 text-red-600'
+                                ? 'bg-green-600 text-white border-green-600'
+                                : 'border-red-500 text-red-600 bg-red-50'
                         }
                     >
                         {isActive ? 'Active' : 'Blocked'}
@@ -80,18 +107,36 @@ const UserTableColumns = ({
             title: 'Joined',
             dataIndex: 'created_at',
             key: 'created_at',
-            sorter: true,
-            render: (date) => date ? new Date(date).toLocaleDateString() : 'N/A',
+            width: '15%',
+            render: (date) => {
+                if (!date) return <span className="text-gray-400">N/A</span>
+
+                const formattedDate = new Date(date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                })
+
+                return (
+                    <div className="text-sm">
+                        <div className="text-gray-900">{formattedDate}</div>
+                        <div className="text-xs text-gray-500">
+                            {new Date(date).toLocaleDateString('en-US', { weekday: 'short' })}
+                        </div>
+                    </div>
+                )
+            },
         },
         {
             title: 'Actions',
             key: 'actions',
-            width: 80,
+            width: '15%',
+            align: 'center',
             render: (_, record) => {
                 const canModify = canModifyUser(record)
                 if (!canModify) {
                     return (
-                        <BlackTag variant="subtle" size="xs" className="text-gray-500">
+                        <BlackTag variant="subtle" size="xs" className="text-gray-500 bg-gray-100">
                             Protected
                         </BlackTag>
                     )
@@ -104,8 +149,19 @@ const UserTableColumns = ({
                     permissions
                 })
 
+                if (!menuItems || menuItems.length === 0) {
+                    return (
+                        <BlackTag variant="subtle" size="xs" className="text-gray-400">
+                            No Actions
+                        </BlackTag>
+                    )
+                }
+
                 return (
-                    <ActionPopover menuItems={menuItems} />
+                    <ActionPopover
+                        menuItems={menuItems}
+                        buttonClassName="hover:bg-gray-100 rounded-md p-1"
+                    />
                 )
             },
         },

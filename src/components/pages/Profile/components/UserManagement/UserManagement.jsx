@@ -67,7 +67,7 @@ const UserManagement = ({ userData }) => {
     // Extract users and pagination from API response
     const users = data?.users || []
     const pagination = {
-        current: data?.currentPage || 1,
+        current: currentPage,
         pageSize: data?.itemsPerPage || 10,
         total: data?.totalItems || 0,
         showSizeChanger: false,
@@ -81,13 +81,10 @@ const UserManagement = ({ userData }) => {
         setActiveTab(tabId)
         setCurrentPage(1)
     }
-    const handlePageChange = (page) => setCurrentPage(page)
-    const handleTableChange = (pagination, filters, sorter) => {
-        if (sorter.field) {
-            setSortBy(sorter.field)
-            setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc')
-            setCurrentPage(1)
-        }
+
+    // Updated to work with DataTable pagination
+    const handlePageChange = (page) => {
+        setCurrentPage(page)
     }
 
     const handleActiveToggle = async (userId, newStatus) => {
@@ -233,7 +230,6 @@ const UserManagement = ({ userData }) => {
                 users={users}
                 pagination={pagination}
                 isLoading={isLoading}
-                onTableChange={handleTableChange}
                 onPageChange={handlePageChange}
                 onActiveToggle={handleActiveToggle}
                 onConfirmModal={openConfirmModal}

@@ -1,7 +1,6 @@
 "use client"
 import ElegantCard from '@/components/common/ElegantCard'
 import DataTable from '@/components/antd/Table/DataTable'
-import CustomPagination from '@/components/antd/Pagination/CustomPagination'
 import UserTableColumns from './UserTableColumns'
 
 const UserManagementTable = ({
@@ -26,24 +25,19 @@ const UserManagementTable = ({
         permissions
     })
 
+    console.log(columns)
     return (
         <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
             <DataTable
                 columns={columns}
-                dataSource={users}
+                data={users}
                 loading={isLoading}
-                onChange={onTableChange}
-                locale={{
-                    emptyText: 'No users found matching your criteria'
-                }}
-            />
-
-            <CustomPagination
-                current={pagination.current}
                 pageSize={pagination.pageSize}
+                currentPage={pagination.current}
+                setCurrentPage={onPageChange}
                 total={pagination.total}
-                onChange={onPageChange}
-                showTotal={pagination.showTotal}
+                className="user-management-table"
+                rowKeyProp="id"
             />
         </ElegantCard>
     )
