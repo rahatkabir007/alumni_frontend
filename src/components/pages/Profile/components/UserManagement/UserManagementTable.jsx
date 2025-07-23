@@ -25,7 +25,6 @@ const UserManagementTable = ({
         permissions
     })
 
-    console.log(columns)
     return (
         <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
             <DataTable
