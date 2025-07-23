@@ -294,14 +294,6 @@ const UserManagement = ({ userData }) => {
                     <h3 className="text-xl font-bold text-gray-900">User Management</h3>
                     <div className="flex items-center gap-2">
                         {permissions.canManageUsers && <BlackTag variant="outline">Admin Access</BlackTag>}
-                        <BlackButton
-                            variant="outline"
-                            size="sm"
-                            onClick={() => refetch()}
-                            disabled={isFetching}
-                        >
-                            {isFetching ? 'Refreshing...' : 'Refresh'}
-                        </BlackButton>
                     </div>
                 </div>
 

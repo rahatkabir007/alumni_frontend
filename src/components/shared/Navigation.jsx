@@ -196,7 +196,27 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                             <Link href="/" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
                                 Home
                             </Link>
-                            {/* Add other navigation links */}
+                            <Link href="/about" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
+                                About School
+                            </Link>
+                            <Link href="/students" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
+                                Alumni
+                            </Link>
+                            <Link href="/teachers" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
+                                Teachers
+                            </Link>
+                            <Link href="/gallery" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
+                                Gallery
+                            </Link>
+                            <Link href="/blogs" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
+                                Blogs
+                            </Link>
+                            <Link href="/events" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
+                                Events
+                            </Link>
+                            <Link href="/contact" className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium" onClick={() => setIsMobileMenuOpen(false)}>
+                                Contact
+                            </Link>
 
                             {/* Mobile Auth Section */}
                             <div className="border-t border-gray-700 pt-4">

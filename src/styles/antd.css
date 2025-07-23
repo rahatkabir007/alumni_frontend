@@ -87,7 +87,6 @@
   align-items: center;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
 }
 
 .ant-pagination-prev,
@@ -185,12 +184,13 @@
 }
 
 .ant-popover-inner {
+    padding: 2px !important;
   border-radius: 8px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .ant-popover-inner-content {
-  padding: 8px;
+  padding: 2px;
 }
 
 .ant-popover-arrow {
@@ -200,14 +200,16 @@
 /* Custom Menu Items in Popover */
 .user-action-menu {
   min-width: 160px;
+  border: none !important
 }
 
 .user-action-menu .ant-dropdown-menu-item {
-  padding: 8px 12px;
+  padding: 8px;
   font-size: 14px;
   color: #374151;
   border-radius: 4px;
   margin: 2px 0;
+
 }
 
 .user-action-menu .ant-dropdown-menu-item:hover {
@@ -222,6 +224,10 @@
 .user-action-menu .ant-dropdown-menu-item-danger:hover {
   background: #fef2f2;
   color: #dc2626;
+}
+
+.user-action-menu .ant-menu-title-content{
+  font-family: 'Figtree', sans-serif;
 }
 
 /* Custom Modal Styling */
