@@ -18,23 +18,9 @@ const UserManagementModal = ({ confirmModal, onConfirm, onClose }) => {
             case 'delete':
                 return {
                     ...baseProps,
-                    title: `Delete ${user?.name || 'User'}?`,
+                    title: `Do you want to delete user ${user?.name || 'User'}?`,
                     confirmButtonTitle: 'Delete',
                     confirmButtonClassName: 'bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700',
-                }
-            case 'block':
-                return {
-                    ...baseProps,
-                    title: `Block ${user?.name || 'User'}?`,
-                    confirmButtonTitle: 'Block',
-                    confirmButtonClassName: 'bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700',
-                }
-            case 'unblock':
-                return {
-                    ...baseProps,
-                    title: `Unblock ${user?.name || 'User'}?`,
-                    confirmButtonTitle: 'Unblock',
-                    confirmButtonClassName: 'bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700',
                 }
             default:
                 return baseProps

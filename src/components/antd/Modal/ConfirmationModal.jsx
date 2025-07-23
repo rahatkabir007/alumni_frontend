@@ -56,33 +56,25 @@ const ConfirmationModal = ({
                 <div
                     className={`mb-3 ${title || (closeIcon && "flex flex-col gap-5")}`}
                 >
-                    <div
-                        className={`rounded-t-[10px] flex bg-foundation-blue-normal justify-end px-6 py-[22px]`}
-                    >
-
-                        {closeIcon && (
-                            <div className="cursor-pointer">
-                                <CloseOutlined />
-                            </div>
-                        )}
-                    </div>
-                    <div className={`${modalContainerClassName} flex flex-col gap-10 p-10`}>
-                        {title}
+                    <div className={`${modalContainerClassName} flex flex-col gap-10 py-2 px-6`}>
+                        <span className="text-xl">{title}</span>
                         <div className={`${buttonContainerClassName} flex items-center justify-end gap-4 `}>
 
                             {
                                 !loading && <BlackButton
-                                    text={cancelButtonTitle}
-                                    className={`${cancelButtonClassName} !text-base font-medium `}
+                                    className={`${cancelButtonClassName} !text-sm font-medium `}
                                     onClick={handleCancel}
-                                />
+                                >
+                                    {cancelButtonTitle}
+                                </BlackButton>
                             }
                             <BlackButton
-                                text={confirmButtonTitle}
-                                className={`${confirmButtonClassName} !text-base font-medium `}
+                                className={`${confirmButtonClassName} !text-sm font-medium `}
                                 onClick={onConfirm}
                                 loading={loading}
-                            />
+                            >
+                                {confirmButtonTitle}
+                            </BlackButton>
                         </div>
                     </div>
 

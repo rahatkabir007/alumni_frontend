@@ -234,13 +234,15 @@
 .ant-modal-content {
   border-radius: 12px;
   overflow: hidden;
+  font-family: "Figtree", sans-serif;
+   padding: 20px 10px !important;
 }
 
 .ant-modal-header {
   background: #000000;
   color: white;
   border-bottom: none;
-  padding: 20px 24px;
+  padding: 20px 10px;
 }
 
 .ant-modal-title {
