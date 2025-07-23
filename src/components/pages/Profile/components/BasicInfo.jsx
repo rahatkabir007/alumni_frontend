@@ -188,7 +188,7 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                                         focusRingColor="focus:ring-black/10"
                                     />
 
-                                    <div>
+                                    {/* <div>
                                         <InputComponent1
                                             name="email"
                                             label="Email"
@@ -200,7 +200,7 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                                             className="cursor-default"
                                         />
                                         <span className="text-xs text-gray-500">Email cannot be changed</span>
-                                    </div>
+                                    </div> */}
 
                                     <InputComponent1
                                         name="phone"
@@ -228,6 +228,18 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                                     />
 
                                     <InputComponent1
+                                        name="blood_group"
+                                        label="Blood Group"
+                                        placeholder="Your blood group"
+                                        useFormik={true}
+                                        backgroundColor="bg-white"
+                                        borderColor="border-gray-300"
+                                        textColor="text-gray-900"
+                                        focusBorderColor="focus:border-black"
+                                        focusRingColor="focus:ring-black/10"
+                                    />
+
+                                    <InputComponent1
                                         name="profession"
                                         label="Current Profession/Job"
                                         placeholder="Your current job or profession"
@@ -242,7 +254,7 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                                     <InputComponent1
                                         name="batch"
                                         label="Batch/Class"
-                                        placeholder="e.g., Batch 2020, Class of 2020"
+                                        placeholder="e.g.,'15, '20"
                                         useFormik={true}
                                         backgroundColor="bg-white"
                                         borderColor="border-gray-300"
@@ -352,111 +364,97 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                     </Formik>
                 ) : (
                     <div className="grid md:grid-cols-2 gap-6">
-                        {/* Read-only view */}
-                        <InputComponent1
-                            name="name"
-                            label="Full Name"
-                            value={userData.name || 'Not provided'}
-                            disabled={true}
-                            backgroundColor="bg-gray-50"
-                            borderColor="border-transparent"
-                            textColor="text-gray-900"
-                            className="cursor-default"
-                        />
+                        {/* Full Name */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Full Name
+                            </label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                {userData.name || 'Not provided'}
+                            </p>
+                        </div>
 
-                        <InputComponent1
-                            name="email"
-                            label="Email"
-                            value={userData.email}
-                            disabled={true}
-                            backgroundColor="bg-gray-50"
-                            borderColor="border-transparent"
-                            textColor="text-gray-900"
-                            className="cursor-default"
-                        />
+                        {/* Phone Number */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Phone Number
+                            </label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                {userData.phone || 'Not provided'}
+                            </p>
+                        </div>
 
-                        <InputComponent1
-                            name="phone"
-                            label="Phone Number"
-                            value={userData.phone || 'Not provided'}
-                            disabled={true}
-                            backgroundColor="bg-gray-50"
-                            borderColor="border-transparent"
-                            textColor="text-gray-900"
-                            className="cursor-default"
-                        />
+                        {/* Address */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Address
+                            </label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                {userData.location || 'Not provided'}
+                            </p>
+                        </div>
 
-                        <InputComponent1
-                            name="location"
-                            label="Location/Address"
-                            value={userData.location || 'Not provided'}
-                            disabled={true}
-                            backgroundColor="bg-gray-50"
-                            borderColor="border-transparent"
-                            textColor="text-gray-900"
-                            className="cursor-default"
-                        />
+                        {/* Blood Group */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Blood Group
+                            </label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                {userData.blood_group || 'Not provided'}
+                            </p>
+                        </div>
 
-                        <InputComponent1
-                            name="profession"
-                            label="Current Profession"
-                            value={userData.profession || 'Not provided'}
-                            disabled={true}
-                            backgroundColor="bg-gray-50"
-                            borderColor="border-transparent"
-                            textColor="text-gray-900"
-                            className="cursor-default"
-                        />
+                        {/* Current Profession */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Current Profession
+                            </label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                {userData.profession || 'Not provided'}
+                            </p>
+                        </div>
 
-                        <InputComponent1
-                            name="batch"
-                            label="Batch/Class"
-                            value={userData.batch || 'Not provided'}
-                            disabled={true}
-                            backgroundColor="bg-gray-50"
-                            borderColor="border-transparent"
-                            textColor="text-gray-900"
-                            className="cursor-default"
-                        />
+                        {/* Batch/Class */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Batch/Class
+                            </label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                {userData.batch || 'Not provided'}
+                            </p>
+                        </div>
 
-                        <InputComponent1
-                            name="educationStatus"
-                            label="Education Status"
-                            value={userData.isGraduated ? 'Graduated' : 'Left Early'}
-                            disabled={true}
-                            backgroundColor="bg-gray-50"
-                            borderColor="border-transparent"
-                            textColor="text-gray-900"
-                            className="cursor-default"
-                        />
+                        {/* Education Status */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Education Status
+                            </label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                {userData.isGraduated ? 'Graduated' : 'Left Early'}
+                            </p>
+                        </div>
 
-                        <InputComponent1
-                            name="year"
-                            label={userData.isGraduated ? "Graduation Year" : "Year Left School"}
-                            value={userData.isGraduated
-                                ? (userData.graduationYear || userData.graduation_year || 'Not provided')
-                                : (userData.leftAt || userData.left_at || 'Not provided')
-                            }
-                            disabled={true}
-                            backgroundColor="bg-gray-50"
-                            borderColor="border-transparent"
-                            textColor="text-gray-900"
-                            className="cursor-default"
-                        />
+                        {/* Graduation/Left Year */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                {userData.isGraduated ? "Graduation Year" : "Year Left School"}
+                            </label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                {userData.isGraduated
+                                    ? (userData.graduationYear || userData.graduation_year || 'Not provided')
+                                    : (userData.leftAt || userData.left_at || 'Not provided')
+                                }
+                            </p>
+                        </div>
 
+                        {/* Bio - Full width */}
                         <div className="md:col-span-2">
-                            <TextareaComponent1
-                                name="bio"
-                                label="Bio/About Me"
-                                value={userData.bio || 'No bio provided'}
-                                disabled={true}
-                                rows={4}
-                                backgroundColor="bg-gray-50"
-                                borderColor="border-transparent"
-                                textColor="text-gray-900"
-                                className="cursor-default"
-                                resize="resize-none"
-                            />
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Bio/About Me
+                            </label>
+                            <div className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent min-h-[100px] whitespace-pre-wrap">
+                                {userData.bio || 'No bio provided'}
+                            </div>
                         </div>
                     </div>
                 )}
@@ -475,12 +473,12 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                                 {userData.isActive ? 'Active' : 'Inactive'}
                             </span>
                         </div>
-                        {userData.provider && (
+                        {/* {userData.provider && (
                             <div>
                                 <span className="text-gray-500">Login Provider:</span>
                                 <span className="ml-2 text-gray-900 capitalize">{userData.provider}</span>
                             </div>
-                        )}
+                        )} */}
                         <div>
                             <span className="text-gray-500">Member Since:</span>
                             <span className="ml-2 text-gray-900">

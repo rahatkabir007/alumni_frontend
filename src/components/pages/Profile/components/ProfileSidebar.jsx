@@ -156,7 +156,7 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                             <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
                                 <div className="text-center">
                                     <div className="text-lg font-bold text-gray-900">
-                                        {userData.graduationYear || 'N/A'}
+                                        {userData.graduation_year || 'N/A'}
                                     </div>
                                     <div className="text-xs text-gray-500">Graduation</div>
                                 </div>
