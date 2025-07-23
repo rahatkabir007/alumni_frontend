@@ -69,7 +69,7 @@ const ProfileSchema = Yup.object().shape({
         })
 });
 
-const BasicInfo = ({ userData, onUpdate }) => {
+const BasicInfo = ({ userData, onUpdate, refetch }) => {
     const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation()
     const [isEditing, setIsEditing] = useState(false)
     const [isDataLoading, setIsDataLoading] = useState(false)
@@ -114,6 +114,7 @@ const BasicInfo = ({ userData, onUpdate }) => {
 
             setIsEditing(false)
             ToastMessage.notifySuccess('Profile updated successfully!')
+            refetch()
         } catch (error) {
             console.error('Failed to update profile:', error)
             ToastMessage.notifyError(error.message || 'Failed to update profile')

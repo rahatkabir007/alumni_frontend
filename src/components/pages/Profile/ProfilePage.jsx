@@ -111,7 +111,6 @@ const ProfilePage = () => {
   }
 
   const handleUserUpdate = (updatedData) => {
-    console.log('Profile Page - Updating user data:', updatedData);
     const storedToken = token || localStorage.getItem('token');
     dispatch(setCredentials({
       user: { ...currentUser, ...updatedData },
@@ -127,7 +126,7 @@ const ProfilePage = () => {
 
     switch (activeSection) {
       case 'basic-info':
-        return <BasicInfo userData={currentUser} onUpdate={handleUserUpdate} />
+        return <BasicInfo userData={currentUser} onUpdate={handleUserUpdate} refetch={handleRefreshData} />
       case 'blogs':
         return <BlogManagement userData={currentUser} />
       case 'events':
