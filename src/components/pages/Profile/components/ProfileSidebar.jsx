@@ -132,23 +132,25 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                             <h2 className="text-xl font-bold text-gray-900">{userData.name || 'Alumni'}</h2>
                             <p className="text-gray-600 text-sm">{userData.email}</p>
 
-                            {userData.profession && (
-                                <p className="text-gray-500 text-sm mt-1">{userData.profession}</p>
+                            {userData.alumni_type && (
+                                <p className="text-gray-500 text-sm mt-1 capitalize">{userData.alumni_type}</p>
                             )}
 
                             {/* Roles */}
-                            <div className="flex flex-wrap justify-center gap-1 mt-3">
-                                {userData.roles?.map((role, index) => (
-                                    <BlackTag
-                                        key={index}
-                                        variant={role === 'admin' ? 'filled' : 'outline'}
-                                        size="xs"
-                                        className={role === 'admin' ? 'bg-red-600 text-white' : ''}
-                                    >
-                                        {role}
-                                    </BlackTag>
-                                ))}
-                            </div>
+                            {
+                                (userData?.roles.includes('admin') || userData?.roles.includes('moderator')) && <div className="flex flex-wrap justify-center gap-1 mt-3">
+                                    {userData.roles?.map((role, index) => (
+                                        <BlackTag
+                                            key={index}
+                                            variant={role === 'admin' ? 'filled' : 'outline'}
+                                            size="xs"
+                                            className={role === 'admin' ? 'bg-red-600 text-white' : ''}
+                                        >
+                                            {role}
+                                        </BlackTag>
+                                    ))}
+                                </div>
+                            }
 
                             {/* Quick Stats */}
                             <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">

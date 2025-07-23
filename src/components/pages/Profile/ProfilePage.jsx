@@ -32,10 +32,6 @@ const ProfilePage = () => {
 
   // Debug log to see current user state
   useEffect(() => {
-    console.log('Profile Page - Current user from Redux:', currentUser);
-    console.log('Profile Page - Is authenticated:', isAuthenticated);
-    console.log('Profile Page - Token exists:', !!token);
-    console.log('Profile Page - Token value:', token);
   }, [currentUser, isAuthenticated, token]);
 
   // Redirect if not authenticated
