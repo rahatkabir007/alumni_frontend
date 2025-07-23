@@ -1,7 +1,7 @@
 "use client"
 import BlackTag from '@/components/common/BlackTag'
 import CustomSwitch from '@/components/antd/Swtich/CustomSwitch'
-import ActionPopover from '@/components/common/ActionPopover'
+import ActionPopover from '@/components/antd/Popover/ActionPopover'
 import UserActionsMenu from './UserActionsMenu'
 
 const UserTableColumns = ({

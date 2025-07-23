@@ -1,7 +1,7 @@
 "use client"
 import ElegantCard from '@/components/common/ElegantCard'
-import DataTable from '@/components/common/DataTable'
-import CustomPagination from '@/components/common/CustomPagination'
+import DataTable from '@/components/antd/Table/DataTable'
+import CustomPagination from '@/components/antd/Pagination/CustomPagination'
 import UserTableColumns from './UserTableColumns'
 
 const UserManagementTable = ({
