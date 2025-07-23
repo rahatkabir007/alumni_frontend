@@ -1,13 +1,8 @@
 "use-client";
 
-import React from "react";
 import { Modal } from "antd";
-
-import Image from "next/image";
-
 import "@/styles/antd.css";
 import BlackButton from "@/components/common/BlackButton";
-import { images } from "@/constants/images";
 import { CloseOutlined } from "@ant-design/icons";
 
 const ConfirmationModal = ({
