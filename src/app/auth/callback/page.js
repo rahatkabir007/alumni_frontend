@@ -22,9 +22,9 @@ function AuthCallbackContent() {
                 const userParam = searchParams.get('user');
                 const authError = searchParams.get('error');
 
-                console.log('Auth callback - token:', !!token);
-                console.log('Auth callback - user param:', userParam);
-                console.log('Auth callback - error:', authError);
+                // console.log('Auth callback - token:', !!token);
+                // console.log('Auth callback - user param:', userParam);
+                // console.log('Auth callback - error:', authError);
 
                 if (authError) {
                     setError(`Authentication failed: ${authError.replace(/_/g, ' ')}`);
@@ -46,54 +46,54 @@ function AuthCallbackContent() {
                     return;
                 }
 
-                console.log('Auth callback - Token received, storing and fetching user data...');
+                // console.log('Auth callback - Token received, storing and fetching user data...');
 
                 // Store token first so API calls work
                 localStorage.setItem('token', token);
 
-                // Always fetch complete user data from /auth/me regardless of what's in URL params
-                // This ensures we get the full user object with all fields
-                try {
-                    console.log('Auth callback - Fetching complete user data from /auth/me...');
-                    const userData = await triggerGetUser().unwrap();
-                    console.log('Auth callback - Complete user data fetched successfully:', userData);
+                setTimeout(async () => {
+                    try {
+                        // console.log('Auth callback - Fetching complete user data from /auth/me...');
+                        const userData = await triggerGetUser().unwrap();
+                        // console.log('Auth callback - Complete user data fetched successfully:', userData);
 
-                    // Validate that we received a proper user object
-                    if (!userData || !userData.email || !userData.id) {
-                        throw new Error('Invalid user data received from server');
+                        // Validate that we received a proper user object
+                        if (!userData || !userData.email || !userData.id) {
+                            throw new Error('Invalid user data received from server');
+                        }
+
+                        // Set credentials with complete user data and token
+                        dispatch(setCredentials({
+                            user: userData, // This is the complete user object from /auth/me
+                            token: token
+                        }));
+
+                        ToastMessage.notifySuccess('Login successful! Welcome back!');
+
+                        // Give a moment for the state to update before redirecting
+                        setTimeout(() => {
+                            router.replace('/');
+                        }, 500);
+
+                    } catch (fetchError) {
+                        console.error('Auth callback - Failed to fetch user data:', fetchError);
+
+                        // Clean up token if user fetch fails
+                        localStorage.removeItem('token');
+
+                        const errorMsg = fetchError.status === 401 ?
+                            'Session expired. Please try logging in again.' :
+                            fetchError.message || 'Failed to load user profile. Please try again.';
+
+                        setError(errorMsg);
+                        ToastMessage.notifyError(errorMsg);
+                        setLoading(false);
+
+                        setTimeout(() => {
+                            router.push('/login');
+                        }, 3000);
                     }
-
-                    // Set credentials with complete user data and token
-                    dispatch(setCredentials({
-                        user: userData, // This is the complete user object from /auth/me
-                        token: token
-                    }));
-
-                    ToastMessage.notifySuccess('Login successful! Welcome back!');
-
-                    // Give a moment for the state to update before redirecting
-                    setTimeout(() => {
-                        router.replace('/');
-                    }, 500);
-
-                } catch (fetchError) {
-                    console.error('Auth callback - Failed to fetch user data:', fetchError);
-
-                    // Clean up token if user fetch fails
-                    localStorage.removeItem('token');
-
-                    const errorMsg = fetchError.status === 401 ?
-                        'Session expired. Please try logging in again.' :
-                        fetchError.message || 'Failed to load user profile. Please try again.';
-
-                    setError(errorMsg);
-                    ToastMessage.notifyError(errorMsg);
-                    setLoading(false);
-
-                    setTimeout(() => {
-                        router.push('/login');
-                    }, 3000);
-                }
+                }, 1000);
             } catch (err) {
                 console.error('Auth callback error:', err);
                 setError('Failed to process authentication');

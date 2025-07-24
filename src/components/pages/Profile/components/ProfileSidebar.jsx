@@ -114,7 +114,7 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                                         {userData.name?.charAt(0).toUpperCase() || 'A'}
                                     </div>
                                     {/* Edit Icon Overlay */}
-                                    <div className="absolute bottom-0 right-16">
+                                    <div className="absolute bottom-0">
                                         <ImageUploader
                                             onUpload={handleProfilePhotoUpdate}
                                             acceptedTypes={['image/jpeg', 'image/png', 'image/jpg']}

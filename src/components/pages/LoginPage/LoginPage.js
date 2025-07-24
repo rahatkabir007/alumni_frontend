@@ -78,29 +78,29 @@ export default function LoginPage() {
                 }));
 
                 // Optionally fetch fresh user data
-                try {
-                    const { data: userData } = await triggerGetUser();
-                    if (userData) {
-                        dispatch(setCredentials({
-                            user: userData,
-                            token: token
-                        }));
+                setTimeout(async () => {
+                    try {
+                        const { data: userData } = await triggerGetUser();
+                        if (userData) {
+                            dispatch(setCredentials({
+                                user: userData,
+                                token: token
+                            }));
+                            handleApiSuccess(response, 'Login successful!');
+                            const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+                            let targetPath = justLoggedOut ? '/' : (redirectPath || '/');
+
+                            if (justLoggedOut) {
+                                sessionStorage.removeItem('justLoggedOut');
+                            }
+
+                            dispatch(clearRedirectPath());
+                            router.replace(targetPath);
+                        }
+                    } catch (userFetchError) {
+                        console.warn('Could not fetch fresh user data, using login response data');
                     }
-                } catch (userFetchError) {
-                    console.warn('Could not fetch fresh user data, using login response data');
-                }
-
-                handleApiSuccess(response, 'Login successful!');
-
-                const justLoggedOut = sessionStorage.getItem('justLoggedOut');
-                let targetPath = justLoggedOut ? '/' : (redirectPath || '/');
-
-                if (justLoggedOut) {
-                    sessionStorage.removeItem('justLoggedOut');
-                }
-
-                dispatch(clearRedirectPath());
-                router.replace(targetPath);
+                }, 1000);
 
             } else {
                 const errorMessage = response.message || response.error || 'Login failed';

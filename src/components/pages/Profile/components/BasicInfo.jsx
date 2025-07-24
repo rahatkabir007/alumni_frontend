@@ -471,8 +471,8 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                         </div>
                         <div>
                             <span className="text-gray-500">Account Status:</span>
-                            <span className={`ml-2 ${userData.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                                {userData.isActive ? 'Active' : 'Inactive'}
+                            <span className={`ml-2 ${userData.status === "pending" ? 'text-yellow-600' : userData.status === "active" ? 'text-green-600' : 'text-red-600'}`}>
+                                {userData.status === "active" ? 'Active' : userData.status === "inactive" ? 'Inactive' : 'Not Verified'}
                             </span>
                         </div>
                         <div>
