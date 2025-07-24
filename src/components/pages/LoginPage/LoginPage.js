@@ -26,6 +26,7 @@ export default function LoginPage() {
     const dispatch = useDispatch();
     const searchParams = useSearchParams();
     const [error, setError] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false); // New state for processing
 
     const [login, { isLoading }] = useLoginMutation();
     const [triggerGetUser] = useLazyGetCurrentUserQuery();
@@ -77,6 +78,9 @@ export default function LoginPage() {
                     token: token
                 }));
 
+                // Show processing state
+                setIsProcessing(true);
+
                 // Optionally fetch fresh user data
                 setTimeout(async () => {
                     try {
@@ -86,19 +90,33 @@ export default function LoginPage() {
                                 user: userData,
                                 token: token
                             }));
-                            handleApiSuccess(response, 'Login successful!');
-                            const justLoggedOut = sessionStorage.getItem('justLoggedOut');
-                            let targetPath = justLoggedOut ? '/' : (redirectPath || '/');
-
-                            if (justLoggedOut) {
-                                sessionStorage.removeItem('justLoggedOut');
-                            }
-
-                            dispatch(clearRedirectPath());
-                            router.replace(targetPath);
                         }
+
+                        handleApiSuccess(response, 'Login successful!');
+                        const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+                        let targetPath = justLoggedOut ? '/' : (redirectPath || '/');
+
+                        if (justLoggedOut) {
+                            sessionStorage.removeItem('justLoggedOut');
+                        }
+
+                        dispatch(clearRedirectPath());
+                        router.replace(targetPath);
+
                     } catch (userFetchError) {
                         console.warn('Could not fetch fresh user data, using login response data');
+
+                        // Still redirect even if user fetch fails
+                        handleApiSuccess(response, 'Login successful!');
+                        const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+                        let targetPath = justLoggedOut ? '/' : (redirectPath || '/');
+
+                        if (justLoggedOut) {
+                            sessionStorage.removeItem('justLoggedOut');
+                        }
+
+                        dispatch(clearRedirectPath());
+                        router.replace(targetPath);
                     }
                 }, 1000);
 
@@ -119,6 +137,19 @@ export default function LoginPage() {
         const frontendCallback = encodeURIComponent(`${window.location.origin}/auth/callback`);
         window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?callback=${frontendCallback}`;
     };
+
+    // Show processing screen when authentication is in progress
+    if (isProcessing) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-800">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+                    <p className="text-white text-lg font-medium">Processing authentication...</p>
+                    <p className="text-gray-400 text-sm mt-2">Please wait while we log you in</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
