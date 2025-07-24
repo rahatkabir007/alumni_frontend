@@ -9,6 +9,29 @@ import BlackButton from '@/components/common/BlackButton'
 import InputComponent1 from '@/components/common/InputComponent1'
 import TextareaComponent1 from '@/components/common/TextareaComponent1'
 
+// Helper to show value or N/A
+const showValue = (value) => {
+    if (Array.isArray(value)) return value.length > 0 ? value : 'N/A'
+    if (typeof value === 'string') return value?.trim() ? value : 'N/A'
+    if (typeof value === 'number') return value || value === 0 ? value : 'N/A'
+    if (value === null || value === undefined) return 'N/A'
+    return value
+}
+
+// Helper to render array of objects (education, experience, etc.)
+const renderArrayObjects = (arr, fields) => (
+    arr && arr.length > 0 ? arr.map((item, idx) => (
+        <div key={idx} className="bg-gray-50 p-4 rounded-lg mb-2 border">
+            {fields.map(({ label, key }) => (
+                <div key={key} className="mb-1">
+                    <span className="font-medium text-gray-700">{label}: </span>
+                    <span className="text-gray-900">{showValue(item[key])}</span>
+                </div>
+            ))}
+        </div>
+    )) : <div className="text-gray-500 italic">N/A</div>
+)
+
 // Validation schema for additional information
 const AdditionalInfoSchema = Yup.object().shape({
     // Student fields
@@ -829,243 +852,170 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
     )
 
     const renderViewMode = () => {
-        if (!additionalInfo || Object.keys(additionalInfo).length === 0) {
-            return (
-                <div className="text-center py-8">
-                    <div className="text-gray-400 text-4xl mb-4">📝</div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">No Additional Information</h4>
-                    <p className="text-gray-600 mb-4">Add more details about your background and achievements.</p>
-                    {/* <BlackButton size="sm" onClick={handleEdit}>
-                        Add Information
-                    </BlackButton> */}
-                </div>
-            )
-        }
-
+        // Show all fields, even if empty
         return (
             <div className="space-y-6">
+                {/* Student fields */}
                 {isStudent && (
                     <>
-                        {/* Current Position & Organization */}
-                        {(additionalInfo.currentPosition || additionalInfo.organization) && (
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {additionalInfo.currentPosition && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Current Position</label>
-                                        <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{additionalInfo.currentPosition}</p>
-                                    </div>
-                                )}
-                                {additionalInfo.organization && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Organization</label>
-                                        <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{additionalInfo.organization}</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Joined Year */}
-                        {additionalInfo.joinedYear && (
+                        <div className="grid md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Year Joined CIHS</label>
-                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{additionalInfo.joinedYear}</p>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Current Position</label>
+                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.currentPosition)}</p>
                             </div>
-                        )}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Organization</label>
+                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.organization)}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Year Joined CIHS</label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.joinedYear)}</p>
+                        </div>
                     </>
                 )}
 
+                {/* Teacher fields */}
                 {isTeacher && (
                     <>
-                        {/* Designation & Department */}
-                        {(additionalInfo.designation || additionalInfo.department) && (
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {additionalInfo.designation && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Designation</label>
-                                        <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{additionalInfo.designation}</p>
-                                    </div>
-                                )}
-                                {additionalInfo.department && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                                        <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{additionalInfo.department}</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Period & Status */}
-                        {(additionalInfo.period || additionalInfo.teacherStatus) && (
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {additionalInfo.period && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Service Period</label>
-                                        <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{additionalInfo.period}</p>
-                                    </div>
-                                )}
-                                {additionalInfo.teacherStatus && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                                        <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg capitalize">{additionalInfo.teacherStatus}</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Subject & Specialization */}
-                        {(additionalInfo.subject || additionalInfo.specialization) && (
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {additionalInfo.subject && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Main Subject</label>
-                                        <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{additionalInfo.subject}</p>
-                                    </div>
-                                )}
-                                {additionalInfo.specialization && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Specialization</label>
-                                        <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{additionalInfo.specialization}</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Office Hours */}
-                        {additionalInfo.officeHours && (
+                        <div className="grid md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Office Hours</label>
-                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{additionalInfo.officeHours}</p>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Designation</label>
+                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.designation)}</p>
                             </div>
-                        )}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.department)}</p>
+                            </div>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Service Period</label>
+                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.period)}</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg capitalize">{showValue(additionalInfo.teacherStatus)}</p>
+                            </div>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Main Subject</label>
+                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.subject)}</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Specialization</label>
+                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.specialization)}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Office Hours</label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.officeHours)}</p>
+                        </div>
                     </>
                 )}
 
                 {/* Achievements */}
-                {additionalInfo.achievements && additionalInfo.achievements.length > 0 && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Achievements</label>
-                        <div className="space-y-2">
-                            {additionalInfo.achievements.map((achievement, index) => (
-                                <div key={index} className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">
-                                    • {achievement}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Achievements</label>
+                    {Array.isArray(additionalInfo.achievements) && additionalInfo.achievements.length > 0
+                        ? (
+                            <ul className="list-disc pl-6">
+                                {additionalInfo.achievements.map((a, i) => (
+                                    <li key={i} className="text-gray-900">{showValue(a)}</li>
+                                ))}
+                            </ul>
+                        )
+                        : <div className="text-gray-500 italic">N/A</div>
+                    }
+                </div>
 
                 {/* Education */}
-                {additionalInfo.education && additionalInfo.education.length > 0 && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Education</label>
-                        <div className="space-y-3">
-                            {additionalInfo.education.map((edu, index) => (
-                                <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                                    <h4 className="font-semibold text-gray-900">{edu.degree}</h4>
-                                    <p className="text-gray-700">{edu.institution}</p>
-                                    <div className="flex justify-between text-sm text-gray-600 mt-1">
-                                        <span>{edu.year}</span>
-                                        {edu.grade && <span>{edu.grade}</span>}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Education</label>
+                    {renderArrayObjects(additionalInfo.education || [], [
+                        { label: 'Degree', key: 'degree' },
+                        { label: 'Institution', key: 'institution' },
+                        { label: 'Year', key: 'year' },
+                        ...(isStudent ? [{ label: 'Grade/Result', key: 'grade' }] : [])
+                    ])}
+                </div>
 
                 {/* Experience */}
-                {additionalInfo.experience && additionalInfo.experience.length > 0 && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {isStudent ? 'Work Experience' : 'Teaching Experience'}
-                        </label>
-                        <div className="space-y-3">
-                            {additionalInfo.experience.map((exp, index) => (
-                                <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                                    <h4 className="font-semibold text-gray-900">{exp.position}</h4>
-                                    <p className="text-gray-700">{exp.organization || exp.institution}</p>
-                                    <p className="text-sm text-gray-600">{exp.period}</p>
-                                    {exp.description && <p className="text-gray-700 mt-2">{exp.description}</p>}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {isStudent ? 'Work Experience' : 'Teaching Experience'}
+                    </label>
+                    {renderArrayObjects(additionalInfo.experience || [], [
+                        { label: 'Position', key: 'position' },
+                        { label: isStudent ? 'Organization' : 'Institution', key: isStudent ? 'organization' : 'institution' },
+                        { label: 'Period', key: 'period' },
+                        { label: 'Description', key: 'description' }
+                    ])}
+                </div>
 
                 {/* Publications (Teachers only) */}
-                {isTeacher && additionalInfo.publications && additionalInfo.publications.length > 0 && (
+                {isTeacher && (
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Publications</label>
-                        <div className="space-y-3">
-                            {additionalInfo.publications.map((pub, index) => (
-                                <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                                    <h4 className="font-semibold text-gray-900">{pub.title}</h4>
-                                    <p className="text-gray-700">{pub.publisher}</p>
-                                    <p className="text-sm text-gray-600">{pub.year}</p>
-                                </div>
-                            ))}
-                        </div>
+                        {renderArrayObjects(additionalInfo.publications || [], [
+                            { label: 'Title', key: 'title' },
+                            { label: 'Year', key: 'year' },
+                            { label: 'Publisher/Journal', key: 'publisher' }
+                        ])}
                     </div>
                 )}
 
                 {/* Social Contributions (Students only) */}
-                {isStudent && additionalInfo.socialContributions && additionalInfo.socialContributions.length > 0 && (
+                {isStudent && (
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Social Contributions</label>
-                        <div className="space-y-2">
-                            {additionalInfo.socialContributions.map((contribution, index) => (
-                                <div key={index} className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">
-                                    • {contribution}
-                                </div>
-                            ))}
-                        </div>
+                        {Array.isArray(additionalInfo.socialContributions) && additionalInfo.socialContributions.length > 0
+                            ? (
+                                <ul className="list-disc pl-6">
+                                    {additionalInfo.socialContributions.map((a, i) => (
+                                        <li key={i} className="text-gray-900">{showValue(a)}</li>
+                                    ))}
+                                </ul>
+                            )
+                            : <div className="text-gray-500 italic">N/A</div>
+                        }
                     </div>
                 )}
 
                 {/* Quote */}
-                {additionalInfo.quotes && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {isStudent ? 'Personal Quote' : 'Educational Philosophy'}
-                        </label>
-                        <div className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg italic">
-                            "{additionalInfo.quotes}"
-                        </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {isStudent ? 'Personal Quote' : 'Educational Philosophy'}
+                    </label>
+                    <div className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg italic">
+                        {showValue(additionalInfo.quotes)}
                     </div>
-                )}
+                </div>
 
                 {/* Social Media (Students only) */}
-                {isStudent && additionalInfo.socialMedia && (
+                {isStudent && (
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Social Media</label>
                         <div className="grid md:grid-cols-3 gap-4">
-                            {additionalInfo.socialMedia.linkedin && (
-                                <div>
-                                    <span className="text-sm text-gray-600">LinkedIn:</span>
-                                    <a href={additionalInfo.socialMedia.linkedin} target="_blank" rel="noopener noreferrer"
-                                        className="block text-blue-600 hover:text-blue-800 truncate">
-                                        {additionalInfo.socialMedia.linkedin}
-                                    </a>
+                            <div>
+                                <span className="text-sm text-gray-600">LinkedIn:</span>
+                                <div className="text-blue-600 truncate">
+                                    {showValue(additionalInfo.socialMedia?.linkedin)}
                                 </div>
-                            )}
-                            {additionalInfo.socialMedia.twitter && (
-                                <div>
-                                    <span className="text-sm text-gray-600">Twitter:</span>
-                                    <a href={additionalInfo.socialMedia.twitter} target="_blank" rel="noopener noreferrer"
-                                        className="block text-blue-600 hover:text-blue-800 truncate">
-                                        {additionalInfo.socialMedia.twitter}
-                                    </a>
+                            </div>
+                            <div>
+                                <span className="text-sm text-gray-600">Twitter:</span>
+                                <div className="text-blue-600 truncate">
+                                    {showValue(additionalInfo.socialMedia?.twitter)}
                                 </div>
-                            )}
-                            {additionalInfo.socialMedia.facebook && (
-                                <div>
-                                    <span className="text-sm text-gray-600">Facebook:</span>
-                                    <a href={additionalInfo.socialMedia.facebook} target="_blank" rel="noopener noreferrer"
-                                        className="block text-blue-600 hover:text-blue-800 truncate">
-                                        {additionalInfo.socialMedia.facebook}
-                                    </a>
+                            </div>
+                            <div>
+                                <span className="text-sm text-gray-600">Facebook:</span>
+                                <div className="text-blue-600 truncate">
+                                    {showValue(additionalInfo.socialMedia?.facebook)}
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 )}
