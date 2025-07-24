@@ -13,7 +13,11 @@ const UserActionsMenu = ({ user, onRoleChange, onRoleRemove, onConfirmModal, per
         return []
     }
 
-    // Role management - only if user can change roles
+    // Check user status - only allow role changes for active users
+    const userStatus = user.status || 'pending'
+    const isUserActive = userStatus === 'active'
+
+    // Role management - only if user can change roles AND user is active
     if (canChangeUserRole) {
         const userRoles = user.roles || []
         const isUserAdmin = userRoles.includes('admin')
@@ -21,35 +25,41 @@ const UserActionsMenu = ({ user, onRoleChange, onRoleRemove, onConfirmModal, per
 
         // Don't allow role changes on admin users (protect admins)
         if (!isUserAdmin) {
-            // Moderator role management
-            if (isUserModerator) {
+            // Only show role options for active users
+            if (isUserActive) {
+                // Moderator role management
+                if (isUserModerator) {
+                    menuItems.push({
+                        key: 'remove-moderator',
+                        label: 'Remove as Moderator',
+                        icon: <UserDeleteOutlined />,
+                        onClick: () => onRoleRemove(user.id, 'moderator')
+                    })
+                } else {
+                    menuItems.push({
+                        key: 'set-moderator',
+                        label: 'Set as Moderator',
+                        icon: <EditOutlined />,
+                        onClick: () => onRoleChange(user.id, 'moderator')
+                    })
+                }
+
+                // Admin role management - only non-admin users can be promoted
                 menuItems.push({
-                    key: 'remove-moderator',
-                    label: 'Remove as Moderator',
-                    icon: <UserDeleteOutlined />,
-                    onClick: () => onRoleRemove(user.id, 'moderator')
-                })
-            } else {
-                menuItems.push({
-                    key: 'set-moderator',
-                    label: 'Set as Moderator',
-                    icon: <EditOutlined />,
-                    onClick: () => onRoleChange(user.id, 'moderator')
+                    key: 'set-admin',
+                    label: 'Set as Admin',
+                    icon: <CrownOutlined />,
+                    onClick: () => onRoleChange(user.id, 'admin')
                 })
             }
 
-            // Admin role management - only non-admin users can be promoted
-            menuItems.push({
-                key: 'set-admin',
-                label: 'Set as Admin',
-                icon: <CrownOutlined />,
-                onClick: () => onRoleChange(user.id, 'admin')
-            })
-
-            menuItems.push({ type: 'divider' })
+            // Add divider only if we have role management items
+            if (menuItems.length > 0) {
+                menuItems.push({ type: 'divider' })
+            }
         }
 
-        // If user is admin, show remove admin option
+        // If user is admin, show remove admin option (regardless of status)
         if (isUserAdmin) {
             menuItems.push({
                 key: 'remove-admin',
