@@ -13,7 +13,8 @@ import {
     useGetUsersQuery,
     useUpdateUserMutation,
     useUpdateStatusMutation,
-    useDeleteUserMutation
+    useDeleteUserMutation,
+    useUpdateRoleMutation
 } from '@/redux/features/user/userApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import { handleApiError } from '@/utils/errorHandler'
@@ -53,6 +54,7 @@ const UserManagement = ({ userData }) => {
     // Mutations
     const [updateUser] = useUpdateUserMutation()
     const [updateStatus] = useUpdateStatusMutation()
+    const [updateRole] = useUpdateRoleMutation()
     const [deleteUser] = useDeleteUserMutation()
 
     // Debounce search input
@@ -162,9 +164,9 @@ const UserManagement = ({ userData }) => {
 
     const handleRoleChange = async (userId, newRole) => {
         try {
-            await updateUser({
+            await updateRole({
                 userId,
-                userData: { roles: [newRole] }
+                role: newRole
             }).unwrap()
             ToastMessage.notifySuccess(`User role updated to ${newRole}`)
             refetch()

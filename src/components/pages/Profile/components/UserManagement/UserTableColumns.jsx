@@ -1,4 +1,5 @@
 "use client"
+import { useState } from 'react'
 import { Select } from 'antd'
 import BlackTag from '@/components/common/BlackTag'
 import CustomSwitch from '@/components/antd/Swtich/CustomSwitch'
@@ -6,7 +7,6 @@ import ActionPopover from '@/components/antd/Popover/ActionPopover'
 import UserActionsMenu from './UserActionsMenu'
 
 const UserTableColumns = ({
-    onActiveToggle,
     onConfirmModal,
     onRoleChange,
     onStatusChange,
@@ -14,15 +14,114 @@ const UserTableColumns = ({
     canBlockUser,
     permissions
 }) => {
+    const [editingStatus, setEditingStatus] = useState(null) // Track which row is being edited
+
     const statusOptions = [
-        { value: 'active', label: 'Active', color: 'bg-green-600 text-white border-green-600' },
-        { value: 'inactive', label: 'Inactive', color: 'border-red-500 text-red-600 bg-red-50' },
-        { value: 'pending', label: 'Pending', color: 'border-yellow-500 text-yellow-600 bg-yellow-50' }
+        { value: 'active', label: 'Active' },
+        { value: 'inactive', label: 'Inactive' },
+        { value: 'pending', label: 'Pending' }
     ]
 
-    const getStatusColor = (status) => {
-        const statusOption = statusOptions.find(option => option.value === status)
-        return statusOption ? statusOption.color : 'border-gray-500 text-gray-600 bg-gray-50'
+    const getStatusStyles = (status) => {
+        switch (status) {
+            case 'active':
+                return {
+                    bg: 'bg-green-100',
+                    text: 'text-green-800',
+                    border: 'border-green-200'
+                }
+            case 'inactive':
+                return {
+                    bg: 'bg-red-100',
+                    text: 'text-red-800',
+                    border: 'border-red-200'
+                }
+            case 'pending':
+                return {
+                    bg: 'bg-yellow-100',
+                    text: 'text-yellow-800',
+                    border: 'border-yellow-200'
+                }
+            default:
+                return {
+                    bg: 'bg-gray-100',
+                    text: 'text-gray-800',
+                    border: 'border-gray-200'
+                }
+        }
+    }
+
+    const handleStatusEdit = (recordId) => {
+        setEditingStatus(recordId)
+    }
+
+    const handleStatusCancel = () => {
+        setEditingStatus(null)
+    }
+
+    const handleStatusSave = async (recordId, newStatus) => {
+        try {
+            await onStatusChange(recordId, newStatus)
+            setEditingStatus(null)
+        } catch (error) {
+            // Error is handled in parent component
+        }
+    }
+
+    const renderStatusField = (status, record) => {
+        const currentStatus = status || 'pending'
+        const canModify = canModifyUser(record) && canBlockUser
+        const isEditing = editingStatus === record.id
+        const styles = getStatusStyles(currentStatus)
+
+        if (!canModify) {
+            return (
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${styles.bg} ${styles.text} ${styles.border}`}>
+                    {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
+                </div>
+            )
+        }
+
+        if (isEditing) {
+            return (
+                <div className="flex items-center gap-2">
+                    <Select
+                        value={currentStatus}
+                        onChange={(newStatus) => handleStatusSave(record.id, newStatus)}
+                        size="small"
+                        className="min-w-[110px]"
+                        options={statusOptions}
+                        autoFocus
+                    />
+                    <button
+                        onClick={handleStatusCancel}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        title="Cancel"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            )
+        }
+
+        return (
+            <div className="flex items-center gap-2">
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${styles.bg} ${styles.text} ${styles.border}`}>
+                    {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
+                </div>
+                <button
+                    onClick={() => handleStatusEdit(record.id)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    title="Edit status"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                </button>
+            </div>
+        )
     }
 
     return [
@@ -94,32 +193,7 @@ const UserTableColumns = ({
             dataIndex: 'status',
             key: 'status',
             width: '20%',
-            render: (status, record) => {
-                const currentStatus = status || 'pending'
-                const canModify = canModifyUser(record) && canBlockUser
-
-                return (
-                    <div className="flex items-center gap-3">
-                        {canModify ? (
-                            <Select
-                                value={currentStatus}
-                                onChange={(newStatus) => onStatusChange(record.id, newStatus)}
-                                size="small"
-                                className="min-w-[100px]"
-                                options={statusOptions}
-                            />
-                        ) : (
-                            <BlackTag
-                                variant={currentStatus === 'active' ? 'solid' : 'outline'}
-                                size="xs"
-                                className={getStatusColor(currentStatus)}
-                            >
-                                {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
-                            </BlackTag>
-                        )}
-                    </div>
-                )
-            },
+            render: (status, record) => renderStatusField(status, record),
         },
         {
             title: 'Joined',

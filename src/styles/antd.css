@@ -69,6 +69,8 @@
 .user-management-table .ant-select-selector {
   border-color: #d1d5db !important;
   border-radius: 6px !important;
+  font-size: 13px !important;
+  height: 28px !important;
 }
 
 .user-management-table .ant-select:hover .ant-select-selector {
@@ -78,6 +80,21 @@
 .user-management-table .ant-select-focused .ant-select-selector {
   border-color: #000000 !important;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.user-management-table .ant-select-selection-item {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* Status field edit buttons */
+.user-management-table .status-edit-btn {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.user-management-table tr:hover .status-edit-btn {
+  opacity: 1;
 }
 
 /* Custom Antd Pagination Styling */

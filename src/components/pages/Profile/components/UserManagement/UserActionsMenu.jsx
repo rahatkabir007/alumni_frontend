@@ -1,8 +1,8 @@
 "use client"
-import { EditOutlined, DeleteOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons'
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 
 const UserActionsMenu = ({ user, onRoleChange, onConfirmModal, permissions }) => {
-    const { canChangeUserRole, canBlockUser, canDeleteUser } = permissions
+    const { canChangeUserRole, canDeleteUser } = permissions
     const menuItems = []
 
     if (canChangeUserRole) {
