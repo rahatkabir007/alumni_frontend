@@ -71,12 +71,18 @@ const UserManagement = ({ userData }) => {
 
     // Main query based on active tab
     const getQueryParams = () => {
+        // MODERATOR RESTRICTION: Filter admin users for moderators
+        const isCurrentUserModerator = userData.roles?.includes('moderator')
+        const isCurrentUserAdmin = userData.roles?.includes('admin')
+
         const baseParams = {
             page: currentPage,
             limit: 10,
             search: debouncedSearch,
             sortBy,
-            sortOrder
+            sortOrder,
+            // MODERATOR RESTRICTION: Exclude admin users for moderators
+            excludeAdmins: isCurrentUserModerator && !isCurrentUserAdmin
         }
 
         switch (activeTab) {
@@ -100,24 +106,39 @@ const UserManagement = ({ userData }) => {
     )
 
     // Separate queries for tab counts (without pagination and search)
+    const getCountQueryParams = (status = 'all', role = 'all') => {
+        // MODERATOR RESTRICTION: Filter admin users for moderators in count queries
+        const isCurrentUserModerator = userData.roles?.includes('moderator')
+        const isCurrentUserAdmin = userData.roles?.includes('admin')
+
+        return {
+            page: 1,
+            limit: 1000,
+            status,
+            role,
+            // MODERATOR RESTRICTION: Exclude admin users for moderators
+            excludeAdmins: isCurrentUserModerator && !isCurrentUserAdmin
+        }
+    }
+
     const { data: allUsersData } = useGetUsersQuery(
-        { page: 1, limit: 1000, status: 'all', role: 'all' },
+        getCountQueryParams('all', 'all'),
         { skip: !permissions.canManageUsers }
     )
     const { data: activeUsersData } = useGetUsersQuery(
-        { page: 1, limit: 1000, status: 'active' },
+        getCountQueryParams('active'),
         { skip: !permissions.canManageUsers }
     )
     const { data: inactiveUsersData } = useGetUsersQuery(
-        { page: 1, limit: 1000, status: 'inactive' },
+        getCountQueryParams('inactive'),
         { skip: !permissions.canManageUsers }
     )
     const { data: pendingUsersData } = useGetUsersQuery(
-        { page: 1, limit: 1000, status: 'pending' },
+        getCountQueryParams('pending'),
         { skip: !permissions.canManageUsers }
     )
     const { data: moderatorsData } = useGetUsersQuery(
-        { page: 1, limit: 1000, role: 'moderator' },
+        getCountQueryParams('all', 'moderator'),
         { skip: !permissions.canManageUsers }
     )
 
@@ -153,11 +174,40 @@ const UserManagement = ({ userData }) => {
 
     const handleStatusChange = async (userId, newStatus) => {
         try {
+            // MODERATOR RESTRICTION: Enhanced validation for moderator actions
+            const isCurrentUserModerator = userData.roles?.includes('moderator')
+            const isCurrentUserAdmin = userData.roles?.includes('admin')
+
+            // Find the target user to check their current status
+            const targetUser = users.find(user => user.id === userId)
+            const currentUserStatus = targetUser?.status || 'pending'
+
+            // MODERATOR RESTRICTION: Moderators can only edit pending users
+            if (isCurrentUserModerator && !isCurrentUserAdmin) {
+                if (currentUserStatus !== 'pending') {
+                    ToastMessage.notifyWarning('Moderators can only edit pending users. Once a user is active or inactive, only admins can modify their status.')
+                    return
+                }
+
+                // MODERATOR RESTRICTION: Moderators can only change pending users to active
+                if (newStatus === 'inactive') {
+                    ToastMessage.notifyWarning('Moderators cannot set users to inactive status. Only admins can block users.')
+                    return
+                }
+            }
+
             await updateStatus({
                 userId,
                 status: newStatus
             }).unwrap()
-            ToastMessage.notifySuccess(`User status updated to ${newStatus}`)
+
+            // MODERATOR RESTRICTION: Show appropriate success message
+            if (isCurrentUserModerator && !isCurrentUserAdmin && newStatus === 'active') {
+                ToastMessage.notifySuccess('User has been successfully activated!')
+            } else {
+                ToastMessage.notifySuccess(`User status updated to ${newStatus}`)
+            }
+
             refetch()
         } catch (error) {
             handleApiError(error, null, true, 'Failed to update user status')
@@ -235,10 +285,42 @@ const UserManagement = ({ userData }) => {
     // Helper functions
     const isAdminUser = (user) => user.roles?.includes('admin')
     const canModifyUser = (targetUser) => {
-        // Only allow modification if current user is admin and target is not admin
         const isCurrentUserAdmin = userData.roles?.includes('admin')
+        const isCurrentUserModerator = userData.roles?.includes('moderator')
         const isTargetAdmin = targetUser.roles?.includes('admin')
-        return isCurrentUserAdmin && !isTargetAdmin
+        const isTargetModerator = targetUser.roles?.includes('moderator')
+        const targetUserStatus = targetUser.status || 'pending'
+
+        // MODERATOR RESTRICTION: Moderators should never see admin users (this is a safety check)
+        if (isCurrentUserModerator && !isCurrentUserAdmin && isTargetAdmin) {
+            return false
+        }
+
+        // Admins can modify anyone except other admins
+        if (isCurrentUserAdmin) {
+            return !isTargetAdmin
+        }
+
+        // MODERATOR RESTRICTION: Moderators can only modify regular users who are pending
+        if (isCurrentUserModerator) {
+            return !isTargetAdmin && !isTargetModerator && targetUserStatus === 'pending'
+        }
+
+        return false
+    }
+
+    // MODERATOR RESTRICTION: Client-side filter function to ensure no admin users are shown to moderators
+    const filterUsersForModerator = (user) => {
+        const isCurrentUserModerator = userData.roles?.includes('moderator')
+        const isCurrentUserAdmin = userData.roles?.includes('admin')
+        const isUserAdmin = user.roles?.includes('admin')
+
+        // If current user is moderator (but not admin), filter out admin users
+        if (isCurrentUserModerator && !isCurrentUserAdmin && isUserAdmin) {
+            return false
+        }
+
+        return true
     }
 
     // Table columns configuration
@@ -317,7 +399,15 @@ const UserManagement = ({ userData }) => {
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-900">User Management</h3>
                     <div className="flex items-center gap-2">
-                        {permissions.canManageUsers && <BlackTag variant="outline">Admin Access</BlackTag>}
+                        {/* MODERATOR RESTRICTION: Show different access badges */}
+                        {userData.roles?.includes('admin') && (
+                            <BlackTag variant="outline">Admin Access</BlackTag>
+                        )}
+                        {userData.roles?.includes('moderator') && !userData.roles?.includes('admin') && (
+                            <BlackTag variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
+                                Moderator Access
+                            </BlackTag>
+                        )}
                     </div>
                 </div>
 
@@ -352,6 +442,8 @@ const UserManagement = ({ userData }) => {
                     total={pagination.total}
                     className="user-management-table"
                     rowKeyProp="id"
+                    // MODERATOR RESTRICTION: Apply client-side filtering for moderators
+                    filterFunction={userData.roles?.includes('moderator') && !userData.roles?.includes('admin') ? filterUsersForModerator : null}
                 />
             </ElegantCard>
 

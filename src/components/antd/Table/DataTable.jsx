@@ -29,6 +29,8 @@ const DataTable = ({
     rowClassName,
     customStyles,
     rowKeyProp = "id",
+    // MODERATOR RESTRICTION: Add filter function prop
+    filterFunction = null,
 }) => {
     const [currentPageInside, setCurrentPageInside] = useState(1);
 
@@ -43,22 +45,25 @@ const DataTable = ({
     };
     let paginatedData, startRange, endRange;
 
+    let finalData = data;
+
+    // MODERATOR RESTRICTION: Apply client-side filtering if filter function is provided
+    if (filterFunction && typeof filterFunction === 'function') {
+        finalData = finalData?.filter(filterFunction) || [];
+    }
+
     if (pageSize !== null) {
         const startIndex =
             currentPage !== null
                 ? (currentPage - 1) * pageSize
                 : (currentPageInside - 1) * pageSize;
         const endIndex = startIndex + pageSize;
-        paginatedData = data?.slice(startIndex, endIndex);
+        paginatedData = finalData?.slice(startIndex, endIndex);
 
         startRange = startIndex + 1;
-        endRange = Math.min(startIndex + data?.length);
-    }
+        endRange = Math.min(startIndex + finalData?.length);
 
-    let finalData = data;
-
-    if (pageSize !== null) {
-        finalData = paginatedData?.length === 0 ? data : paginatedData;
+        finalData = paginatedData?.length === 0 ? finalData : paginatedData;
     }
 
     const onChange = (pagination, filters, sorter, extra) => {

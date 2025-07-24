@@ -4,7 +4,7 @@ export const userApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getUsers: builder.query({
             query: (params = {}) => {
-                const { page = 1, limit = 10, search = '', status = 'all', role = 'all', sortBy = 'created_at', sortOrder = 'desc' } = params
+                const { page = 1, limit = 10, search = '', status = 'all', role = 'all', sortBy = 'created_at', sortOrder = 'desc', excludeAdmins = false } = params
 
                 const queryParams = new URLSearchParams({
                     page: page.toString(),
@@ -16,6 +16,7 @@ export const userApi = apiSlice.injectEndpoints({
                 if (search) queryParams.append('search', search)
                 if (status !== 'all') queryParams.append('status', status)
                 if (role !== 'all') queryParams.append('role', role)
+                if (excludeAdmins) queryParams.append('excludeAdmins', 'true')
 
                 return `/users?${queryParams.toString()}`
             },
