@@ -86,33 +86,48 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                                     </svg>
                                 </div>
                             ) : userData.profilePhoto ? (
-                                <Image
-                                    src={userData.profilePhoto}
-                                    alt="Profile"
-                                    className="w-24 h-24 object-cover rounded-full bg-gray-200"
-                                    width={400}
-                                    height={400}
-                                    onLoad={() => setIsPhotoLoading(false)}
-                                    onError={() => setIsPhotoLoading(false)}
-
-                                />
+                                <div className='relative flex flex-col items-end'>
+                                    <Image
+                                        src={userData.profilePhoto}
+                                        alt="Profile"
+                                        className="w-24 h-24 object-cover rounded-full bg-gray-200"
+                                        width={400}
+                                        height={400}
+                                        onLoad={() => setIsPhotoLoading(false)}
+                                        onError={() => setIsPhotoLoading(false)}
+                                    />
+                                    {/* Edit Icon Overlay */}
+                                    <div className="absolute bottom-0 ">
+                                        <ImageUploader
+                                            onUpload={handleProfilePhotoUpdate}
+                                            acceptedTypes={['image/jpeg', 'image/png', 'image/jpg']}
+                                            maxSizeMB={5}
+                                            buttonText={isUpdatingPhoto || isPhotoLoading ? "Updating..." : "Change Photo"}
+                                            disabled={isUpdatingPhoto || isPhotoLoading}
+                                            icon={true}
+                                        />
+                                    </div>
+                                </div>
                             ) : (
-                                <div className='w-24 h-24 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-2xl font-bold'>
-                                    {userData.name?.charAt(0).toUpperCase() || 'A'}
+                                <div className='relative flex flex-col items-end'>
+                                    <div className='w-24 h-24 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-2xl font-bold'>
+                                        {userData.name?.charAt(0).toUpperCase() || 'A'}
+                                    </div>
+                                    {/* Edit Icon Overlay */}
+                                    <div className="absolute bottom-0 right-16">
+                                        <ImageUploader
+                                            onUpload={handleProfilePhotoUpdate}
+                                            acceptedTypes={['image/jpeg', 'image/png', 'image/jpg']}
+                                            maxSizeMB={5}
+                                            buttonText={isUpdatingPhoto || isPhotoLoading ? "Updating..." : "Change Photo"}
+                                            disabled={isUpdatingPhoto || isPhotoLoading}
+                                            icon={true}
+                                        />
+                                    </div>
                                 </div>
                             )}
 
-                            {/* Edit Icon Overlay */}
-                            <div className="absolute bottom-0 right-16">
-                                <ImageUploader
-                                    onUpload={handleProfilePhotoUpdate}
-                                    acceptedTypes={['image/jpeg', 'image/png', 'image/jpg']}
-                                    maxSizeMB={5}
-                                    buttonText={isUpdatingPhoto || isPhotoLoading ? "Updating..." : "Change Photo"}
-                                    disabled={isUpdatingPhoto || isPhotoLoading}
-                                    icon={true}
-                                />
-                            </div>
+
                         </div>
 
                         <p className="text-xs text-gray-500 mt-2">

@@ -56,10 +56,10 @@ const GlobalModal = ({
                         className={`border border-transparent rounded-t-[10px] flex justify-between items-center bg-foundation-blue-normal px-6 py-[22px] ${titleContentClassName}`}
                     >
                         {title && (
-                            <TitleHeader
-                                title={title}
+                            <div
+
                                 className={`text-[24px] font-medium text-foundation-white-light ${titleClassName} font-inter_i`}
-                            />
+                            >{title}</div>
                         )}
                         {closeIcon && (
                             <div className="cursor-pointer">
