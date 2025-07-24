@@ -18,11 +18,22 @@ const UserTableColumns = ({
 }) => {
     const [editingStatus, setEditingStatus] = useState(null) // Track which row is being edited
 
-    const statusOptions = [
-        { value: 'active', label: 'Active' },
-        { value: 'inactive', label: 'Inactive' },
-        { value: 'pending', label: 'Pending' }
-    ]
+    // Get status options based on current user status
+    const getStatusOptions = (currentStatus) => {
+        const allStatusOptions = [
+            { value: 'active', label: 'Active' },
+            { value: 'inactive', label: 'Inactive' },
+            { value: 'pending', label: 'Pending' }
+        ]
+
+        // If user is pending, show all options (including pending for reverting)
+        if (currentStatus === 'pending') {
+            return allStatusOptions
+        }
+
+        // If user is verified (active or inactive), only show active and inactive
+        return allStatusOptions.filter(option => option.value !== 'pending')
+    }
 
     const getStatusStyles = (status) => {
         switch (status) {
@@ -75,11 +86,15 @@ const UserTableColumns = ({
         const canModify = canModifyUser(record) && canBlockUser
         const isEditing = editingStatus === record.id
         const styles = getStatusStyles(currentStatus)
+        const statusOptions = getStatusOptions(currentStatus)
 
         if (!canModify) {
             return (
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${styles.bg} ${styles.text} ${styles.border}`}>
                     {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
+                    {currentStatus === 'pending' && (
+                        <span className="ml-1 text-xs">(Unverified)</span>
+                    )}
                 </div>
             )
         }
@@ -112,6 +127,9 @@ const UserTableColumns = ({
             <div className="flex items-center gap-2">
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${styles.bg} ${styles.text} ${styles.border}`}>
                     {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
+                    {currentStatus === 'pending' && (
+                        <span className="ml-1 text-xs">(Unverified)</span>
+                    )}
                 </div>
                 <button
                     onClick={() => handleStatusEdit(record.id)}
