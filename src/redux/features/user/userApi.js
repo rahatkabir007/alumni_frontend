@@ -81,11 +81,24 @@ export const userApi = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['User'],
         }),
+
+        getUserById: builder.query({
+            query: (userId) => `/users/${userId}`,
+            transformResponse: (response) => {
+                if (response.success && response.data) {
+                    return response.data
+                }
+                throw new Error(response.message || 'Failed to fetch user data')
+            },
+            providesTags: (result, error, userId) => [{ type: 'User', id: userId }],
+        }),
     }),
 })
 
 export const {
     useGetUsersQuery,
+    useGetUserByIdQuery,
+    useLazyGetUserByIdQuery,
     useUpdateUserMutation,
     useUpdateStatusMutation,
     useUpdateRoleMutation,

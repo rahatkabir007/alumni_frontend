@@ -1,11 +1,9 @@
 "use-client";
 
-import React from "react";
 import { Modal } from "antd";
-import TitleHeader from "@/components/shared/Common/TitleHeader";
 import Image from "next/image";
-import { images } from "@/constants";
 import "@/styles/antd.css";
+import { CloseOutlined } from "@ant-design/icons";
 
 const GlobalModal = ({
     isModalOpen,
@@ -19,7 +17,7 @@ const GlobalModal = ({
     centered = true,
     mask = true,
     destroyOnClose = false,
-    closeIcon = images.close,
+    closeIcon = false,
     modalContainerClassName,
     titleClassName,
     titleContentClassName,
@@ -41,11 +39,13 @@ const GlobalModal = ({
                 onCancel={handleCancel}
                 centered={centered}
                 width={width}
-                bodyStyle={bodyStyle}
+                styles={{
+                    body: bodyStyle,
+                }}
                 footer={footer}
                 className="font-poppins relative z-[10000000] ant-modal-content"
                 maskClosable={mask}
-                destroyOnClose={destroyOnClose}
+                destroyOnHidden={destroyOnClose}
                 closeIcon={false}
                 style={{ zoom: "80%" }}
             >
@@ -63,11 +63,7 @@ const GlobalModal = ({
                         )}
                         {closeIcon && (
                             <div className="cursor-pointer">
-                                <Image
-                                    src={closeIcon}
-                                    alt="close_icon"
-                                    onClick={handleCancel}
-                                />
+                                <CloseOutlined />
                             </div>
                         )}
                     </div>

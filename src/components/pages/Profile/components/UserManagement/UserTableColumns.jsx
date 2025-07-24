@@ -14,7 +14,8 @@ const UserTableColumns = ({
     canModifyUser,
     canBlockUser,
     permissions,
-    currentUserRoles
+    currentUserRoles,
+    onUserClick // Add this new prop for handling user name clicks
 }) => {
     const [editingStatus, setEditingStatus] = useState(null) // Track which row is being edited
 
@@ -245,9 +246,14 @@ const UserTableColumns = ({
                             )}
                         </div>
                         <div className="min-w-0 flex-1" style={{ fontFamily: "Figtree, sans-serif" }}>
-                            <div className="text-sm font-medium text-gray-900 truncate">
+                            {/* Make name clickable */}
+                            <button
+                                onClick={() => onUserClick && onUserClick(record.id)}
+                                className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors cursor-pointer text-left truncate w-full"
+                                title="Click to view user details"
+                            >
                                 {record.name || 'Unknown User'}
-                            </div>
+                            </button>
                             <div className="text-sm text-gray-500 truncate">
                                 {record.email}
                             </div>

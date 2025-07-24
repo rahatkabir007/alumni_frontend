@@ -3,7 +3,6 @@
 import { Modal } from "antd";
 import "@/styles/antd.css";
 import BlackButton from "@/components/common/BlackButton";
-import { CloseOutlined } from "@ant-design/icons";
 
 const ConfirmationModal = ({
     isModalOpen,
@@ -46,11 +45,13 @@ const ConfirmationModal = ({
                 onCancel={handleCancel}
                 centered={centered}
                 width={width}
-                bodyStyle={bodyStyle}
+                styles={{
+                    body: bodyStyle,
+                }}
                 footer={footer}
                 className="font-poppins relative z-[10000000] ant-modal-content"
                 maskClosable={mask}
-                destroyOnClose={destroyOnClose}
+                destroyOnHidden={destroyOnClose}
                 closeIcon={false}
             >
                 <div

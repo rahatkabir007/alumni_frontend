@@ -8,6 +8,7 @@ import BlackTag from '@/components/common/BlackTag'
 import DataTable from '@/components/antd/Table/DataTable'
 import UserTableColumns from './UserTableColumns'
 import UserManagementModal from './UserManagementModal'
+import UserDetailsModal from './UserDetailsModal'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import {
     useGetUsersQuery,
@@ -33,6 +34,10 @@ const UserManagement = ({ userData }) => {
         type: '',
         user: null,
         loading: false
+    })
+    const [userDetailsModal, setUserDetailsModal] = useState({
+        isOpen: false,
+        userId: null
     })
 
     // Separate queries for each tab to maintain counts
@@ -282,6 +287,22 @@ const UserManagement = ({ userData }) => {
         setConfirmModal({ open: false, type: '', user: null, loading: false })
     }
 
+    // Handler for user name click
+    const handleUserClick = (userId) => {
+        setUserDetailsModal({
+            isOpen: true,
+            userId: userId
+        })
+    }
+
+    // Handler to close user details modal
+    const closeUserDetailsModal = () => {
+        setUserDetailsModal({
+            isOpen: false,
+            userId: null
+        })
+    }
+
     // Helper functions
     const isAdminUser = (user) => user.roles?.includes('admin')
     const canModifyUser = (targetUser) => {
@@ -332,7 +353,8 @@ const UserManagement = ({ userData }) => {
         canModifyUser,
         canBlockUser: permissions.canBlockUser,
         permissions,
-        currentUserRoles: userData.roles
+        currentUserRoles: userData.roles,
+        onUserClick: handleUserClick // Pass the click handler
     })
 
     // Tab items configuration with dynamic counts
@@ -452,6 +474,13 @@ const UserManagement = ({ userData }) => {
                 confirmModal={confirmModal}
                 onConfirm={handleConfirmAction}
                 onClose={closeConfirmModal}
+            />
+
+            {/* User Details Modal */}
+            <UserDetailsModal
+                isOpen={userDetailsModal.isOpen}
+                onClose={closeUserDetailsModal}
+                userId={userDetailsModal.userId}
             />
         </div>
     )
