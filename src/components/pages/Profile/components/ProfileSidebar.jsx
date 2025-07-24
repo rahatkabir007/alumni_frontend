@@ -159,7 +159,7 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                                             key={index}
                                             variant={role === 'admin' ? 'filled' : 'outline'}
                                             size="xs"
-                                            className={role === 'admin' ? 'bg-red-600 text-white' : ''}
+                                            className={role === 'admin' ? 'bg-red-600 text-white' : role === 'moderator' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-800'}
                                         >
                                             {role}
                                         </BlackTag>

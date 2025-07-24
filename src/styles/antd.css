@@ -226,7 +226,6 @@
   color: #374151;
   border-radius: 4px;
   margin: 2px 0;
-
 }
 
 .user-action-menu .ant-dropdown-menu-item:hover {
@@ -246,6 +245,16 @@
 .user-action-menu .ant-menu-title-content{
   font-family: 'Figtree', sans-serif;
 }
+
+/* Disabled-looking menu items (still clickable but visually indicate they're not recommended) */
+.user-action-menu .ant-dropdown-menu-item .text-gray-400 {
+  color: #9ca3af !important;
+}
+
+.user-action-menu .ant-dropdown-menu-item:hover .text-gray-400 {
+  color: #6b7280 !important;
+}
+
 
 /* Custom Modal Styling */
 .ant-modal-content {
