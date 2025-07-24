@@ -15,6 +15,7 @@ import GalleryManagement from './components/GalleryManagement'
 import ReviewsTestimonials from './components/ReviewsTestimonials'
 import UserManagement from './components/UserManagement/UserManagement'
 import AnnouncementManagement from './components/AnnouncementManagement'
+import AdditionalInfo from './components/AdditionalInfo'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 
 const ProfilePage = () => {
@@ -127,6 +128,8 @@ const ProfilePage = () => {
     switch (activeSection) {
       case 'basic-info':
         return <BasicInfo userData={currentUser} onUpdate={handleUserUpdate} refetch={handleRefreshData} />
+      case 'additional-info':
+        return <AdditionalInfo userData={currentUser} onUpdate={handleUserUpdate} refetch={handleRefreshData} />
       case 'blogs':
         return <BlogManagement userData={currentUser} />
       case 'events':
@@ -141,6 +144,7 @@ const ProfilePage = () => {
       case 'announcements':
         return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_ANNOUNCEMENTS) ?
           <AnnouncementManagement userData={currentUser} /> : null
+
       default:
         return <BasicInfo userData={currentUser} onUpdate={handleUserUpdate} />
     }

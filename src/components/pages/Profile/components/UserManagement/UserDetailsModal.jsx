@@ -55,22 +55,113 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
         </div>
     )
 
+    const renderAdditionalInfo = () => {
+        if (!userData.additional_information) return null
+
+        const additionalInfo = typeof userData.additional_information === 'string' ?
+            JSON.parse(userData.additional_information) :
+            userData.additional_information
+
+        if (!additionalInfo || Object.keys(additionalInfo).length === 0) return null
+
+        const isStudent = userData.alumni_type === 'student'
+        const isTeacher = userData.alumni_type === 'teacher'
+
+        return (
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <h4 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                    <svg className="w-6 h-6 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Additional Information
+                </h4>
+
+                <div className="space-y-4">
+                    {/* Current Position & Organization (Students) */}
+                    {isStudent && (additionalInfo.currentPosition || additionalInfo.organization) && (
+                        <div className="grid grid-cols-2 gap-4">
+                            {additionalInfo.currentPosition && renderField('Current Position', additionalInfo.currentPosition)}
+                            {additionalInfo.organization && renderField('Organization', additionalInfo.organization)}
+                        </div>
+                    )}
+
+                    {/* Teacher specific fields */}
+                    {isTeacher && (additionalInfo.designation || additionalInfo.department) && (
+                        <div className="grid grid-cols-2 gap-4">
+                            {additionalInfo.designation && renderField('Designation', additionalInfo.designation)}
+                            {additionalInfo.department && renderField('Department', additionalInfo.department)}
+                        </div>
+                    )}
+
+                    {/* Achievements */}
+                    {additionalInfo.achievements && additionalInfo.achievements.length > 0 && (
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2 tracking-wide uppercase">
+                                Achievements
+                            </label>
+                            <div className="space-y-2">
+                                {additionalInfo.achievements.map((achievement, index) => (
+                                    <div key={index} className="text-gray-900 bg-gray-50 px-3 py-2 rounded-lg border">
+                                        • {achievement}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Education */}
+                    {additionalInfo.education && additionalInfo.education.length > 0 && (
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2 tracking-wide uppercase">
+                                Education
+                            </label>
+                            <div className="space-y-3">
+                                {additionalInfo.education.map((edu, index) => (
+                                    <div key={index} className="bg-gray-50 p-3 rounded-lg border">
+                                        <h5 className="font-semibold text-gray-900">{edu.degree}</h5>
+                                        <p className="text-gray-700">{edu.institution}</p>
+                                        <div className="flex justify-between text-sm text-gray-600 mt-1">
+                                            <span>{edu.year}</span>
+                                            {edu.grade && <span>{edu.grade}</span>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Quote */}
+                    {additionalInfo.quotes && (
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2 tracking-wide uppercase">
+                                {isStudent ? 'Personal Quote' : 'Educational Philosophy'}
+                            </label>
+                            <div className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border italic">
+                                "{additionalInfo.quotes}"
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        )
+    }
+
     return (
         <GlobalModal
             isModalOpen={isOpen}
             setModalHandler={onClose}
-            title={userData ? `${userData.name || 'User'} Details` : 'User Details'}
-            width={800}
+            title={userData ? `${userData.name || 'User'} Profile` : 'User Profile'}
+            width={900}
             closeIcon={true}
         >
-            <div className="p-6">
+            <div className="p-8 bg-gradient-to-br from-gray-50 to-white">
                 {isLoading ? (
                     <div className="text-center py-12">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
                         <p className="text-gray-600">Loading user details...</p>
                     </div>
                 ) : userData ? (
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                         {/* Profile Header */}
                         <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
                             <div className="flex-shrink-0">
@@ -170,6 +261,9 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                                 </div>
                             </div>
                         )}
+
+                        {/* Additional Information Section */}
+                        {renderAdditionalInfo()}
 
                         {/* Account Information */}
                         <div>

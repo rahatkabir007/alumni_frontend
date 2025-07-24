@@ -8,6 +8,7 @@ import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
 import InputComponent1 from '@/components/common/InputComponent1'
 import TextareaComponent1 from '@/components/common/TextareaComponent1'
+import AdditionalInfo from './AdditionalInfo'
 
 // Enhanced validation schema based on backend model
 const ProfileSchema = Yup.object().shape({
