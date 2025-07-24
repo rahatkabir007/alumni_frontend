@@ -10,6 +10,10 @@ export class ToastMessage {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
+        style: {
+            textTransform: "capitalize",
+            fontFamily: "Figtree, sans-serif",
+        }
 
     });
     static notifyError = (message) => toast.error(message, {
@@ -20,6 +24,10 @@ export class ToastMessage {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
+        style: {
+            textTransform: "capitalize",
+            fontFamily: "Figtree, sans-serif",
+        }
 
     });
 
@@ -32,6 +40,9 @@ export class ToastMessage {
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-
+        style: {
+            textTransform: "capitalize",
+            fontFamily: "Figtree, sans-serif",
+        }
     });
 }

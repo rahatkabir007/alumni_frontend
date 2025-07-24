@@ -1,4 +1,4 @@
-// Define all available permissions
+// Define all permissions
 export const PERMISSIONS = {
     // Basic user permissions
     POST_BLOG: 'post_blog',
@@ -94,38 +94,57 @@ export const checkUserPermission = (userRoles, permission) => {
 }
 
 /**
+ * Check if user has any of the specified permissions
+ * @param {Array} userRoles - Array of user roles
+ * @param {Array} permissions - Array of permissions to check
+ * @returns {boolean} - Whether user has any of the permissions
+ */
+export const checkAnyPermission = (userRoles = [], permissions = []) => {
+    return permissions.some(permission => checkUserPermission(userRoles, permission))
+}
+
+/**
+ * Check if user has all specified permissions
+ * @param {Array} userRoles - Array of user roles
+ * @param {Array} permissions - Array of permissions to check
+ * @returns {boolean} - Whether user has all of the permissions
+ */
+export const checkAllPermissions = (userRoles = [], permissions = []) => {
+    return permissions.every(permission => checkUserPermission(userRoles, permission))
+}
+
+/**
  * Get all permissions for a user based on their roles
  * @param {Array} userRoles - Array of user roles
  * @returns {Array} - Array of all permissions the user has
  */
-export const getUserPermissions = (userRoles) => {
-    if (!userRoles || !Array.isArray(userRoles)) return []
-
+export const getUserPermissions = (userRoles = []) => {
     const allPermissions = new Set()
 
     userRoles.forEach(role => {
-        const rolePermissions = ROLE_PERMISSIONS[role.toLowerCase()]
-        if (rolePermissions) {
-            rolePermissions.forEach(permission => allPermissions.add(permission))
-        }
+        const rolePermissions = ROLE_PERMISSIONS[role] || []
+        rolePermissions.forEach(permission => allPermissions.add(permission))
     })
 
     return Array.from(allPermissions)
 }
 
 /**
- * Check if user has any of the specified roles
+ * Check if user is admin (helper function)
  * @param {Array} userRoles - Array of user roles
- * @param {Array} requiredRoles - Array of required roles
- * @returns {boolean} - Whether user has any of the required roles
+ * @returns {boolean} - Whether user is admin
  */
-export const checkUserRole = (userRoles, requiredRoles) => {
-    if (!userRoles || !Array.isArray(userRoles)) return false
-    if (!requiredRoles || !Array.isArray(requiredRoles)) return false
+export const isAdmin = (userRoles = []) => {
+    return userRoles.includes('admin')
+}
 
-    return userRoles.some(role =>
-        requiredRoles.includes(role.toLowerCase())
-    )
+/**
+ * Check if user is moderator or higher (helper function)
+ * @param {Array} userRoles - Array of user roles
+ * @returns {boolean} - Whether user is moderator or higher
+ */
+export const isModeratorOrHigher = (userRoles = []) => {
+    return userRoles.includes('admin') || userRoles.includes('moderator')
 }
 
 /**

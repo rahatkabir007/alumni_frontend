@@ -14,7 +14,8 @@ import {
     useUpdateUserMutation,
     useUpdateStatusMutation,
     useDeleteUserMutation,
-    useUpdateRoleMutation
+    useUpdateRoleMutation,
+    useRemoveRoleMutation
 } from '@/redux/features/user/userApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import { handleApiError } from '@/utils/errorHandler'
@@ -52,9 +53,10 @@ const UserManagement = ({ userData }) => {
     }
 
     // Mutations
-    const [updateUser] = useUpdateUserMutation()
+    // const [updateUser] = useUpdateUserMutation()
     const [updateStatus] = useUpdateStatusMutation()
     const [updateRole] = useUpdateRoleMutation()
+    const [removeRole] = useRemoveRoleMutation()
     const [deleteUser] = useDeleteUserMutation()
 
     // Debounce search input
@@ -175,6 +177,19 @@ const UserManagement = ({ userData }) => {
         }
     }
 
+    const handleRoleRemove = async (userId, roleToRemove) => {
+        try {
+            await removeRole({
+                userId,
+                role: roleToRemove
+            }).unwrap()
+            ToastMessage.notifySuccess(`${roleToRemove} role removed successfully`)
+            refetch()
+        } catch (error) {
+            handleApiError(error, null, true, `Failed to remove ${roleToRemove} role`)
+        }
+    }
+
     const handleConfirmAction = async () => {
         const { type, user } = confirmModal
         setConfirmModal(prev => ({ ...prev, loading: true }))
@@ -219,16 +234,23 @@ const UserManagement = ({ userData }) => {
 
     // Helper functions
     const isAdminUser = (user) => user.roles?.includes('admin')
-    const canModifyUser = (targetUser) => !isAdminUser(targetUser)
+    const canModifyUser = (targetUser) => {
+        // Only allow modification if current user is admin and target is not admin
+        const isCurrentUserAdmin = userData.roles?.includes('admin')
+        const isTargetAdmin = targetUser.roles?.includes('admin')
+        return isCurrentUserAdmin && !isTargetAdmin
+    }
 
     // Table columns configuration
     const columns = UserTableColumns({
         onStatusChange: handleStatusChange,
         onConfirmModal: openConfirmModal,
         onRoleChange: handleRoleChange,
+        onRoleRemove: handleRoleRemove,
         canModifyUser,
         canBlockUser: permissions.canBlockUser,
-        permissions
+        permissions,
+        currentUserRoles: userData.roles
     })
 
     // Tab items configuration with dynamic counts

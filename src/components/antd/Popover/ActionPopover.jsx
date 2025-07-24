@@ -21,6 +21,7 @@ const ActionPopover = ({
     return (
         <Popover
             content={<Menu {...menu} className={menuClassName} />}
+            arrow={false}
             trigger={trigger}
             placement={placement}
             {...popoverProps}

@@ -9,10 +9,12 @@ import UserActionsMenu from './UserActionsMenu'
 const UserTableColumns = ({
     onConfirmModal,
     onRoleChange,
+    onRoleRemove,
     onStatusChange,
     canModifyUser,
     canBlockUser,
-    permissions
+    permissions,
+    currentUserRoles
 }) => {
     const [editingStatus, setEditingStatus] = useState(null) // Track which row is being edited
 
@@ -226,10 +228,12 @@ const UserTableColumns = ({
             align: 'center',
             render: (_, record) => {
                 const canModify = canModifyUser(record)
-                if (!canModify) {
+
+                // Show protected for admin users or if user can't modify
+                if (!canModify || record.roles?.includes('admin')) {
                     return (
                         <BlackTag variant="subtle" size="xs" className="text-gray-500 bg-gray-100">
-                            Protected
+                            {record.roles?.includes('admin') ? 'Admin Protected' : 'Protected'}
                         </BlackTag>
                     )
                 }
@@ -237,8 +241,10 @@ const UserTableColumns = ({
                 const menuItems = UserActionsMenu({
                     user: record,
                     onRoleChange,
+                    onRoleRemove,
                     onConfirmModal,
-                    permissions
+                    permissions,
+                    currentUserRoles
                 })
 
                 if (!menuItems || menuItems.length === 0) {
