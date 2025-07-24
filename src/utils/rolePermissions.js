@@ -44,6 +44,7 @@ export const ROLE_PERMISSIONS = {
     moderator: [
         // Include all user permissions
         ...this?.user || [],
+        PERMISSIONS.MANAGE_USERS,
         PERMISSIONS.APPROVE_BLOG,
         PERMISSIONS.CREATE_EVENT,
         PERMISSIONS.MANAGE_EVENT,
@@ -52,8 +53,7 @@ export const ROLE_PERMISSIONS = {
         PERMISSIONS.MODERATE_CONTENT
     ],
     admin: [
-        // Include all moderator permissions (which includes user permissions)
-        PERMISSIONS.MANAGE_USERS,
+
         PERMISSIONS.DELETE_USER,
         PERMISSIONS.BLOCK_USER,
         PERMISSIONS.CHANGE_USER_ROLE,
@@ -66,16 +66,16 @@ export const ROLE_PERMISSIONS = {
     ]
 }
 
-// Fix the circular reference issue
-ROLE_PERMISSIONS.moderator = [
-    ...ROLE_PERMISSIONS.user,
-    PERMISSIONS.APPROVE_BLOG,
-    PERMISSIONS.CREATE_EVENT,
-    PERMISSIONS.MANAGE_EVENT,
-    PERMISSIONS.POST_ANNOUNCEMENT,
-    PERMISSIONS.APPROVE_REVIEW,
-    PERMISSIONS.MODERATE_CONTENT
-]
+// // Fix the circular reference issue
+// ROLE_PERMISSIONS.moderator = [
+//     ...ROLE_PERMISSIONS.user,
+//     PERMISSIONS.APPROVE_BLOG,
+//     PERMISSIONS.CREATE_EVENT,
+//     PERMISSIONS.MANAGE_EVENT,
+//     PERMISSIONS.POST_ANNOUNCEMENT,
+//     PERMISSIONS.APPROVE_REVIEW,
+//     PERMISSIONS.MODERATE_CONTENT
+// ]
 
 /**
  * Check if user has a specific permission
