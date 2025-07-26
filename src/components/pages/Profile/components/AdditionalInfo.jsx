@@ -76,6 +76,7 @@ const AdditionalInfoSchema = Yup.object().shape({
     department: Yup.string().max(200, 'Department cannot exceed 200 characters'),
     period: Yup.string().max(100, 'Period cannot exceed 100 characters'),
     teacherStatus: Yup.string().oneOf(['active', 'retired'], 'Invalid status'),
+    managementStatus: Yup.string().oneOf(['active', 'retired'], 'Invalid status'),
     subject: Yup.string().max(200, 'Subject cannot exceed 200 characters'),
     specialization: Yup.string().max(200, 'Specialization cannot exceed 200 characters'),
     publications: Yup.array().of(
@@ -112,6 +113,7 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
 
     const isStudent = userData.alumni_type === 'student'
     const isTeacher = userData.alumni_type === 'teacher'
+    const isManagement = userData.alumni_type === 'management'
 
     const getInitialValues = () => {
         if (isStudent) {
@@ -136,6 +138,23 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                 department: additionalInfo.department || '',
                 period: additionalInfo.period || '',
                 teacherStatus: additionalInfo.teacherStatus || 'active',
+                subject: additionalInfo.subject || '',
+                specialization: additionalInfo.specialization || '',
+                achievements: additionalInfo.achievements || [''],
+                education: additionalInfo.education || [{ degree: '', institution: '', year: '' }],
+                experience: additionalInfo.experience || [{ position: '', institution: '', period: '', description: '' }],
+                publications: additionalInfo.publications || [{ title: '', year: '', publisher: '' }],
+                quotes: additionalInfo.quotes || '',
+                officeHours: additionalInfo.officeHours || '',
+                studentsFeedback: additionalInfo.studentsFeedback || [{ name: '', batch: '', feedback: '' }]
+            }
+        }
+        else if (isManagement) {
+            return {
+                designation: additionalInfo.designation || '',
+                department: additionalInfo.department || '',
+                period: additionalInfo.period || '',
+                managementStatus: additionalInfo.managementStatus || 'active',
                 subject: additionalInfo.subject || '',
                 specialization: additionalInfo.specialization || '',
                 achievements: additionalInfo.achievements || [''],
@@ -604,16 +623,27 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                     focusBorderColor="focus:border-black"
                     focusRingColor="focus:ring-black/10"
                 />
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select
-                        name="teacherStatus"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-black focus:border-black"
-                    >
-                        <option value="active">Active</option>
-                        <option value="retired">Retired</option>
-                    </select>
-                </div>
+                {
+                    isTeacher ? <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select
+                            name="teacherStatus"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-black focus:border-black"
+                        >
+                            <option value="active">Active</option>
+                            <option value="retired">Retired</option>
+                        </select>
+                    </div> : <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select
+                            name="managementStatus"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-black focus:border-black"
+                        >
+                            <option value="active">Active</option>
+                            <option value="retired">Retired</option>
+                        </select>
+                    </div>
+                }
             </div>
 
             {/* Subject & Specialization */}
@@ -848,6 +878,45 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                 focusBorderColor="focus:border-black"
                 focusRingColor="focus:ring-black/10"
             />
+
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-4">Social Media Links</label>
+                <div className="grid md:grid-cols-3 gap-4">
+                    <InputComponent1
+                        name="socialMedia.linkedin"
+                        label="LinkedIn"
+                        placeholder="https://linkedin.com/in/username"
+                        useFormik={true}
+                        backgroundColor="bg-white"
+                        borderColor="border-gray-300"
+                        textColor="text-gray-900"
+                        focusBorderColor="focus:border-black"
+                        focusRingColor="focus:ring-black/10"
+                    />
+                    <InputComponent1
+                        name="socialMedia.twitter"
+                        label="Twitter"
+                        placeholder="https://twitter.com/username"
+                        useFormik={true}
+                        backgroundColor="bg-white"
+                        borderColor="border-gray-300"
+                        textColor="text-gray-900"
+                        focusBorderColor="focus:border-black"
+                        focusRingColor="focus:ring-black/10"
+                    />
+                    <InputComponent1
+                        name="socialMedia.facebook"
+                        label="Facebook"
+                        placeholder="https://facebook.com/username"
+                        useFormik={true}
+                        backgroundColor="bg-white"
+                        borderColor="border-gray-300"
+                        textColor="text-gray-900"
+                        focusBorderColor="focus:border-black"
+                        focusRingColor="focus:ring-black/10"
+                    />
+                </div>
+            </div>
         </>
     )
 
@@ -893,10 +962,15 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Service Period</label>
                                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.period)}</p>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg capitalize">{showValue(additionalInfo.teacherStatus)}</p>
-                            </div>
+                            {
+                                isTeacher ? <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                    <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg capitalize">{showValue(additionalInfo.teacherStatus)}</p>
+                                </div> : <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                    <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg capitalize">{showValue(additionalInfo.managementStatus)}</p>
+                                </div>
+                            }
                         </div>
                         <div className="grid md:grid-cols-2 gap-6">
                             <div>
@@ -944,7 +1018,7 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                 {/* Experience */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {isStudent ? 'Work Experience' : 'Teaching Experience'}
+                        {(isStudent || isManagement) ? 'Work Experience' : 'Teaching Experience'}
                     </label>
                     {renderArrayObjects(additionalInfo.experience || [], [
                         { label: 'Position', key: 'position' },
@@ -986,44 +1060,41 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                 {/* Quote */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {isStudent ? 'Personal Quote' : 'Educational Philosophy'}
+                        {(isStudent || isManagement) ? 'Personal Quote' : 'Educational Philosophy'}
                     </label>
                     <div className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg italic">
                         {showValue(additionalInfo.quotes)}
                     </div>
                 </div>
 
-                {/* Social Media (Students only) */}
-                {isStudent && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Social Media</label>
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <div>
-                                <span className="text-sm text-gray-600">LinkedIn:</span>
-                                <div className="text-blue-600 truncate">
-                                    {showValue(additionalInfo.socialMedia?.linkedin)}
-                                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Social Media</label>
+                    <div className="grid md:grid-cols-3 gap-4">
+                        <div>
+                            <span className="text-sm text-gray-600">LinkedIn:</span>
+                            <div className="text-blue-600 truncate">
+                                {showValue(additionalInfo.socialMedia?.linkedin)}
                             </div>
-                            <div>
-                                <span className="text-sm text-gray-600">Twitter:</span>
-                                <div className="text-blue-600 truncate">
-                                    {showValue(additionalInfo.socialMedia?.twitter)}
-                                </div>
+                        </div>
+                        <div>
+                            <span className="text-sm text-gray-600">Twitter:</span>
+                            <div className="text-blue-600 truncate">
+                                {showValue(additionalInfo.socialMedia?.twitter)}
                             </div>
-                            <div>
-                                <span className="text-sm text-gray-600">Facebook:</span>
-                                <div className="text-blue-600 truncate">
-                                    {showValue(additionalInfo.socialMedia?.facebook)}
-                                </div>
+                        </div>
+                        <div>
+                            <span className="text-sm text-gray-600">Facebook:</span>
+                            <div className="text-blue-600 truncate">
+                                {showValue(additionalInfo.socialMedia?.facebook)}
                             </div>
                         </div>
                     </div>
-                )}
+                </div>
             </div>
         )
     }
 
-    if (!isStudent && !isTeacher) {
+    if (!isStudent && !isTeacher && !isManagement) {
         return (
             <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                 <div className="text-center py-8">
@@ -1041,7 +1112,7 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                 <h3 className="text-xl font-bold text-gray-900">
                     Additional Information
                     <span className="text-sm font-normal text-gray-500 ml-2">
-                        ({isStudent ? 'Student' : 'Teacher'} Profile)
+                        ({(isStudent || isManagement) ? 'Student' : 'Teacher'} Profile)
                     </span>
                 </h3>
                 {!isEditing && !isDataLoading && (
@@ -1070,6 +1141,7 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                             <div className="space-y-6">
                                 {isStudent && renderStudentFields(values, setFieldValue)}
                                 {isTeacher && renderTeacherFields(values)}
+                                {isManagement && renderTeacherFields(values)}
                             </div>
 
                             <div className="mt-8 flex gap-3 justify-end pt-6 border-t border-gray-200">
