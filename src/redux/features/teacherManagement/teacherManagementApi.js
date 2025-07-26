@@ -2,7 +2,7 @@ import { apiSlice } from '../api/apiSlice'
 
 export const teacherManagementApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getTeacherManagement: builder.query({
+        getTeacherManagementList: builder.query({
             query: (params = {}) => {
                 const { page = 1, limit = 10, search = '', status = 'all', role = 'all', sortBy = 'created_at', sortOrder = 'desc', excludeAdmins = false } = params
 
@@ -63,7 +63,7 @@ export const teacherManagementApi = apiSlice.injectEndpoints({
 })
 
 export const {
-    useGetTeacherManagementQuery,
+    useGetTeacherManagementListQuery,
     useGetTeacherManagementByIdQuery,
     useLazyGetTeacherManagementByIdQuery,
     useUpdateTeacherManagementMutation,

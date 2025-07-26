@@ -2,7 +2,7 @@ import { apiSlice } from '../api/apiSlice'
 
 export const alumniApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getAlumni: builder.query({
+        getAlumniList: builder.query({
             query: (params = {}) => {
                 const { page = 1, limit = 10, search = '', status = 'all', role = 'all', sortBy = 'created_at', sortOrder = 'desc', excludeAdmins = false } = params
 
@@ -63,7 +63,7 @@ export const alumniApi = apiSlice.injectEndpoints({
 })
 
 export const {
-    useGetAlumniQuery,
+    useGetAlumniListQuery,
     useGetAlumniByIdQuery,
     useLazyGetAlumniByIdQuery,
     useUpdateAlumniMutation,

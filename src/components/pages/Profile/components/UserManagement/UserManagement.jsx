@@ -12,7 +12,6 @@ import UserDetailsModal from './UserDetailsModal'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import {
     useGetUsersQuery,
-    useUpdateUserMutation,
     useUpdateStatusMutation,
     useDeleteUserMutation,
     useUpdateRoleMutation,
@@ -105,7 +104,7 @@ const UserManagement = ({ userData }) => {
     }
 
     // Fetch users with server-side filtering
-    const { data, isLoading, isFetching, error, refetch } = useGetUsersQuery(
+    const { data, isLoading, error, refetch } = useGetUsersQuery(
         getQueryParams(),
         { skip: !permissions.canManageUsers }
     )
@@ -399,7 +398,7 @@ const UserManagement = ({ userData }) => {
     return (
         <div className="space-y-6">
             {/* Error Display */}
-            {error && (
+            {/* {error && (
                 <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                     <div className="text-center py-6 text-red-600">
                         <p>Error: {error.message || 'Something went wrong'}</p>
@@ -413,7 +412,7 @@ const UserManagement = ({ userData }) => {
                         </BlackButton>
                     </div>
                 </ElegantCard>
-            )}
+            )} */}
 
             {/* Combined Header, Filters and Table */}
             <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>

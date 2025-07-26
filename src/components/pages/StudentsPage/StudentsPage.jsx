@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ScrollReveal from '@/components/animations/ScrollReveal'
 import StaggerContainer from '@/components/animations/StaggerContainer'
 import BlackButton from '@/components/common/BlackButton'
@@ -7,16 +7,69 @@ import BlackTag from '@/components/common/BlackTag'
 import { batches, classes, students } from '@/datas/studentsPage'
 import IntroSection from '@/components/common/IntroSection'
 import StudentCard from './StudentCard'
+import { useGetAlumniListQuery } from '@/redux/features/alumni/alumniApi'
+import Pagination from '@/components/common/Pagination'
 
 const StudentsPage = () => {
+
+    const [searchTerm, setSearchTerm] = useState('')
+    const [debouncedSearch, setDebouncedSearch] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [sortBy, setSortBy] = useState('created_at')
+    const [sortOrder, setSortOrder] = useState('desc')
     const [selectedBatch, setSelectedBatch] = useState('all')
     const [selectedClass, setSelectedClass] = useState('all')
 
 
-    const filteredStudents = students?.filter(student => {
-        return (selectedBatch === 'all' || student.batch === selectedBatch) &&
-            (selectedClass === 'all' || student.class === selectedClass)
-    })
+    const getQueryParams = () => {
+        const baseParams = {
+            page: currentPage,
+            limit: 10,
+            search: debouncedSearch,
+            sortBy,
+            sortOrder,
+            excludeAdmins: true,
+            status: "all"
+        }
+        return { ...baseParams }
+    }
+
+    const { data, isLoading, isFetching, error, refetch } = useGetAlumniListQuery(
+        getQueryParams(),
+    )
+
+
+    // const filteredStudents = students?.filter(student => {
+    //     return (selectedBatch === 'all' || student.batch === selectedBatch) &&
+    //         (selectedClass === 'all' || student.class === selectedClass)
+    // })
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchTerm)
+            setCurrentPage(1)
+        }, 500)
+
+        return () => clearTimeout(timer)
+    }, [searchTerm])
+
+
+    const users = data?.users || []
+    const pagination = {
+        current: currentPage,
+        pageSize: data?.itemsPerPage || 10,
+        total: data?.totalItems || 0,
+        showSizeChanger: false,
+        showQuickJumper: false,
+        showTotal: (total, range) => `Showing ${range[0]} to ${range[1]} of ${total} results`,
+    }
+
+    const handleSearchChange = (e) => setSearchTerm(e.target.value)
+
+    const handlePageChange = (page) => setCurrentPage(page)
+
+
+
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -63,7 +116,7 @@ const StudentsPage = () => {
                             </div>
 
                             <BlackTag size="sm">
-                                Showing {filteredStudents.length} alumni
+                                Showing {users.length} alumni
                             </BlackTag>
                         </div>
                     </div>
@@ -74,11 +127,35 @@ const StudentsPage = () => {
             <ScrollReveal direction="up" delay={0.4}>
                 <section className="py-12">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {filteredStudents?.map((student) => (
-                                <StudentCard key={student?.id} student={student} />
-                            ))}
-                        </StaggerContainer>
+                        {
+                            (isLoading || isFetching) ? <div className="text-center">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+                                <p className="text-gray-600">Loading...</p>
+                            </div> :
+                                <>
+                                    {
+                                        users.length > 0 ? <div className='flex flex-col gap-8'>
+                                            <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                                {users?.map((student) => (
+                                                    <StudentCard key={student?.id} student={student} />
+                                                ))}
+                                            </StaggerContainer>
+
+                                            <Pagination
+                                                currentPage={currentPage}
+                                                itemsPerPage={pagination.pageSize}
+                                                totalItems={pagination.total}
+                                                onPageChange={handlePageChange}
+                                                isLoading={isLoading || isFetching}
+                                                totalPages={Math.ceil(pagination.total / pagination.pageSize)}
+                                            />
+                                        </div>
+                                            : <div className="text-center text-gray-500">
+                                                No alumni found matching your criteria.
+                                            </div>
+                                    }
+                                </>
+                        }
                     </div>
                 </section>
             </ScrollReveal>
