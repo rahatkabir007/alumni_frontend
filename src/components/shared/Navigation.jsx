@@ -59,7 +59,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                     </div>
 
                     {/* Desktop Navigation Links */}
-                    <div className="hidden md:flex items-center space-x-6">
+                    <div className="hidden lg:flex items-center space-x-6">
                         <Link href="/" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
                             Home
                         </Link>
@@ -164,7 +164,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                     </div>
 
                     {/* Mobile menu button */}
-                    <div className="md:hidden flex items-center">
+                    <div className="lg:hidden flex items-center">
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="text-gray-300 hover:text-white focus:outline-none focus:text-white"
@@ -190,7 +190,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+                            className="fixed inset-0 bg-[rgba(0,0,0,0.6)] bg-opacity-50 z-40 lg:hidden"
                             onClick={() => setIsMobileMenuOpen(false)}
                         />
 
@@ -200,7 +200,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'tween', duration: 0.3 }}
-                            className="fixed top-0 right-0 h-full w-80 bg-gray-900 shadow-xl z-50 md:hidden overflow-y-auto"
+                            className="fixed top-0 right-0 h-full w-80 bg-gray-900 shadow-xl z-50 lg:hidden overflow-y-auto"
                         >
                             {/* Menu Header */}
                             <div className="flex justify-between items-center p-4 border-b border-gray-800">

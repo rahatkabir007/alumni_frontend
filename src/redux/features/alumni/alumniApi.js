@@ -18,7 +18,7 @@ export const alumniApi = apiSlice.injectEndpoints({
                 if (role !== 'all') queryParams.append('role', role)
                 if (excludeAdmins) queryParams.append('excludeAdmins', 'true')
 
-                return `/users?${queryParams.toString()}`
+                return `/users/verified?${queryParams.toString()}`
             },
             transformResponse: (response) => {
                 // Transform the API response to match our expected structure
