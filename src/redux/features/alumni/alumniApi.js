@@ -17,6 +17,7 @@ export const alumniApi = apiSlice.injectEndpoints({
                 if (status !== 'all') queryParams.append('status', status)
                 if (role !== 'all') queryParams.append('role', role)
                 if (excludeAdmins) queryParams.append('excludeAdmins', 'true')
+                queryParams.append('alumni_type', alumni_type)
 
                 return `/users/verified?${queryParams.toString()}`
             },

@@ -29,7 +29,7 @@ const StudentsPage = () => {
             sortBy,
             sortOrder,
             excludeAdmins: true,
-            status: "all"
+            status: "all",
         }
         return { ...baseParams }
     }
