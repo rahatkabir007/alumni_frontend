@@ -9,6 +9,7 @@ import BlackButton from '@/components/common/BlackButton'
 import InputComponent1 from '@/components/common/InputComponent1'
 import TextareaComponent1 from '@/components/common/TextareaComponent1'
 import AdditionalInfo from './AdditionalInfo'
+import SelectComponent1 from '@/components/common/SelectComponent1'
 
 // Enhanced validation schema based on backend model
 const ProfileSchema = Yup.object().shape({
@@ -172,6 +173,7 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                             phone: userData.phone || '',
                             location: userData.location || '',
                             profession: userData.profession || '',
+                            branch: userData.branch || '',
                             blood_group: userData.blood_group || '',
                             graduationYear: userData.graduationYear || userData.graduation_year || '',
                             batch: userData.batch || '',
@@ -217,6 +219,21 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                                         type="tel"
                                         label="Phone Number"
                                         placeholder="+880-XXX-XXXXXXX"
+                                        useFormik={true}
+                                        backgroundColor="bg-white"
+                                        borderColor="border-gray-300"
+                                        textColor="text-gray-900"
+                                        focusBorderColor="focus:border-black"
+                                        focusRingColor="focus:ring-black/10"
+                                    />
+                                    <SelectComponent1
+                                        name={"branch"}
+                                        label="Branch"
+                                        placeholder="Select your branch"
+                                        options={[
+                                            { value: 'Jamalkhan', label: 'Jamalkhan' },
+                                            { value: 'Patiya', label: 'Patiya' },
+                                        ]}
                                         useFormik={true}
                                         backgroundColor="bg-white"
                                         borderColor="border-gray-300"
@@ -411,6 +428,16 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                             </p>
                         </div>
 
+                        {/* Branch */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Branch
+                            </label>
+                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                {userData.branch || 'Not provided'}
+                            </p>
+                        </div>
+
                         {/* Address */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -480,7 +507,7 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Joined at
+                                Joined CIHS
                             </label>
                             <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
                                 {userData.joinedYear || "Not provided"}
