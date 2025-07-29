@@ -8,6 +8,7 @@ import ImageUploader from './ImageUploader'
 import Image from 'next/image'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import { menuItems as baseMenuItems } from '@/datas/profilePage'
+import { LockFilled } from '@ant-design/icons'
 
 const lockedSections = ['blogs', 'events', 'gallery', 'reviews'];
 
@@ -231,7 +232,7 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                                     disabled={isLocked}
                                     type="button"
                                 >
-                                    <span className="mr-3">{item.icon}</span>
+                                    <span className="mr-3">{isLocked ? <LockFilled /> : item.icon}</span>
                                     {item.label}
                                     {(item.moderatorOnly || item.adminOnly) && (
                                         <BlackTag size="xs" variant="subtle" className="ml-auto">
