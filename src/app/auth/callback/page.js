@@ -19,8 +19,9 @@ function AuthCallbackContent() {
         const handleCallback = async () => {
             try {
                 const token = searchParams.get('token');
-                const userParam = searchParams.get('user');
+                const user = searchParams.get('user');
                 const authError = searchParams.get('error');
+                const parsedUser = user ? JSON.parse(user) : null;
 
                 // console.log('Auth callback - token:', !!token);
                 // console.log('Auth callback - user param:', userParam);
@@ -51,6 +52,13 @@ function AuthCallbackContent() {
                 // Store token first so API calls work
                 localStorage.setItem('token', token);
 
+                console.log(token)
+
+                if (!parsedUser?.isProfileCompleted) {
+                    router.push(`/auth/required_info?token=${token}&user=${user}`);
+                    return;
+                }
+
                 setTimeout(async () => {
                     try {
                         // console.log('Auth callback - Fetching complete user data from /auth/me...');
@@ -61,6 +69,8 @@ function AuthCallbackContent() {
                         if (!userData || !userData.email || !userData.id) {
                             throw new Error('Invalid user data received from server');
                         }
+
+
 
                         // Set credentials with complete user data and token
                         dispatch(setCredentials({
