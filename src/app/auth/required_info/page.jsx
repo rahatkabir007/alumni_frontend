@@ -1,15 +1,16 @@
 "use client"
+
+import RequiredInfo from '@/components/shared/RequiredInfo/RequiredInfo';
 import { useSearchParams } from 'next/navigation';
-import React from 'react'
 
 const page = () => {
 
     const searchParams = useSearchParams();
+    const stringifyUser = searchParams.get('user');
+    const user = stringifyUser ? JSON.parse(stringifyUser) : null;
 
-    const user = searchParams.get('user');
-    console.log("🚀 ~ page ~ user:", user)
     return (
-        <div>page</div>
+        <RequiredInfo user={user} />
     )
 }
 

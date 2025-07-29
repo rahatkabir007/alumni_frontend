@@ -52,8 +52,6 @@ function AuthCallbackContent() {
                 // Store token first so API calls work
                 localStorage.setItem('token', token);
 
-                console.log(token)
-
                 if (!parsedUser?.isProfileCompleted) {
                     router.push(`/auth/required_info?token=${token}&user=${user}`);
                     return;

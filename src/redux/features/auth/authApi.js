@@ -47,6 +47,15 @@ export const authApi = apiSlice.injectEndpoints({
                 };
             }
         }),
+        completeUserProfile: builder.mutation({
+            query: (userData) => ({
+                url: '/auth/complete-profile',
+                method: 'POST',
+                body: userData,
+            }),
+            // Invalidate user data after profile completion
+            invalidatesTags: ['User'],
+        }),
 
     })
 })
@@ -60,5 +69,6 @@ export const {
     useUpdateProfilePhotoMutation,
     useChangePasswordMutation,
     // Export lazy query for manual triggering
-    useLazyGetCurrentUserQuery
+    useLazyGetCurrentUserQuery,
+    useCompleteUserProfileMutation,
 } = authApi
