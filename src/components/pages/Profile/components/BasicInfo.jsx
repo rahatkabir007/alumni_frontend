@@ -55,6 +55,11 @@ const ProfileSchema = Yup.object().shape({
             if (!value) return true;
             return !/<script|javascript:|on\w+=/i.test(value);
         }),
+    joinedYear: Yup.number()
+        .min(1998, 'Joined year must be after 1998')
+        .max(new Date().getFullYear(), `Joined year cannot exceed ${new Date().getFullYear()}`)
+        .nullable()
+        .transform((value, originalValue) => originalValue === '' ? null : value),
     isGraduated: Yup.boolean(),
     leftAt: Yup.number()
         .min(1998, 'Left at year must be after 1998')
@@ -96,6 +101,7 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                 isGraduated: values.isGraduated !== undefined ? values.isGraduated : true,
                 // Remove camelCase versions for backend
                 graduationYear: undefined,
+                joinedYear: values.joinedYear || null,
                 leftAt: undefined
             };
 
@@ -171,7 +177,8 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                             batch: userData.batch || '',
                             bio: userData.bio || '',
                             isGraduated: userData.isGraduated !== undefined ? userData.isGraduated : true,
-                            leftAt: userData.leftAt || userData.left_at || ''
+                            leftAt: userData.leftAt || userData.left_at || '',
+                            joinedYear: userData.joinedYear || userData.joined_year || ''
                         }}
                         validationSchema={ProfileSchema}
                         onSubmit={handleSave}
@@ -254,10 +261,86 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                                         focusRingColor="focus:ring-black/10"
                                     />
 
+                                    {
+                                        userData?.alumni_type === "student" && <>
+                                            <InputComponent1
+                                                name="batch"
+                                                label="Batch/Class"
+                                                placeholder="e.g.,'15, '20"
+                                                useFormik={true}
+                                                backgroundColor="bg-white"
+                                                borderColor="border-gray-300"
+                                                textColor="text-gray-900"
+                                                focusBorderColor="focus:border-black"
+                                                focusRingColor="focus:ring-black/10"
+                                            />
+
+                                            {/* Graduation Status */}
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Education Status
+                                                </label>
+                                                <div className="flex items-center space-x-6">
+                                                    <label className="flex items-center">
+                                                        <input
+                                                            type="radio"
+                                                            name="isGraduated"
+                                                            checked={values.isGraduated === true}
+                                                            onChange={() => setFieldValue('isGraduated', true)}
+                                                            className="mr-2 text-black focus:ring-black"
+                                                        />
+                                                        <span className="text-sm text-gray-900">Graduated</span>
+                                                    </label>
+                                                    <label className="flex items-center">
+                                                        <input
+                                                            type="radio"
+                                                            name="isGraduated"
+                                                            checked={values.isGraduated === false}
+                                                            onChange={() => setFieldValue('isGraduated', false)}
+                                                            className="mr-2 text-black focus:ring-black"
+                                                        />
+                                                        <span className="text-sm text-gray-900">Left Early</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            {/* Conditional Year Fields */}
+                                            {values.isGraduated ? (
+                                                <InputComponent1
+                                                    name="graduationYear"
+                                                    type="number"
+                                                    label="Graduation Year"
+                                                    placeholder="Year you graduated"
+                                                    useFormik={true}
+                                                    backgroundColor="bg-white"
+                                                    borderColor="border-gray-300"
+                                                    textColor="text-gray-900"
+                                                    focusBorderColor="focus:border-black"
+                                                    focusRingColor="focus:ring-black/10"
+                                                />
+                                            ) : (
+                                                <InputComponent1
+                                                    name="leftAt"
+                                                    type="number"
+                                                    label="Year Left School"
+                                                    placeholder="Year you left school"
+                                                    required
+                                                    useFormik={true}
+                                                    backgroundColor="bg-white"
+                                                    borderColor="border-gray-300"
+                                                    textColor="text-gray-900"
+                                                    focusBorderColor="focus:border-black"
+                                                    focusRingColor="focus:ring-black/10"
+                                                />
+                                            )}
+                                        </>
+                                    }
+
                                     <InputComponent1
-                                        name="batch"
-                                        label="Batch/Class"
-                                        placeholder="e.g.,'15, '20"
+                                        name="joinedYear"
+                                        type="number"
+                                        label="Joined at"
+                                        placeholder="Year you joined"
                                         useFormik={true}
                                         backgroundColor="bg-white"
                                         borderColor="border-gray-300"
@@ -265,65 +348,6 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                                         focusBorderColor="focus:border-black"
                                         focusRingColor="focus:ring-black/10"
                                     />
-
-                                    {/* Graduation Status */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Education Status
-                                        </label>
-                                        <div className="flex items-center space-x-6">
-                                            <label className="flex items-center">
-                                                <input
-                                                    type="radio"
-                                                    name="isGraduated"
-                                                    checked={values.isGraduated === true}
-                                                    onChange={() => setFieldValue('isGraduated', true)}
-                                                    className="mr-2 text-black focus:ring-black"
-                                                />
-                                                <span className="text-sm text-gray-900">Graduated</span>
-                                            </label>
-                                            <label className="flex items-center">
-                                                <input
-                                                    type="radio"
-                                                    name="isGraduated"
-                                                    checked={values.isGraduated === false}
-                                                    onChange={() => setFieldValue('isGraduated', false)}
-                                                    className="mr-2 text-black focus:ring-black"
-                                                />
-                                                <span className="text-sm text-gray-900">Left Early</span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    {/* Conditional Year Fields */}
-                                    {values.isGraduated ? (
-                                        <InputComponent1
-                                            name="graduationYear"
-                                            type="number"
-                                            label="Graduation Year"
-                                            placeholder="Year you graduated"
-                                            useFormik={true}
-                                            backgroundColor="bg-white"
-                                            borderColor="border-gray-300"
-                                            textColor="text-gray-900"
-                                            focusBorderColor="focus:border-black"
-                                            focusRingColor="focus:ring-black/10"
-                                        />
-                                    ) : (
-                                        <InputComponent1
-                                            name="leftAt"
-                                            type="number"
-                                            label="Year Left School"
-                                            placeholder="Year you left school"
-                                            required
-                                            useFormik={true}
-                                            backgroundColor="bg-white"
-                                            borderColor="border-gray-300"
-                                            textColor="text-gray-900"
-                                            focusBorderColor="focus:border-black"
-                                            focusRingColor="focus:ring-black/10"
-                                        />
-                                    )}
 
                                     <div className="md:col-span-2">
                                         <TextareaComponent1
@@ -417,36 +441,49 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                             </p>
                         </div>
 
-                        {/* Batch/Class */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Batch/Class
-                            </label>
-                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
-                                {userData.batch || 'Not provided'}
-                            </p>
-                        </div>
+                        {
+                            userData?.alumni_type === "student" && <>
+                                {/* Batch/Class */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Batch/Class
+                                    </label>
+                                    <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                        {userData.batch || 'Not provided'}
+                                    </p>
+                                </div>
 
-                        {/* Education Status */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Education Status
-                            </label>
-                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
-                                {userData.isGraduated ? 'Graduated' : 'Left Early'}
-                            </p>
-                        </div>
+                                {/* Education Status */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Education Status
+                                    </label>
+                                    <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                        {userData.isGraduated ? 'Graduated' : 'Left Early'}
+                                    </p>
+                                </div>
 
-                        {/* Graduation/Left Year */}
+                                {/* Graduation/Left Year */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        {userData.isGraduated ? "Graduation Year" : "Year Left School"}
+                                    </label>
+                                    <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                                        {userData.isGraduated
+                                            ? (userData.graduationYear || userData.graduation_year || 'Not provided')
+                                            : (userData.leftAt || userData.left_at || 'Not provided')
+                                        }
+                                    </p>
+                                </div>
+                            </>
+                        }
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                {userData.isGraduated ? "Graduation Year" : "Year Left School"}
+                                Joined at
                             </label>
                             <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
-                                {userData.isGraduated
-                                    ? (userData.graduationYear || userData.graduation_year || 'Not provided')
-                                    : (userData.leftAt || userData.left_at || 'Not provided')
-                                }
+                                {userData.joinedYear || "Not provided"}
                             </p>
                         </div>
 

@@ -50,7 +50,7 @@ const AppWrapper = ({ children }) => {
                         dispatch(setUser(data));
                     } else {
                         console.error('Failed to fetch user data');
-                        ToastMessage.notifyError('Failed to fetch user data');
+                        // ToastMessage.notifyError('Failed to fetch user data');
                         // Clear invalid token
                         localStorage.removeItem('token');
                         dispatch(logout());

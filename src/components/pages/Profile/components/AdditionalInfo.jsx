@@ -37,11 +37,7 @@ const AdditionalInfoSchema = Yup.object().shape({
     // Student fields
     currentPosition: Yup.string().max(200, 'Current position cannot exceed 200 characters'),
     organization: Yup.string().max(200, 'Organization cannot exceed 200 characters'),
-    joinedYear: Yup.number()
-        .min(1998, 'Joined year must be after 1998')
-        .max(new Date().getFullYear(), `Joined year cannot exceed ${new Date().getFullYear()}`)
-        .nullable()
-        .transform((value, originalValue) => originalValue === '' ? null : value),
+
     achievements: Yup.array().of(Yup.string().max(500, 'Achievement cannot exceed 500 characters')),
     education: Yup.array().of(
         Yup.object().shape({
@@ -120,7 +116,6 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
             return {
                 currentPosition: additionalInfo.currentPosition || '',
                 organization: additionalInfo.organization || '',
-                joinedYear: additionalInfo.joinedYear || '',
                 achievements: additionalInfo.achievements || [''],
                 education: additionalInfo.education || [{ degree: '', institution: '', year: '', grade: '' }],
                 experience: additionalInfo.experience || [{ position: '', organization: '', period: '', description: '' }],
