@@ -261,19 +261,6 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                 />
             </div>
 
-            {/* Joined Year */}
-            <InputComponent1
-                name="joinedYear"
-                type="number"
-                label="Year Joined CIHS"
-                placeholder="e.g., 2005"
-                useFormik={true}
-                backgroundColor="bg-white"
-                borderColor="border-gray-300"
-                textColor="text-gray-900"
-                focusBorderColor="focus:border-black"
-                focusRingColor="focus:ring-black/10"
-            />
 
             {/* Achievements */}
             <div>
@@ -931,10 +918,6 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Organization</label>
                                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.organization)}</p>
                             </div>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Year Joined CIHS</label>
-                            <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg">{showValue(additionalInfo.joinedYear)}</p>
                         </div>
                     </>
                 )}
