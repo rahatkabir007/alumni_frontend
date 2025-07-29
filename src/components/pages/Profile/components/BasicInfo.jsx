@@ -537,7 +537,15 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                         <div>
                             <span className="text-gray-500">Account Status:</span>
                             <span className={`ml-2 ${userData.status === "pending" ? 'text-yellow-600' : userData.status === "active" ? 'text-green-600' : 'text-red-600'}`}>
-                                {userData.status === "active" ? 'Active' : userData.status === "inactive" ? 'Inactive' : 'Not Verified'}
+                                {userData.status === "active" ? 'Active' : userData.status === "inactive" ? 'Inactive' : 'Not Verified'} {userData.status === 'pending' && (
+                                    <button
+                                        className="ml-2 px-3 py-1 bg-yellow-500 text-white text-xs rounded hover:bg-yellow-600 transition"
+                                        // onClick={handleApplyVerification} // implement later
+                                        type="button"
+                                    >
+                                        Apply for Verification
+                                    </button>
+                                )}
                             </span>
                         </div>
                         <div>

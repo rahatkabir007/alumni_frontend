@@ -14,6 +14,7 @@ import { useLazyGetCurrentUserQuery, useLogoutMutation } from '@/redux/features/
 import { ToastMessage } from '@/utils/ToastMessage';
 import Navigation from './Navigation';
 import Footer from './Footer';
+import FloatingVerificationNotice from './FloatingVerificationNotice';
 
 const AppWrapper = ({ children }) => {
     const pathname = usePathname();
@@ -138,7 +139,7 @@ const AppWrapper = ({ children }) => {
             }
         }
     };
-
+    console.log(user);
     return (
         <div className="min-h-screen flex flex-col">
             {shouldShowNavigation && (
@@ -155,6 +156,7 @@ const AppWrapper = ({ children }) => {
             </main>
 
             {shouldShowNavigation && <Footer />}
+            {isAuthenticated && user?.status === 'pending' && <FloatingVerificationNotice />}
         </div>
     );
 };

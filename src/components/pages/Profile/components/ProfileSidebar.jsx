@@ -3,18 +3,20 @@ import { useState, useMemo } from 'react'
 import { useUpdateUserMutation } from '@/redux/features/user/userApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import ElegantCard from '@/components/common/ElegantCard'
-import BlackButton from '@/components/common/BlackButton'
 import BlackTag from '@/components/common/BlackTag'
 import ImageUploader from './ImageUploader'
 import Image from 'next/image'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import { menuItems as baseMenuItems } from '@/datas/profilePage'
 
+const lockedSections = ['blogs', 'events', 'gallery', 'reviews'];
+
+
 const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh }) => {
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [updateUser, { isLoading: isUpdatingPhoto }] = useUpdateUserMutation()
     const [isPhotoLoading, setIsPhotoLoading] = useState(false)
-
+    const isPending = userData.status === 'pending';
     // Create menu items with useMemo to prevent duplicates
     const menuItems = useMemo(() => {
         const items = [...baseMenuItems]
@@ -213,24 +215,40 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                 </div>
 
                 <nav className={`space-y-1 ${isCollapsed ? 'hidden lg:block' : 'block'}`}>
-                    {menuItems.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => onSectionChange(item.id)}
-                            className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${activeSection === item.id
-                                ? 'bg-black text-white'
-                                : 'text-gray-700 hover:bg-gray-100'
-                                }`}
-                        >
-                            <span className="mr-3">{item.icon}</span>
-                            {item.label}
-                            {(item.moderatorOnly || item.adminOnly) && (
-                                <BlackTag size="xs" variant="subtle" className="ml-auto">
-                                    {item.adminOnly ? 'Admin' : 'Mod'}
-                                </BlackTag>
-                            )}
-                        </button>
-                    ))}
+                    {menuItems.map((item) => {
+                        const isLocked = isPending && lockedSections.includes(item.id);
+                        return (
+                            <div key={item.id} className="relative group">
+                                <button
+                                    onClick={() => !isLocked && onSectionChange(item.id)}
+                                    className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors
+                                        ${activeSection === item.id
+                                            ? 'bg-black text-white'
+                                            : isLocked
+                                                ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                                                : 'text-gray-700 hover:bg-gray-100'
+                                        }`}
+                                    disabled={isLocked}
+                                    type="button"
+                                >
+                                    <span className="mr-3">{item.icon}</span>
+                                    {item.label}
+                                    {(item.moderatorOnly || item.adminOnly) && (
+                                        <BlackTag size="xs" variant="subtle" className="ml-auto">
+                                            {item.adminOnly ? 'Admin' : 'Mod'}
+                                        </BlackTag>
+                                    )}
+                                </button>
+                                {isLocked && (
+                                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 z-20 hidden group-hover:block">
+                                        <div className="bg-black text-white text-xs rounded px-2 py-1 shadow-lg whitespace-nowrap">
+                                            Apply for verification to access this feature
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </nav>
             </ElegantCard>
         </div>
