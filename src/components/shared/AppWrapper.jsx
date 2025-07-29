@@ -151,7 +151,7 @@ const AppWrapper = ({ children }) => {
                 />
             )}
 
-            <main className="flex-grow">
+            <main className="flex-grow min-h-[50vh]">
                 {children}
             </main>
 
