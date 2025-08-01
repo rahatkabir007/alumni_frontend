@@ -107,96 +107,100 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex">
-            {/* Left Side - SVG */}
-            <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12">
-                <div className="max-w-md w-full">
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8 }}
-                    >
-                        <AlumniSVG />
-                        <div className="text-center mt-8">
-                            <h3 className="text-2xl font-bold text-gray-800 mb-4">
-                                Join Our Alumni Network
-                            </h3>
-                            <p className="text-gray-600 leading-relaxed">
-                                Connect with fellow graduates, share experiences, and build lasting relationships
-                                with the CIHS community.
-                            </p>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    {/* Left Side - SVG */}
+                    <div className="flex items-center justify-center">
+                        <div className="max-w-md w-full">
+                            <motion.div
+                                initial={{ opacity: 0, x: -50 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.8 }}
+                            >
+                                <AlumniSVG />
+                                <div className="text-center mt-8">
+                                    <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                                        Join Our Alumni Network
+                                    </h3>
+                                    <p className="text-gray-600 leading-relaxed">
+                                        Connect with fellow graduates, share experiences, and build lasting relationships
+                                        with the CIHS community.
+                                    </p>
+                                </div>
+                            </motion.div>
                         </div>
-                    </motion.div>
-                </div>
-            </div>
+                    </div>
 
-            {/* Right Side - Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-                <div className="max-w-md w-full space-y-8">
-                    {/* Header */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="text-center"
-                    >
-                        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                            Create Account
-                        </h2>
-                        <p className="text-gray-600 mb-4">
-                            Step {currentStep} of 2 - {currentStep === 1 ? 'Basic Information' : 'Security Setup'}
-                        </p>
+                    {/* Right Side - Form */}
+                    <div className="flex items-center justify-center">
+                        <div className="max-w-lg w-full space-y-8">
+                            {/* Header */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="text-center"
+                            >
+                                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                                    Create Account
+                                </h2>
+                                <p className="text-gray-600 mb-4">
+                                    Step {currentStep} of 2 - {currentStep === 1 ? 'Basic Information' : 'Security Setup'}
+                                </p>
 
-                        {/* Progress Bar */}
-                        <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
-                            <div
-                                className="bg-black h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${(currentStep / 2) * 100}%` }}
-                            ></div>
+                                {/* Progress Bar */}
+                                <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
+                                    <div
+                                        className="bg-black h-2 rounded-full transition-all duration-300"
+                                        style={{ width: `${(currentStep / 2) * 100}%` }}
+                                    ></div>
+                                </div>
+
+                                <p className="text-sm text-gray-500">
+                                    Already have an account?{' '}
+                                    <Link href="/login" className="text-black font-semibold hover:text-gray-700 transition-colors">
+                                        Sign in here
+                                    </Link>
+                                </p>
+                            </motion.div>
+
+                            {/* Step Components */}
+                            {currentStep === 1 && (
+                                <RegistrationStep1
+                                    formData={formData}
+                                    onNext={handleStep1Submit}
+                                />
+                            )}
+
+                            {currentStep === 2 && (
+                                <RegistrationStep2
+                                    onSubmit={handleStep2Submit}
+                                    onBack={goBackToStep1}
+                                    isLoading={isLoading}
+                                    submitError={submitError}
+                                />
+                            )}
+
+                            {/* Back to Home */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.6 }}
+                                className="text-center"
+                            >
+                                <button
+                                    onClick={() => router.push('/')}
+                                    className="flex items-center text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors mx-auto"
+                                >
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                    </svg>
+                                    Back to Home
+                                </button>
+                            </motion.div>
                         </div>
-
-                        <p className="text-sm text-gray-500">
-                            Already have an account?{' '}
-                            <Link href="/login" className="text-black font-semibold hover:text-gray-700 transition-colors">
-                                Sign in here
-                            </Link>
-                        </p>
-                    </motion.div>
-
-                    {/* Step Components */}
-                    {currentStep === 1 && (
-                        <RegistrationStep1
-                            formData={formData}
-                            onNext={handleStep1Submit}
-                        />
-                    )}
-
-                    {currentStep === 2 && (
-                        <RegistrationStep2
-                            onSubmit={handleStep2Submit}
-                            onBack={goBackToStep1}
-                            isLoading={isLoading}
-                            submitError={submitError}
-                        />
-                    )}
-
-                    {/* Back to Home */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6 }}
-                        className="text-center"
-                    >
-                        <button
-                            onClick={() => router.push('/')}
-                            className="flex items-center text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors mx-auto"
-                        >
-                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                            Back to Home
-                        </button>
-                    </motion.div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,21 +1,8 @@
 "use client"
 import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
 import { motion } from 'framer-motion';
+import { RegistrationStep2Schema } from '@/utils/validationSchemas';
 import PasswordInputComponent1 from '@/components/common/PasswordInputComponent1';
-
-const Step2Schema = Yup.object().shape({
-    password: Yup.string()
-        .min(8, 'Password must be at least 8 characters')
-        .matches(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-            'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-        )
-        .required('Password is required'),
-    confirmPassword: Yup.string()
-        .oneOf([Yup.ref('password'), null], 'Passwords must match')
-        .required('Please confirm your password'),
-});
 
 const RegistrationStep2 = ({ onSubmit, onBack, isLoading, submitError }) => {
     return (
@@ -29,7 +16,7 @@ const RegistrationStep2 = ({ onSubmit, onBack, isLoading, submitError }) => {
                     password: '',
                     confirmPassword: '',
                 }}
-                validationSchema={Step2Schema}
+                validationSchema={RegistrationStep2Schema}
                 onSubmit={onSubmit}
             >
                 {({ isSubmitting }) => (
@@ -112,3 +99,4 @@ const RegistrationStep2 = ({ onSubmit, onBack, isLoading, submitError }) => {
 }
 
 export default RegistrationStep2
+

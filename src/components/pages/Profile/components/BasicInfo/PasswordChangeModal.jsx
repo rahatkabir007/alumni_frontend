@@ -1,25 +1,9 @@
 "use client"
-import { useState } from 'react'
 import { Formik, Form } from 'formik'
-import * as Yup from 'yup'
+import { PasswordChangeSchema } from '@/utils/validationSchemas'
 import PasswordInputComponent1 from '@/components/common/PasswordInputComponent1'
 import BlackButton from '@/components/common/BlackButton'
 import GlobalModal from '@/components/antd/Modal/GlobalModal'
-
-const PasswordChangeSchema = Yup.object().shape({
-    currentPassword: Yup.string()
-        .required('Current password is required'),
-    newPassword: Yup.string()
-        .min(8, 'Password must be at least 8 characters')
-        .matches(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-            'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-        )
-        .required('New password is required'),
-    confirmNewPassword: Yup.string()
-        .oneOf([Yup.ref('newPassword'), null], 'Passwords must match')
-        .required('Please confirm your new password'),
-});
 
 const PasswordChangeModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
     if (!isOpen) return null;
@@ -123,3 +107,5 @@ const PasswordChangeModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 }
 
 export default PasswordChangeModal
+
+

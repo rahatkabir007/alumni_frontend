@@ -1,39 +1,10 @@
 "use client"
 import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
 import { motion } from 'framer-motion';
+import { RegistrationStep1Schema } from '@/utils/validationSchemas';
+import { alumniTypeOptions, branchOptions, bloodGroupOptions } from '@/utils/formOptions';
 import InputComponent1 from '@/components/common/InputComponent1';
 import SelectComponent1 from '@/components/common/SelectComponent1';
-
-const Step1Schema = Yup.object().shape({
-    name: Yup.string()
-        .min(2, 'Name must be at least 2 characters')
-        .max(50, 'Name must be less than 50 characters')
-        .required('Name is required'),
-    email: Yup.string()
-        .email('Invalid email address')
-        .required('Email is required'),
-    alumni_type: Yup.string()
-        .oneOf(['student', 'teacher', 'management'], 'Please select a valid alumni type')
-        .required('Alumni type is required'),
-    branch: Yup.string()
-        .required('Branch is required'),
-    phone: Yup.string()
-        .required('Phone number is required'),
-    location: Yup.string()
-        .required('Location is required'),
-});
-
-const alumniTypeOptions = [
-    { value: 'student', label: 'Student' },
-    { value: 'teacher', label: 'Teacher' },
-    { value: 'management', label: 'Management' }
-];
-
-const branchOptions = [
-    { value: 'Jamalkhan', label: 'Jamalkhan' },
-    { value: 'Patiya', label: 'Patiya' }
-];
 
 const RegistrationStep1 = ({ formData, onNext }) => {
     return (
@@ -50,13 +21,20 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                     branch: formData.branch || '',
                     phone: formData.phone || '',
                     location: formData.location || '',
+                    blood_group: formData.blood_group || '',
+                    joinedYear: formData.joinedYear || '',
+                    batch: formData.batch || '',
+                    isGraduated: formData.isGraduated !== undefined ? formData.isGraduated : true,
+                    graduationYear: formData.graduationYear || '',
+                    leftAt: formData.leftAt || '',
                 }}
-                validationSchema={Step1Schema}
+                validationSchema={RegistrationStep1Schema}
                 onSubmit={onNext}
             >
-                {({ isValid, values }) => (
+                {({ isValid, values, setFieldValue }) => (
                     <Form className="space-y-6">
                         <div className="space-y-4">
+                            {/* Basic Info */}
                             <InputComponent1
                                 name="name"
                                 type="text"
@@ -85,6 +63,35 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                                 focusRingColor="focus:ring-black/20"
                             />
 
+                            <InputComponent1
+                                name="phone"
+                                type="tel"
+                                label="Phone Number"
+                                placeholder="Enter your phone number"
+                                required
+                                useFormik={true}
+                                backgroundColor="bg-white"
+                                borderColor="border-gray-300"
+                                textColor="text-gray-900"
+                                focusBorderColor="focus:border-black"
+                                focusRingColor="focus:ring-black/20"
+                            />
+
+                            <InputComponent1
+                                name="location"
+                                type="text"
+                                label="Location/Address"
+                                placeholder="Enter your complete address"
+                                required
+                                useFormik={true}
+                                backgroundColor="bg-white"
+                                borderColor="border-gray-300"
+                                textColor="text-gray-900"
+                                focusBorderColor="focus:border-black"
+                                focusRingColor="focus:ring-black/20"
+                            />
+
+                            {/* Institution Info */}
                             <SelectComponent1
                                 name="alumni_type"
                                 label="Alumni Type"
@@ -114,10 +121,10 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                             />
 
                             <InputComponent1
-                                name="phone"
-                                type="text"
-                                label="Phone Number"
-                                placeholder="Enter your phone number"
+                                name="joinedYear"
+                                type="number"
+                                label="Year Joined CIHS"
+                                placeholder="Year you joined"
                                 required
                                 useFormik={true}
                                 backgroundColor="bg-white"
@@ -127,11 +134,11 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                                 focusRingColor="focus:ring-black/20"
                             />
 
-                            <InputComponent1
-                                name="location"
-                                type="text"
-                                label="Location/Address"
-                                placeholder="Enter your address"
+                            <SelectComponent1
+                                name="blood_group"
+                                label="Blood Group"
+                                placeholder="Select your blood group"
+                                options={bloodGroupOptions}
                                 required
                                 useFormik={true}
                                 backgroundColor="bg-white"
@@ -140,6 +147,84 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                                 focusBorderColor="focus:border-black"
                                 focusRingColor="focus:ring-black/20"
                             />
+
+                            {/* Student-specific fields */}
+                            {values.alumni_type === 'student' && (
+                                <>
+                                    <InputComponent1
+                                        name="batch"
+                                        label="Batch/Class"
+                                        placeholder="e.g., '15, '20"
+                                        required
+                                        useFormik={true}
+                                        backgroundColor="bg-white"
+                                        borderColor="border-gray-300"
+                                        textColor="text-gray-900"
+                                        focusBorderColor="focus:border-black"
+                                        focusRingColor="focus:ring-black/20"
+                                    />
+
+                                    {/* Education Status */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Education Status <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="flex items-center space-x-6">
+                                            <label className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="isGraduated"
+                                                    checked={values.isGraduated === true}
+                                                    onChange={() => setFieldValue('isGraduated', true)}
+                                                    className="mr-2 text-black focus:ring-black"
+                                                />
+                                                <span className="text-sm text-gray-900">Graduated</span>
+                                            </label>
+                                            <label className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="isGraduated"
+                                                    checked={values.isGraduated === false}
+                                                    onChange={() => setFieldValue('isGraduated', false)}
+                                                    className="mr-2 text-black focus:ring-black"
+                                                />
+                                                <span className="text-sm text-gray-900">Left Early</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Conditional Year Fields */}
+                                    {values.isGraduated ? (
+                                        <InputComponent1
+                                            name="graduationYear"
+                                            type="number"
+                                            label="Graduation Year"
+                                            placeholder="Year you graduated"
+                                            required
+                                            useFormik={true}
+                                            backgroundColor="bg-white"
+                                            borderColor="border-gray-300"
+                                            textColor="text-gray-900"
+                                            focusBorderColor="focus:border-black"
+                                            focusRingColor="focus:ring-black/20"
+                                        />
+                                    ) : (
+                                        <InputComponent1
+                                            name="leftAt"
+                                            type="number"
+                                            label="Year Left School"
+                                            placeholder="Year you left school"
+                                            required
+                                            useFormik={true}
+                                            backgroundColor="bg-white"
+                                            borderColor="border-gray-300"
+                                            textColor="text-gray-900"
+                                            focusBorderColor="focus:border-black"
+                                            focusRingColor="focus:ring-black/20"
+                                        />
+                                    )}
+                                </>
+                            )}
                         </div>
 
                         <motion.button
@@ -148,7 +233,7 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                             type="submit"
                             className="w-full bg-black text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
                         >
-                            Continue to Security Setup
+                            Continue
                         </motion.button>
                     </Form>
                 )}
@@ -158,3 +243,4 @@ const RegistrationStep1 = ({ formData, onNext }) => {
 }
 
 export default RegistrationStep1
+

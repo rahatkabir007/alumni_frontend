@@ -1,29 +1,14 @@
 "use client"
 import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
+import { RequiredInfoSchema } from '@/utils/validationSchemas';
+import { alumniTypeOptions, branchOptions, bloodGroupOptions } from '@/utils/formOptions';
 import SelectComponent1 from '@/components/common/SelectComponent1';
 import InputComponent1 from '@/components/common/InputComponent1';
 import { useCompleteUserProfileMutation, useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi';
 import { ToastMessage } from '@/utils/ToastMessage';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '@/redux/features/auth/authSlice';
-
-const alumniTypeOptions = [
-    { value: 'student', label: 'Student' },
-    { value: 'teacher', label: 'Teacher' },
-    { value: 'management', label: 'Management' }
-];
-
-const RequiredInfoSchema = Yup.object().shape({
-    alumni_type: Yup.string()
-        .oneOf(['student', 'teacher', 'management'], 'Please select a valid alumni type')
-        .required('Alumni type is required'),
-    branch: Yup.string()
-        .required('Branch is required'),
-    phone: Yup.string().required('Phone number is required'),
-    location: Yup.string().required('Location is required'),
-});
 
 export default function RequiredInfo({ user }) {
     const router = useRouter();
@@ -32,7 +17,6 @@ export default function RequiredInfo({ user }) {
     const [completeProfile, { isLoading }] = useCompleteUserProfileMutation();
 
     const handleSubmit = async (values, { setSubmitting }) => {
-        // TODO: handle API call here
         try {
             const response = await completeProfile({
                 ...values,
@@ -42,7 +26,6 @@ export default function RequiredInfo({ user }) {
             if (response.success) {
                 const token = response.data.token
                 if (!token) {
-                    setError('Missing authentication token');
                     ToastMessage.notifyError('Missing authentication token');
                     setSubmitting(false)
                     setTimeout(() => {
@@ -54,38 +37,31 @@ export default function RequiredInfo({ user }) {
                 localStorage.setItem('token', token);
                 setTimeout(async () => {
                     try {
-                        // console.log('Auth callback - Fetching complete user data from /auth/me...');
                         const userData = await triggerGetUser().unwrap();
-                        // console.log('Auth callback - Complete user data fetched successfully:', userData);
 
-                        // Validate that we received a proper user object
                         if (!userData || !userData.email || !userData.id) {
                             throw new Error('Invalid user data received from server');
                         }
-                        // Set credentials with complete user data and token
+
                         dispatch(setCredentials({
-                            user: userData, // This is the complete user object from /auth/me
+                            user: userData,
                             token: token
                         }));
 
-                        ToastMessage.notifySuccess('Login successful! Welcome!');
+                        ToastMessage.notifySuccess('Profile completed successfully!');
                         setSubmitting(false);
-                        // Give a moment for the state to update before redirecting
                         setTimeout(() => {
                             router.replace('/');
                         }, 500);
 
                     } catch (fetchError) {
                         console.error('Auth callback - Failed to fetch user data:', fetchError);
-
-                        // Clean up token if user fetch fails
                         localStorage.removeItem('token');
 
                         const errorMsg = fetchError.status === 401 ?
                             'Session expired. Please try logging in again.' :
                             fetchError.message || 'Failed to load user profile. Please try again.';
 
-                        setError(errorMsg);
                         ToastMessage.notifyError(errorMsg);
                         setTimeout(() => {
                             router.push('/login');
@@ -93,18 +69,16 @@ export default function RequiredInfo({ user }) {
                     }
                 }, 1000);
             } else {
-                // Handle error case
                 console.error('Profile completion failed:', response.message);
             }
         } catch (error) {
             console.error('Error completing profile:', error);
         }
-
     };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4">
-            <div className="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-lg shadow-lg">
+            <div className="max-w-lg w-full space-y-8 bg-gray-800 p-8 rounded-lg shadow-lg">
                 <h2 className="text-3xl font-bold text-white mb-4 text-center">Complete Your Profile</h2>
                 <Formik
                     initialValues={{
@@ -114,11 +88,17 @@ export default function RequiredInfo({ user }) {
                         branch: '',
                         phone: '',
                         location: '',
+                        blood_group: '',
+                        joinedYear: '',
+                        batch: '',
+                        isGraduated: true,
+                        graduationYear: '',
+                        leftAt: '',
                     }}
                     validationSchema={RequiredInfoSchema}
                     onSubmit={handleSubmit}
                 >
-                    {({ isSubmitting }) => (
+                    {({ isSubmitting, values, setFieldValue }) => (
                         <Form className="space-y-5">
                             <InputComponent1
                                 name="name"
@@ -146,6 +126,7 @@ export default function RequiredInfo({ user }) {
                                 textColor="text-white"
                                 placeholderColor="placeholder-gray-400"
                             />
+
                             <SelectComponent1
                                 name="alumni_type"
                                 label="Alumni Type"
@@ -161,24 +142,20 @@ export default function RequiredInfo({ user }) {
                             />
                             <SelectComponent1
                                 name="branch"
-                                type="text"
                                 label="Branch"
-                                placeholder="Enter your branch"
-                                options={[
-                                    { value: "Jamalkhan", label: "Jamalkhan" },
-                                    { value: "Patiya", label: "Patiya" },
-                                ]}
+                                placeholder="Select your branch"
+                                options={branchOptions}
                                 required
                                 useFormik={true}
                                 labelClassName="text-gray-300"
                                 backgroundColor="bg-white/10"
                                 borderColor="border-gray-600"
                                 textColor="text-white"
-                                placeholderColor="placeholder-gray-400"
+                                placeholderColor="text-gray-400"
                             />
                             <InputComponent1
                                 name="phone"
-                                type="text"
+                                type="tel"
                                 label="Phone Number"
                                 placeholder="Enter your phone number"
                                 required
@@ -193,7 +170,7 @@ export default function RequiredInfo({ user }) {
                                 name="location"
                                 type="text"
                                 label="Address"
-                                placeholder="Enter your address"
+                                placeholder="Enter your complete address"
                                 required
                                 useFormik={true}
                                 labelClassName="text-gray-300"
@@ -202,12 +179,117 @@ export default function RequiredInfo({ user }) {
                                 textColor="text-white"
                                 placeholderColor="placeholder-gray-400"
                             />
+                            <SelectComponent1
+                                name="blood_group"
+                                label="Blood Group"
+                                placeholder="Select your blood group"
+                                options={bloodGroupOptions}
+                                required
+                                useFormik={true}
+                                labelClassName="text-gray-300"
+                                backgroundColor="bg-white/10"
+                                borderColor="border-gray-600"
+                                textColor="text-white"
+                                placeholderColor="text-gray-400"
+                            />
+                            <InputComponent1
+                                name="joinedYear"
+                                type="number"
+                                label="Year Joined CIHS"
+                                placeholder="Year you joined"
+                                required
+                                useFormik={true}
+                                labelClassName="text-gray-300"
+                                backgroundColor="bg-white/10"
+                                borderColor="border-gray-600"
+                                textColor="text-white"
+                                placeholderColor="placeholder-gray-400"
+                            />
+
+                            {/* Student-specific fields */}
+                            {values.alumni_type === 'student' && (
+                                <>
+                                    <InputComponent1
+                                        name="batch"
+                                        label="Batch/Class"
+                                        placeholder="e.g., '15, '20"
+                                        required
+                                        useFormik={true}
+                                        labelClassName="text-gray-300"
+                                        backgroundColor="bg-white/10"
+                                        borderColor="border-gray-600"
+                                        textColor="text-white"
+                                        placeholderColor="placeholder-gray-400"
+                                    />
+
+                                    {/* Education Status */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            Education Status <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="flex items-center space-x-6">
+                                            <label className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="isGraduated"
+                                                    checked={values.isGraduated === true}
+                                                    onChange={() => setFieldValue('isGraduated', true)}
+                                                    className="mr-2 text-white focus:ring-white"
+                                                />
+                                                <span className="text-sm text-white">Graduated</span>
+                                            </label>
+                                            <label className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    name="isGraduated"
+                                                    checked={values.isGraduated === false}
+                                                    onChange={() => setFieldValue('isGraduated', false)}
+                                                    className="mr-2 text-white focus:ring-white"
+                                                />
+                                                <span className="text-sm text-white">Left Early</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Conditional Year Fields */}
+                                    {values.isGraduated ? (
+                                        <InputComponent1
+                                            name="graduationYear"
+                                            type="number"
+                                            label="Graduation Year"
+                                            placeholder="Year you graduated"
+                                            required
+                                            useFormik={true}
+                                            labelClassName="text-gray-300"
+                                            backgroundColor="bg-white/10"
+                                            borderColor="border-gray-600"
+                                            textColor="text-white"
+                                            placeholderColor="placeholder-gray-400"
+                                        />
+                                    ) : (
+                                        <InputComponent1
+                                            name="leftAt"
+                                            type="number"
+                                            label="Year Left School"
+                                            placeholder="Year you left school"
+                                            required
+                                            useFormik={true}
+                                            labelClassName="text-gray-300"
+                                            backgroundColor="bg-white/10"
+                                            borderColor="border-gray-600"
+                                            textColor="text-white"
+                                            placeholderColor="placeholder-gray-400"
+                                        />
+                                    )}
+                                </>
+                            )}
+
                             <button
                                 type="submit"
                                 disabled={isSubmitting || isLoading}
                                 className="w-full bg-white text-black py-3 px-4 rounded-lg font-semibold hover:bg-gray-100 transition-all"
                             >
-                                {isSubmitting || isLoading ? 'Submitting...' : 'Submit'}
+                                {isSubmitting || isLoading ? 'Submitting...' : 'Complete Profile'}
                             </button>
                         </Form>
                     )}

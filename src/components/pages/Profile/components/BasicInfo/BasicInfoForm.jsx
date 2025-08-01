@@ -1,73 +1,11 @@
 "use client"
 import { Formik, Form } from 'formik'
-import * as Yup from 'yup'
+import { ProfileUpdateSchema } from '@/utils/validationSchemas'
+import { bloodGroupOptions } from '@/utils/formOptions'
 import InputComponent1 from '@/components/common/InputComponent1'
 import TextareaComponent1 from '@/components/common/TextareaComponent1'
 import SelectComponent1 from '@/components/common/SelectComponent1'
 import BlackButton from '@/components/common/BlackButton'
-
-const ProfileSchema = Yup.object().shape({
-    name: Yup.string()
-        .min(1, 'Name is required')
-        .max(100, 'Name cannot exceed 100 characters')
-        .test('no-harmful-chars', 'Name contains invalid characters', (value) => {
-            if (!value) return true;
-            return !/<script|javascript:|on\w+=/i.test(value);
-        })
-        .required('Name is required'),
-    phone: Yup.string()
-        .max(20, 'Phone number cannot exceed 20 characters')
-        .matches(/^[\d\s\-\(\)\+]*$/, 'Phone number contains invalid characters'),
-    location: Yup.string()
-        .max(500, 'Location cannot exceed 500 characters')
-        .test('no-harmful-chars', 'Location contains invalid characters', (value) => {
-            if (!value) return true;
-            return !/<script|javascript:|on\w+=/i.test(value);
-        }),
-    blood_group: Yup.string()
-        .max(3, 'Blood group cannot exceed 3 characters')
-        .test('no-harmful-chars', 'Blood group contains invalid characters', (value) => {
-            if (!value) return true;
-            return !/<script|javascript:|on\w+=/i.test(value);
-        }),
-    graduationYear: Yup.number()
-        .min(1998, 'Graduation year must be after 1998')
-        .max(new Date().getFullYear() + 10, `Graduation year cannot exceed ${new Date().getFullYear() + 10}`)
-        .nullable()
-        .transform((value, originalValue) => {
-            return originalValue === '' ? null : value;
-        }),
-    batch: Yup.string()
-        .max(100, 'Batch cannot exceed 100 characters')
-        .test('no-harmful-chars', 'Batch contains invalid characters', (value) => {
-            if (!value) return true;
-            return !/<script|javascript:|on\w+=/i.test(value);
-        }),
-    bio: Yup.string()
-        .max(2000, 'Bio cannot exceed 2000 characters')
-        .test('no-harmful-chars', 'Bio contains invalid characters', (value) => {
-            if (!value) return true;
-            return !/<script|javascript:|on\w+=/i.test(value);
-        }),
-    joinedYear: Yup.number()
-        .min(1998, 'Joined year must be after 1998')
-        .max(new Date().getFullYear(), `Joined year cannot exceed ${new Date().getFullYear()}`)
-        .nullable()
-        .transform((value, originalValue) => originalValue === '' ? null : value),
-    isGraduated: Yup.boolean(),
-    leftAt: Yup.number()
-        .min(1998, 'Left at year must be after 1998')
-        .max(new Date().getFullYear(), `Left at year cannot exceed ${new Date().getFullYear()}`)
-        .nullable()
-        .transform((value, originalValue) => {
-            return originalValue === '' ? null : value;
-        })
-        .when('isGraduated', {
-            is: false,
-            then: (schema) => schema.required('Left at year is required when not graduated'),
-            otherwise: (schema) => schema.nullable()
-        })
-});
 
 const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
     return (
@@ -84,9 +22,10 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                 bio: userData.bio || '',
                 isGraduated: userData.isGraduated !== undefined ? userData.isGraduated : true,
                 leftAt: userData.leftAt || userData.left_at || '',
-                joinedYear: userData.joinedYear || userData.joined_year || ''
+                joinedYear: userData.joinedYear || userData.joined_year || '',
+                alumni_type: userData.alumni_type || 'student' // Add this for conditional validation
             }}
-            validationSchema={ProfileSchema}
+            validationSchema={ProfileUpdateSchema}
             onSubmit={onSave}
         >
             {({ isSubmitting, values, setFieldValue }) => (
@@ -109,6 +48,7 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                             type="tel"
                             label="Phone Number"
                             placeholder="+880-XXX-XXXXXXX"
+                            required
                             useFormik={true}
                             backgroundColor="bg-white"
                             borderColor="border-gray-300"
@@ -118,13 +58,14 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                         />
 
                         <SelectComponent1
-                            name={"branch"}
+                            name="branch"
                             label="Branch"
                             placeholder="Select your branch"
                             options={[
                                 { value: 'Jamalkhan', label: 'Jamalkhan' },
                                 { value: 'Patiya', label: 'Patiya' },
                             ]}
+                            required
                             useFormik={true}
                             backgroundColor="bg-white"
                             borderColor="border-gray-300"
@@ -137,6 +78,7 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                             name="location"
                             label="Location/Address"
                             placeholder="Your current location"
+                            required
                             useFormik={true}
                             backgroundColor="bg-white"
                             borderColor="border-gray-300"
@@ -145,10 +87,12 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                             focusRingColor="focus:ring-black/10"
                         />
 
-                        <InputComponent1
+                        <SelectComponent1
                             name="blood_group"
                             label="Blood Group"
-                            placeholder="Your blood group"
+                            placeholder="Select your blood group"
+                            options={bloodGroupOptions}
+                            required
                             useFormik={true}
                             backgroundColor="bg-white"
                             borderColor="border-gray-300"
@@ -175,6 +119,7 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                                     name="batch"
                                     label="Batch/Class"
                                     placeholder="e.g.,'15, '20"
+                                    required
                                     useFormik={true}
                                     backgroundColor="bg-white"
                                     borderColor="border-gray-300"
@@ -186,7 +131,7 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                                 {/* Graduation Status */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Education Status
+                                        Education Status <span className="text-red-500">*</span>
                                     </label>
                                     <div className="flex items-center space-x-6">
                                         <label className="flex items-center">
@@ -219,6 +164,7 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                                         type="number"
                                         label="Graduation Year"
                                         placeholder="Year you graduated"
+                                        required
                                         useFormik={true}
                                         backgroundColor="bg-white"
                                         borderColor="border-gray-300"
@@ -247,8 +193,9 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                         <InputComponent1
                             name="joinedYear"
                             type="number"
-                            label="Joined at"
+                            label="Year Joined CIHS"
                             placeholder="Year you joined"
+                            required
                             useFormik={true}
                             backgroundColor="bg-white"
                             borderColor="border-gray-300"
@@ -301,3 +248,4 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
 }
 
 export default BasicInfoForm
+
