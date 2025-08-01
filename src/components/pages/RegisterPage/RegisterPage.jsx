@@ -107,11 +107,11 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
-            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-4rem)]">
                     {/* Left Side - SVG */}
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center order-2 lg:order-1">
                         <div className="max-w-md w-full">
                             <motion.div
                                 initial={{ opacity: 0, x: -50 }}
@@ -119,7 +119,7 @@ export default function RegisterPage() {
                                 transition={{ duration: 0.8 }}
                             >
                                 <AlumniSVG />
-                                <div className="text-center mt-8">
+                                <div className="text-center mt-6">
                                     <h3 className="text-2xl font-bold text-gray-800 mb-4">
                                         Join Our Alumni Network
                                     </h3>
@@ -133,8 +133,8 @@ export default function RegisterPage() {
                     </div>
 
                     {/* Right Side - Form */}
-                    <div className="flex items-center justify-center">
-                        <div className="max-w-lg w-full space-y-8">
+                    <div className="flex items-center justify-center order-1 lg:order-2">
+                        <div className="max-w-lg w-full space-y-6">
                             {/* Header */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -150,7 +150,7 @@ export default function RegisterPage() {
                                 </p>
 
                                 {/* Progress Bar */}
-                                <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
+                                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
                                     <div
                                         className="bg-black h-2 rounded-full transition-all duration-300"
                                         style={{ width: `${(currentStep / 2) * 100}%` }}
@@ -166,21 +166,23 @@ export default function RegisterPage() {
                             </motion.div>
 
                             {/* Step Components */}
-                            {currentStep === 1 && (
-                                <RegistrationStep1
-                                    formData={formData}
-                                    onNext={handleStep1Submit}
-                                />
-                            )}
+                            <div className="flex-1">
+                                {currentStep === 1 && (
+                                    <RegistrationStep1
+                                        formData={formData}
+                                        onNext={handleStep1Submit}
+                                    />
+                                )}
 
-                            {currentStep === 2 && (
-                                <RegistrationStep2
-                                    onSubmit={handleStep2Submit}
-                                    onBack={goBackToStep1}
-                                    isLoading={isLoading}
-                                    submitError={submitError}
-                                />
-                            )}
+                                {currentStep === 2 && (
+                                    <RegistrationStep2
+                                        onSubmit={handleStep2Submit}
+                                        onBack={goBackToStep1}
+                                        isLoading={isLoading}
+                                        submitError={submitError}
+                                    />
+                                )}
+                            </div>
 
                             {/* Back to Home */}
                             <motion.div

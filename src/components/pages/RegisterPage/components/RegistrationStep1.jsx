@@ -12,6 +12,7 @@ const RegistrationStep1 = ({ formData, onNext }) => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
+            className="h-full"
         >
             <Formik
                 initialValues={{
@@ -32,51 +33,68 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                 onSubmit={onNext}
             >
                 {({ isValid, values, setFieldValue }) => (
-                    <Form className="space-y-6">
-                        <div className="space-y-4">
-                            {/* Basic Info */}
-                            <InputComponent1
-                                name="name"
-                                type="text"
-                                label="Full Name"
-                                placeholder="Enter your full name"
-                                required
-                                useFormik={true}
-                                backgroundColor="bg-white"
-                                borderColor="border-gray-300"
-                                textColor="text-gray-900"
-                                focusBorderColor="focus:border-black"
-                                focusRingColor="focus:ring-black/20"
-                            />
+                    <Form className="space-y-4">
+                        <div className="space-y-3">
+                            {/* Personal Information Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <InputComponent1
+                                    name="name"
+                                    type="text"
+                                    label="Full Name"
+                                    placeholder="Enter your full name"
+                                    required
+                                    useFormik={true}
+                                    backgroundColor="bg-white"
+                                    borderColor="border-gray-300"
+                                    textColor="text-gray-900"
+                                    focusBorderColor="focus:border-black"
+                                    focusRingColor="focus:ring-black/20"
+                                />
 
-                            <InputComponent1
-                                name="email"
-                                type="email"
-                                label="Email Address"
-                                placeholder="Enter your email address"
-                                required
-                                useFormik={true}
-                                backgroundColor="bg-white"
-                                borderColor="border-gray-300"
-                                textColor="text-gray-900"
-                                focusBorderColor="focus:border-black"
-                                focusRingColor="focus:ring-black/20"
-                            />
+                                <InputComponent1
+                                    name="email"
+                                    type="email"
+                                    label="Email Address"
+                                    placeholder="Enter your email address"
+                                    required
+                                    useFormik={true}
+                                    backgroundColor="bg-white"
+                                    borderColor="border-gray-300"
+                                    textColor="text-gray-900"
+                                    focusBorderColor="focus:border-black"
+                                    focusRingColor="focus:ring-black/20"
+                                />
 
-                            <InputComponent1
-                                name="phone"
-                                type="tel"
-                                label="Phone Number"
-                                placeholder="Enter your phone number"
-                                required
-                                useFormik={true}
-                                backgroundColor="bg-white"
-                                borderColor="border-gray-300"
-                                textColor="text-gray-900"
-                                focusBorderColor="focus:border-black"
-                                focusRingColor="focus:ring-black/20"
-                            />
+                                <InputComponent1
+                                    name="phone"
+                                    type="tel"
+                                    label="Phone Number"
+                                    placeholder="Enter your phone number"
+                                    required
+                                    useFormik={true}
+                                    backgroundColor="bg-white"
+                                    borderColor="border-gray-300"
+                                    textColor="text-gray-900"
+                                    focusBorderColor="focus:border-black"
+                                    focusRingColor="focus:ring-black/20"
+                                />
 
+                                <SelectComponent1
+                                    name="blood_group"
+                                    label="Blood Group"
+                                    placeholder="Select your blood group"
+                                    options={bloodGroupOptions}
+                                    required
+                                    useFormik={true}
+                                    backgroundColor="bg-white"
+                                    borderColor="border-gray-300"
+                                    textColor="text-gray-900"
+                                    focusBorderColor="focus:border-black"
+                                    focusRingColor="focus:ring-black/20"
+                                />
+                            </div>
+
+                            {/* Address field full width */}
                             <InputComponent1
                                 name="location"
                                 type="text"
@@ -91,66 +109,52 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                                 focusRingColor="focus:ring-black/20"
                             />
 
-                            {/* Institution Info */}
-                            <SelectComponent1
-                                name="alumni_type"
-                                label="Alumni Type"
-                                placeholder="Select your alumni type"
-                                options={alumniTypeOptions}
-                                required
-                                useFormik={true}
-                                backgroundColor="bg-white"
-                                borderColor="border-gray-300"
-                                textColor="text-gray-900"
-                                focusBorderColor="focus:border-black"
-                                focusRingColor="focus:ring-black/20"
-                            />
+                            {/* Institution Information Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <SelectComponent1
+                                    name="alumni_type"
+                                    label="Alumni Type"
+                                    placeholder="Select your alumni type"
+                                    options={alumniTypeOptions}
+                                    required
+                                    useFormik={true}
+                                    backgroundColor="bg-white"
+                                    borderColor="border-gray-300"
+                                    textColor="text-gray-900"
+                                    focusBorderColor="focus:border-black"
+                                    focusRingColor="focus:ring-black/20"
+                                />
 
-                            <SelectComponent1
-                                name="branch"
-                                label="Branch"
-                                placeholder="Select your branch"
-                                options={branchOptions}
-                                required
-                                useFormik={true}
-                                backgroundColor="bg-white"
-                                borderColor="border-gray-300"
-                                textColor="text-gray-900"
-                                focusBorderColor="focus:border-black"
-                                focusRingColor="focus:ring-black/20"
-                            />
+                                <SelectComponent1
+                                    name="branch"
+                                    label="Branch"
+                                    placeholder="Select your branch"
+                                    options={branchOptions}
+                                    required
+                                    useFormik={true}
+                                    backgroundColor="bg-white"
+                                    borderColor="border-gray-300"
+                                    textColor="text-gray-900"
+                                    focusBorderColor="focus:border-black"
+                                    focusRingColor="focus:ring-black/20"
+                                />
 
-                            <InputComponent1
-                                name="joinedYear"
-                                type="number"
-                                label="Year Joined CIHS"
-                                placeholder="Year you joined"
-                                required
-                                useFormik={true}
-                                backgroundColor="bg-white"
-                                borderColor="border-gray-300"
-                                textColor="text-gray-900"
-                                focusBorderColor="focus:border-black"
-                                focusRingColor="focus:ring-black/20"
-                            />
+                                <InputComponent1
+                                    name="joinedYear"
+                                    type="number"
+                                    label="Year Joined CIHS"
+                                    placeholder="Year you joined"
+                                    required
+                                    useFormik={true}
+                                    backgroundColor="bg-white"
+                                    borderColor="border-gray-300"
+                                    textColor="text-gray-900"
+                                    focusBorderColor="focus:border-black"
+                                    focusRingColor="focus:ring-black/20"
+                                />
 
-                            <SelectComponent1
-                                name="blood_group"
-                                label="Blood Group"
-                                placeholder="Select your blood group"
-                                options={bloodGroupOptions}
-                                required
-                                useFormik={true}
-                                backgroundColor="bg-white"
-                                borderColor="border-gray-300"
-                                textColor="text-gray-900"
-                                focusBorderColor="focus:border-black"
-                                focusRingColor="focus:ring-black/20"
-                            />
-
-                            {/* Student-specific fields */}
-                            {values.alumni_type === 'student' && (
-                                <>
+                                {/* Student-specific fields */}
+                                {values.alumni_type === 'student' && (
                                     <InputComponent1
                                         name="batch"
                                         label="Batch/Class"
@@ -163,7 +167,12 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                                         focusBorderColor="focus:border-black"
                                         focusRingColor="focus:ring-black/20"
                                     />
+                                )}
+                            </div>
 
+                            {/* Student education status and year fields */}
+                            {values.alumni_type === 'student' && (
+                                <div className="space-y-3">
                                     {/* Education Status */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -223,18 +232,20 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                                             focusRingColor="focus:ring-black/20"
                                         />
                                     )}
-                                </>
+                                </div>
                             )}
                         </div>
 
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            type="submit"
-                            className="w-full bg-black text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
-                        >
-                            Continue
-                        </motion.button>
+                        <div className="pt-4">
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                type="submit"
+                                className="w-full bg-black text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
+                            >
+                                Continue
+                            </motion.button>
+                        </div>
                     </Form>
                 )}
             </Formik>
