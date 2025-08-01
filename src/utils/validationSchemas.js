@@ -191,7 +191,7 @@ export const LoginSchema = Yup.object().shape({
     password: Yup.string().min(1, 'Password is required').required('Password is required')
 });
 
-// Required Info Schema (for OAuth users)
+// Required Info Schema (for OAuth users) - Updated to include password
 export const RequiredInfoSchema = Yup.object().shape({
     alumni_type: validationRules.alumni_type,
     branch: validationRules.branch,
