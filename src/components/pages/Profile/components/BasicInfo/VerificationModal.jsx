@@ -6,6 +6,7 @@ import InputComponent1 from '@/components/common/InputComponent1'
 import BlackButton from '@/components/common/BlackButton'
 import { useState } from 'react'
 import { ToastMessage } from '@/utils/ToastMessage'
+import imageUploadService from '@/utils/imageUploadService'
 
 const VerificationSchema = Yup.object().shape({
     verification_images: Yup.array()
@@ -20,27 +21,7 @@ const VerificationSchema = Yup.object().shape({
 
 const VerificationModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
     const [uploadingImages, setUploadingImages] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
-
-    // Upload image to ImgBB
-    const uploadToImgBB = async (file) => {
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('key', process.env.NEXT_PUBLIC_IMGBB_API_KEY);
-
-        const response = await fetch('https://api.imgbb.com/1/upload', {
-            method: 'POST',
-            body: formData,
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error?.message || 'Failed to upload image');
-        }
-
-        const data = await response.json();
-        return data.data.url;
-    };
+    const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0, provider: '' });
 
     const handleImageUpload = async (files, setFieldValue, currentImages = []) => {
         if (!files || files.length === 0) return;
@@ -53,27 +34,31 @@ const VerificationModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
         }
 
         setUploadingImages(true);
-        setUploadProgress(0);
+        setUploadProgress({ current: 0, total: files.length, provider: '' });
 
         try {
             const uploadPromises = Array.from(files).map(async (file, index) => {
-                // Validate file size (5MB limit)
-                if (file.size > 5 * 1024 * 1024) {
-                    throw new Error(`File ${file.name} is too large. Maximum size is 5MB.`);
-                }
-
-                // Validate file type
-                if (!file.type.startsWith('image/')) {
-                    throw new Error(`File ${file.name} is not a valid image.`);
+                // Validate file size (25MB limit for largest provider)
+                if (file.size > 25 * 1024 * 1024) {
+                    throw new Error(`File ${file.name} is too large. Maximum size is 25MB.`);
                 }
 
                 try {
-                    const imageUrl = await uploadToImgBB(file);
-                    setUploadProgress(((index + 1) / files.length) * 100);
+                    const result = await imageUploadService.uploadImage(file, (progress) => {
+                        setUploadProgress(prev => ({
+                            ...prev,
+                            current: index + 1,
+                            provider: progress.provider,
+                            status: progress.status
+                        }));
+                    });
+
                     return {
-                        url: imageUrl,
+                        url: result.url,
                         name: file.name,
-                        id: Date.now() + index // Simple ID for tracking
+                        id: Date.now() + index,
+                        provider: result.provider,
+                        deleteUrl: result.deleteUrl
                     };
                 } catch (error) {
                     console.error(`Failed to upload ${file.name}:`, error);
@@ -91,7 +76,7 @@ const VerificationModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
             ToastMessage.notifyError(error.message || 'Failed to upload images');
         } finally {
             setUploadingImages(false);
-            setUploadProgress(0);
+            setUploadProgress({ current: 0, total: 0, provider: '' });
         }
     };
 
@@ -123,6 +108,19 @@ const VerificationModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
             maskClosable={!uploadingImages} // Disable mask click during upload
         >
             <div className="p-6">
+                {/* Provider Status Info */}
+                <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className="text-xs text-gray-600">
+                        <span className="font-medium">Available upload providers:</span>
+                        {imageUploadService.getProviderStatus().map((provider, index) => (
+                            <span key={provider.name} className="ml-2">
+                                {provider.name} ({provider.maxSizeMB}MB)
+                                {index < imageUploadService.getProviderStatus().length - 1 && ','}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
                 <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <div className="flex items-start space-x-3">
                         <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,13 +195,16 @@ const VerificationModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
                                                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                                                         <span>Uploading images...</span>
                                                     </div>
-                                                    <div className="w-full bg-gray-200 rounded-full h-2 mx-auto max-w-xs">
-                                                        <div
-                                                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                                            style={{ width: `${uploadProgress}%` }}
-                                                        ></div>
+                                                    <div className="text-xs space-y-1">
+                                                        <div>Provider: {uploadProgress.provider}</div>
+                                                        <div>Progress: {uploadProgress.current}/{uploadProgress.total}</div>
+                                                        <div className="w-full bg-gray-200 rounded-full h-2 mx-auto max-w-xs">
+                                                            <div
+                                                                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                                                style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+                                                            ></div>
+                                                        </div>
                                                     </div>
-                                                    <span className="text-xs">{Math.round(uploadProgress)}% complete</span>
                                                 </div>
                                             ) : values.verification_images.length >= 5 ? (
                                                 <>
@@ -215,7 +216,7 @@ const VerificationModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
                                                 <>
                                                     <span className="font-medium text-blue-600">Click to upload</span> or drag and drop
                                                     <br />
-                                                    <span className="text-xs text-gray-500">PNG, JPG, JPEG up to 5MB each (Max 5 images)</span>
+                                                    <span className="text-xs text-gray-500">PNG, JPG, JPEG up to 25MB each (Max 5 images)</span>
                                                 </>
                                             )}
                                         </div>
@@ -252,8 +253,9 @@ const VerificationModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
                                                     >
                                                         ×
                                                     </button>
-                                                    <div className="mt-1 text-xs text-gray-500 truncate" title={image.name}>
+                                                    <div className="mt-1 text-xs text-gray-500 truncate" title={`${image.name} (${image.provider})`}>
                                                         {image.name}
+                                                        {/* <div className="text-xs text-green-600">{image.provider}</div> */}
                                                     </div>
                                                 </div>
                                             ))}

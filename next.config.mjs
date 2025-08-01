@@ -6,6 +6,7 @@ const nextConfig = {
             'media.meds.se',
             'i.ibb.co',
             'lh3.googleusercontent.com',
+            'res.cloudinary.com',
             'graph.facebook.com'
         ],
     }

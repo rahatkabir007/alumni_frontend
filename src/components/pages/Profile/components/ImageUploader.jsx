@@ -2,11 +2,12 @@
 import { useState, useRef } from 'react'
 import BlackButton from '@/components/common/BlackButton'
 import { ToastMessage } from '@/utils/ToastMessage'
+import imageUploadService from '@/utils/imageUploadService'
 
 const ImageUploader = ({
     onUpload,
     acceptedTypes = ['image/jpeg', 'image/png', 'image/jpg'],
-    maxSizeMB = 5,
+    maxSizeMB = 25, // Increased to match highest provider limit
     buttonText = "Upload Image",
     buttonVariant = "filled",
     size = "md",
@@ -15,6 +16,7 @@ const ImageUploader = ({
     icon = false
 }) => {
     const [isUploading, setIsUploading] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState({ provider: '', status: '' })
     const fileInputRef = useRef(null)
 
     const handleFileSelect = async (event) => {
@@ -36,24 +38,21 @@ const ImageUploader = ({
         ToastMessage.notifyInfo('Uploading image...');
 
         try {
-            const formData = new FormData();
-            formData.append('image', file);
-            formData.append('key', process.env.NEXT_PUBLIC_IMGBB_API_KEY);
-
-            const response = await fetch('https://api.imgbb.com/1/upload', {
-                method: 'POST',
-                body: formData
+            const result = await imageUploadService.uploadImage(file, (progress) => {
+                setUploadProgress({
+                    provider: progress.provider,
+                    status: progress.status
+                });
             });
 
-            if (!response.ok) throw new Error('Upload failed');
-
-            const { data } = await response.json();
-            await onUpload(data?.url || data?.display_url);
+            ToastMessage.notifySuccess(`Image uploaded successfully via ${result.provider}`);
+            await onUpload(result.url);
         } catch (error) {
             console.error('Upload error:', error);
-            ToastMessage.notifyError('Failed to upload image');
+            ToastMessage.notifyError(error.message || 'Failed to upload image');
         } finally {
             setIsUploading(false);
+            setUploadProgress({ provider: '', status: '' });
             fileInputRef.current && (fileInputRef.current.value = '');
         }
     };
@@ -79,7 +78,7 @@ const ImageUploader = ({
                     onClick={handleButtonClick}
                     disabled={disabled || isUploading}
                     className="inline-flex items-center justify-center w-8 h-8 bg-black text-white rounded-full hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    title={isUploading ? 'Uploading...' : buttonText}
+                    title={isUploading ? `Uploading via ${uploadProgress.provider}...` : buttonText}
                 >
                     {isUploading ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -98,7 +97,10 @@ const ImageUploader = ({
                     loading={isUploading}
                     className="w-full"
                 >
-                    {isUploading ? 'Uploading...' : buttonText}
+                    {isUploading ?
+                        `Uploading${uploadProgress.provider ? ` via ${uploadProgress.provider}` : ''}...` :
+                        buttonText
+                    }
                 </BlackButton>
             )}
         </div>
