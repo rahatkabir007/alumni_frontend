@@ -25,20 +25,25 @@ const UserTableColumns = ({
         const allStatusOptions = [
             { value: 'active', label: 'Active' },
             { value: 'inactive', label: 'Inactive' },
-            { value: 'pending', label: 'Pending' }
+            { value: 'pending', label: 'Pending' },
+            { value: 'rejected', label: 'Rejected' }
         ]
 
         // Check if current user is admin or moderator
         const isCurrentUserAdmin = currentUserRoles?.includes('admin')
         const isCurrentUserModerator = currentUserRoles?.includes('moderator')
 
-        // MODERATOR RESTRICTION: Only pending users can be edited by moderators, and only to active
+        // MODERATOR RESTRICTION: Only pending users can be edited by moderators, and only to active or rejected
         if (currentStatus === 'pending') {
             if (isCurrentUserAdmin) {
                 return allStatusOptions // Admins can set to any status
             } else if (isCurrentUserModerator) {
-                // MODERATOR RESTRICTION: Moderators can only move pending users to active or keep as pending
-                return allStatusOptions.filter(option => option.value === 'active' || option.value === 'pending')
+                // MODERATOR RESTRICTION: Moderators can only move pending users to active, rejected, or keep as pending
+                return allStatusOptions.filter(option =>
+                    option.value === 'active' ||
+                    option.value === 'pending' ||
+                    option.value === 'rejected'
+                )
             }
             return allStatusOptions
         }
@@ -75,6 +80,12 @@ const UserTableColumns = ({
                     bg: 'bg-yellow-100',
                     text: 'text-yellow-800',
                     border: 'border-yellow-200'
+                }
+            case 'rejected':
+                return {
+                    bg: 'bg-orange-100',
+                    text: 'text-orange-800',
+                    border: 'border-orange-200'
                 }
             default:
                 return {
@@ -130,24 +141,24 @@ const UserTableColumns = ({
         const isCurrentUserAdmin = currentUserRoles?.includes('admin')
         const isCurrentUserModerator = currentUserRoles?.includes('moderator')
 
-        // MODERATOR RESTRICTION: Moderators can only edit pending users
+        // MODERATOR RESTRICTION: Moderators can only edit pending and rejected users
         const canModifyBasedOnRole = canModifyUser(record) &&
-            (isCurrentUserAdmin || (isCurrentUserModerator && currentStatus === 'pending'))
+            (isCurrentUserAdmin || (isCurrentUserModerator && (currentStatus === 'pending' || currentStatus === 'rejected')))
 
         const isEditing = editingStatus === record.id
         const styles = getStatusStyles(currentStatus)
         const statusOptions = getStatusOptions(currentStatus) // This now considers user role restrictions
 
-        // Additional check for moderators editing non-pending users
-        if (isCurrentUserModerator && !isCurrentUserAdmin && currentStatus !== 'pending') {
+        // Additional check for moderators editing non-pending/non-rejected users
+        if (isCurrentUserModerator && !isCurrentUserAdmin && currentStatus !== 'pending' && currentStatus !== 'rejected') {
             return (
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${styles.bg} ${styles.text} ${styles.border}`} style={{ fontFamily: "Figtree, sans-serif" }}>
                     {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
-                    {currentStatus === 'pending' && (
+                    {(currentStatus === 'pending' || currentStatus === 'rejected') && (
                         <span className="ml-1 text-xs">(Unverified)</span>
                     )}
-                    {/* MODERATOR RESTRICTION: Show lock icon for non-pending users when moderator */}
-                    <span className="ml-1 text-xs text-gray-500" title="Moderators can only edit pending users">
+                    {/* MODERATOR RESTRICTION: Show lock icon for non-pending/non-rejected users when moderator */}
+                    <span className="ml-1 text-xs text-gray-500" title="Moderators can only edit pending and rejected users">
                         🔒
                     </span>
                 </div>
@@ -158,7 +169,7 @@ const UserTableColumns = ({
             return (
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${styles.bg} ${styles.text} ${styles.border}`} style={{ fontFamily: "Figtree, sans-serif" }}>
                     {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
-                    {currentStatus === 'pending' && (
+                    {(currentStatus === 'pending' || currentStatus === 'rejected') && (
                         <span className="ml-1 text-xs">(Unverified)</span>
                     )}
                 </div>
@@ -193,12 +204,12 @@ const UserTableColumns = ({
             <div className="flex items-center gap-2">
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${styles.bg} ${styles.text} ${styles.border}`}>
                     {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
-                    {currentStatus === 'pending' && (
+                    {(currentStatus === 'pending' || currentStatus === 'rejected') && (
                         <span className="ml-1 text-xs">(Unverified)</span>
                     )}
                 </div>
-                {/* MODERATOR RESTRICTION: Only show edit button for pending users to moderators */}
-                {(isCurrentUserAdmin || (isCurrentUserModerator && currentStatus === 'pending')) && (
+                {/* MODERATOR RESTRICTION: Only show edit button for pending and rejected users to moderators */}
+                {(isCurrentUserAdmin || (isCurrentUserModerator && (currentStatus === 'pending' || currentStatus === 'rejected'))) && (
                     <button
                         onClick={() => handleStatusEdit(record.id)}
                         className="text-gray-400 hover:text-gray-600 transition-colors"

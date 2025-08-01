@@ -110,6 +110,10 @@ export const validationRules = {
     confirmNewPassword: Yup.string()
         .oneOf([Yup.ref('newPassword'), null], 'Passwords must match')
         .required('Please confirm your new password'),
+
+    // Add rejected to valid status options if you have any status validation
+    status: Yup.string()
+        .oneOf(['active', 'inactive', 'pending', 'rejected'], 'Please select a valid status'),
 };
 
 // Registration Step 1 Schema - Extended with all required fields

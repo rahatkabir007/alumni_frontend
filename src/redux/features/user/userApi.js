@@ -104,9 +104,9 @@ export const userApi = apiSlice.injectEndpoints({
 
         applyForVerification: builder.mutation({
             query: ({ userId, verificationData }) => ({
-                url: `/users/${userId}/verification`,
-                method: 'POST',
-                body: verificationData,
+                url: `/users/${userId}/apply_for_verification`,
+                method: 'PATCH',
+                body: { verification_fields: verificationData },
             }),
             invalidatesTags: ['User'],
         }),

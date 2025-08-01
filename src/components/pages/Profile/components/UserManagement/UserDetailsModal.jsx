@@ -30,6 +30,8 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                 return 'bg-red-100 text-red-800 border-red-200'
             case 'pending':
                 return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+            case 'rejected':
+                return 'bg-orange-100 text-orange-800 border-orange-200'
             default:
                 return 'bg-gray-100 text-gray-800 border-gray-200'
         }
@@ -188,7 +190,7 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                                     {/* Status Badge */}
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyles(userData.status)}`}>
                                         {userData.status?.charAt(0).toUpperCase() + userData.status?.slice(1) || 'Unknown'}
-                                        {userData.status === 'pending' && ' (Unverified)'}
+                                        {(userData.status === 'pending' || userData.status === 'rejected') && ' (Unverified)'}
                                     </span>
 
                                     {/* Alumni Type */}

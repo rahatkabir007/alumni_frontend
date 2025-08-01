@@ -12,8 +12,8 @@ const UserActionsMenu = ({ user, onRoleChange, onRoleRemove, onConfirmModal, per
     const isCurrentUserModerator = currentUserRoles?.includes('moderator')
 
     // Check user status - MODERATOR RESTRICTION: only pending users can be modified by moderators
-    const userStatus = user.status || 'pending'
-    const isUserPending = userStatus === 'pending'
+    const userStatus = user.status || 'pending' || 'rejected'
+    const isUserPending = userStatus === 'pending' || userStatus === 'rejected'
     const isUserActive = userStatus === 'active'
 
     // MODERATOR RESTRICTION: Moderators can only perform actions on pending users

@@ -17,7 +17,7 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [updateUser, { isLoading: isUpdatingPhoto }] = useUpdateUserMutation()
     const [isPhotoLoading, setIsPhotoLoading] = useState(false)
-    const isPending = userData.status === 'pending';
+    const isPending = userData.status === 'pending' || userData.status === 'rejected';
     // Create menu items with useMemo to prevent duplicates
     const menuItems = useMemo(() => {
         const items = [...baseMenuItems]
