@@ -1,6 +1,6 @@
 "use client"
 import { useState } from 'react'
-import { useUpdateUserMutation } from '@/redux/features/user/userApi'
+import { useChangePasswordMutation, useUpdateUserMutation } from '@/redux/features/user/userApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
@@ -14,6 +14,7 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
     const [isEditing, setIsEditing] = useState(false)
     const [isDataLoading, setIsDataLoading] = useState(false)
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
+    const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation()
 
     const handleEdit = () => {
         setIsEditing(true)
@@ -67,10 +68,10 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
     const handlePasswordChange = async (values, { setSubmitting, resetForm }) => {
         try {
             // TODO: Implement password change API call
-            // const result = await changePassword({
-            //     currentPassword: values.currentPassword,
-            //     newPassword: values.newPassword,
-            // }).unwrap();
+            const result = await changePassword({
+                currentPassword: values.currentPassword,
+                newPassword: values.newPassword,
+            }).unwrap();
 
             ToastMessage.notifySuccess('Password changed successfully!');
             resetForm();
@@ -104,13 +105,15 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                     <div className="flex gap-3">
                         {!isEditing && !isDataLoading && (
                             <>
-                                <BlackButton
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setIsPasswordModalOpen(true)}
-                                >
-                                    Change Password
-                                </BlackButton>
+                                {
+                                    userData.provider.includes('email') && <BlackButton
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setIsPasswordModalOpen(true)}
+                                    >
+                                        Change Password
+                                    </BlackButton>
+                                }
                                 <BlackButton size="sm" onClick={handleEdit}>
                                     Edit Information
                                 </BlackButton>

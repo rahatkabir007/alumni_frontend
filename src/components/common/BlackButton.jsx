@@ -13,7 +13,7 @@ const BlackButton = ({
     loading = false,
     ...props
 }) => {
-    const baseClasses = "font-semibold rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+    const baseClasses = "font-semibold rounded-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
 
     const sizeClasses = {
         sm: "px-4 py-2 text-sm",

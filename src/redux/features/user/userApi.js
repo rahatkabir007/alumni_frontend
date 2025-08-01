@@ -92,6 +92,15 @@ export const userApi = apiSlice.injectEndpoints({
             },
             providesTags: (result, error, userId) => [{ type: 'User', id: userId }],
         }),
+
+        changePassword: builder.mutation({
+            query: ({ userId, currentPassword, newPassword }) => ({
+                url: `/users/change-password`,
+                method: 'PATCH',
+                body: { currentPassword, newPassword },
+            }),
+            invalidatesTags: ['User'],
+        }),
     }),
 })
 
@@ -104,4 +113,5 @@ export const {
     useUpdateRoleMutation,
     useRemoveRoleMutation,
     useDeleteUserMutation,
+    useChangePasswordMutation,
 } = userApi

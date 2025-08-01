@@ -64,14 +64,16 @@ const BasicInfoDisplay = ({ userData }) => {
             </div>
 
             {/* Password Field - Always shown but disabled */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
-                </label>
-                <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
-                    ••••••••••••
-                </p>
-            </div>
+            {
+                userData.provider.includes('email') && <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Password
+                    </label>
+                    <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
+                        ••••••••••••
+                    </p>
+                </div>
+            }
 
             {userData?.alumni_type === "student" && (
                 <>

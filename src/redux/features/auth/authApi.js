@@ -65,9 +65,6 @@ export const {
     useRegisterMutation,
     useLogoutMutation,
     useGetCurrentUserQuery,
-    useUpdateProfileMutation,
-    useUpdateProfilePhotoMutation,
-    useChangePasswordMutation,
     // Export lazy query for manual triggering
     useLazyGetCurrentUserQuery,
     useCompleteUserProfileMutation,
