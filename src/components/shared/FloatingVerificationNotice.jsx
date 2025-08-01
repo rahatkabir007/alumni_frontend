@@ -20,13 +20,13 @@ const FloatingVerificationNotice = () => {
         (user.verification_fields.verification_images?.length > 0 ||
             Object.values(user.verification_fields.socialMedia || {}).some(link => link));
 
-    // Don't show if user is pending and has already submitted verification
-    if (user.status === 'pending' && hasVerificationFields) {
+    // Don't show if user is pending and has already submitted verification OR if status is applied_for_verification
+    if ((user.status === 'pending' && hasVerificationFields) || user.status === 'applied_for_verification') {
         return null;
     }
 
-    // Show for both pending (without verification) and rejected status
-    if (user.status !== 'pending' && user.status !== 'rejected') {
+    // Show for both pending (without verification), rejected status, and applied_for_verification
+    if (user.status !== 'pending' && user.status !== 'rejected' && user.status !== 'applied_for_verification') {
         return null;
     }
 

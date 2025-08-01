@@ -11,7 +11,8 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
 
     useEffect(() => {
         if (isOpen && userId) {
-            triggerGetUser(userId)
+            // Pass as object with explicit includeDetails parameter
+            triggerGetUser({ userId, includeDetails: 'true' })
         }
     }, [isOpen, userId, triggerGetUser])
 
@@ -32,6 +33,8 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                 return 'bg-yellow-100 text-yellow-800 border-yellow-200'
             case 'rejected':
                 return 'bg-orange-100 text-orange-800 border-orange-200'
+            case 'applied_for_verification':
+                return 'bg-blue-100 text-blue-800 border-blue-200'
             default:
                 return 'bg-gray-100 text-gray-800 border-gray-200'
         }
@@ -189,7 +192,8 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
                                 <div className="flex items-center gap-2 mt-2">
                                     {/* Status Badge */}
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyles(userData.status)}`}>
-                                        {userData.status?.charAt(0).toUpperCase() + userData.status?.slice(1) || 'Unknown'}
+                                        {userData.status === 'applied_for_verification' ? 'Applied for Verification' :
+                                            userData.status?.charAt(0).toUpperCase() + userData.status?.slice(1) || 'Unknown'}
                                         {(userData.status === 'pending' || userData.status === 'rejected') && ' (Unverified)'}
                                     </span>
 

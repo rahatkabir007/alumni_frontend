@@ -2,14 +2,13 @@
 const nextConfig = {
     images: {
         domains: [
-            'images.pexels.com',
-            'media.meds.se',
-            'i.ibb.co',
             'lh3.googleusercontent.com',
+            'i.ibb.co',
             'res.cloudinary.com',
-            'graph.facebook.com'
+            'postimg.cc',
+            'ik.imagekit.io'
         ],
-    }
+    },
 };
 
 export default nextConfig;

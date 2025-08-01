@@ -46,6 +46,8 @@ const AccountInfo = ({ userData, onUpdate }) => {
     const getVerificationStatus = () => {
         if (userData.status === 'active') {
             return { text: 'Verified', color: 'text-green-600', showButton: false }
+        } else if (userData.status === 'applied_for_verification') {
+            return { text: 'Verification Application Submitted', color: 'text-blue-600', showButton: false }
         } else if (userData.status === 'rejected' && !hasVerificationFields) {
             return { text: 'Verification Rejected', color: 'text-red-600', showButton: true, buttonText: 'Reapply for Verification' }
         } else if (userData.status === 'rejected' && hasVerificationFields) {

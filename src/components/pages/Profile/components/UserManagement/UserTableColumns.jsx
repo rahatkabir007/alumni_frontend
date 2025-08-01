@@ -26,7 +26,8 @@ const UserTableColumns = ({
             { value: 'active', label: 'Active' },
             { value: 'inactive', label: 'Inactive' },
             { value: 'pending', label: 'Pending' },
-            { value: 'rejected', label: 'Rejected' }
+            { value: 'rejected', label: 'Rejected' },
+            { value: 'applied_for_verification', label: 'Applied for Verification' }
         ]
 
         // Check if current user is admin or moderator
@@ -34,15 +35,16 @@ const UserTableColumns = ({
         const isCurrentUserModerator = currentUserRoles?.includes('moderator')
 
         // MODERATOR RESTRICTION: Only pending users can be edited by moderators, and only to active or rejected
-        if (currentStatus === 'pending') {
+        if (currentStatus === 'pending' || currentStatus === 'applied_for_verification') {
             if (isCurrentUserAdmin) {
                 return allStatusOptions // Admins can set to any status
             } else if (isCurrentUserModerator) {
-                // MODERATOR RESTRICTION: Moderators can only move pending users to active, rejected, or keep as pending
+                // MODERATOR RESTRICTION: Moderators can only move pending/applied users to active, rejected, or keep as pending
                 return allStatusOptions.filter(option =>
                     option.value === 'active' ||
                     option.value === 'pending' ||
-                    option.value === 'rejected'
+                    option.value === 'rejected' ||
+                    option.value === 'applied_for_verification'
                 )
             }
             return allStatusOptions
@@ -86,6 +88,12 @@ const UserTableColumns = ({
                     bg: 'bg-orange-100',
                     text: 'text-orange-800',
                     border: 'border-orange-200'
+                }
+            case 'applied_for_verification':
+                return {
+                    bg: 'bg-blue-100',
+                    text: 'text-blue-800',
+                    border: 'border-blue-200'
                 }
             default:
                 return {
@@ -141,24 +149,32 @@ const UserTableColumns = ({
         const isCurrentUserAdmin = currentUserRoles?.includes('admin')
         const isCurrentUserModerator = currentUserRoles?.includes('moderator')
 
-        // MODERATOR RESTRICTION: Moderators can only edit pending and rejected users
+        // MODERATOR RESTRICTION: Moderators can only edit pending, rejected, and applied_for_verification users
         const canModifyBasedOnRole = canModifyUser(record) &&
-            (isCurrentUserAdmin || (isCurrentUserModerator && (currentStatus === 'pending' || currentStatus === 'rejected')))
+            (isCurrentUserAdmin || (isCurrentUserModerator && (
+                currentStatus === 'pending' ||
+                currentStatus === 'rejected' ||
+                currentStatus === 'applied_for_verification'
+            )))
 
         const isEditing = editingStatus === record.id
         const styles = getStatusStyles(currentStatus)
         const statusOptions = getStatusOptions(currentStatus) // This now considers user role restrictions
 
-        // Additional check for moderators editing non-pending/non-rejected users
-        if (isCurrentUserModerator && !isCurrentUserAdmin && currentStatus !== 'pending' && currentStatus !== 'rejected') {
+        // Additional check for moderators editing non-pending/non-rejected/non-applied users
+        if (isCurrentUserModerator && !isCurrentUserAdmin &&
+            currentStatus !== 'pending' &&
+            currentStatus !== 'rejected' &&
+            currentStatus !== 'applied_for_verification') {
             return (
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${styles.bg} ${styles.text} ${styles.border}`} style={{ fontFamily: "Figtree, sans-serif" }}>
-                    {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
-                    {(currentStatus === 'pending' || currentStatus === 'rejected') && (
+                    {currentStatus === 'applied_for_verification' ? 'Applied for Verification' :
+                        currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
+                    {(currentStatus === 'pending' || currentStatus === 'rejected' || currentStatus === 'applied_for_verification') && (
                         <span className="ml-1 text-xs">(Unverified)</span>
                     )}
-                    {/* MODERATOR RESTRICTION: Show lock icon for non-pending/non-rejected users when moderator */}
-                    <span className="ml-1 text-xs text-gray-500" title="Moderators can only edit pending and rejected users">
+                    {/* MODERATOR RESTRICTION: Show lock icon for non-pending/non-rejected/non-applied users when moderator */}
+                    <span className="ml-1 text-xs text-gray-500" title="Moderators can only edit pending, rejected, and applied users">
                         🔒
                     </span>
                 </div>
@@ -168,8 +184,9 @@ const UserTableColumns = ({
         if (!canModifyBasedOnRole) {
             return (
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${styles.bg} ${styles.text} ${styles.border}`} style={{ fontFamily: "Figtree, sans-serif" }}>
-                    {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
-                    {(currentStatus === 'pending' || currentStatus === 'rejected') && (
+                    {currentStatus === 'applied_for_verification' ? 'Applied for Verification' :
+                        currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
+                    {(currentStatus === 'pending' || currentStatus === 'rejected' || currentStatus === 'applied_for_verification') && (
                         <span className="ml-1 text-xs">(Unverified)</span>
                     )}
                 </div>
@@ -203,23 +220,28 @@ const UserTableColumns = ({
         return (
             <div className="flex items-center gap-2">
                 <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${styles.bg} ${styles.text} ${styles.border}`}>
-                    {currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
-                    {(currentStatus === 'pending' || currentStatus === 'rejected') && (
+                    {currentStatus === 'applied_for_verification' ? 'Applied for Verification' :
+                        currentStatus?.charAt(0).toUpperCase() + currentStatus?.slice(1)}
+                    {(currentStatus === 'pending' || currentStatus === 'rejected' || currentStatus === 'applied_for_verification') && (
                         <span className="ml-1 text-xs">(Unverified)</span>
                     )}
                 </div>
-                {/* MODERATOR RESTRICTION: Only show edit button for pending and rejected users to moderators */}
-                {(isCurrentUserAdmin || (isCurrentUserModerator && (currentStatus === 'pending' || currentStatus === 'rejected'))) && (
-                    <button
-                        onClick={() => handleStatusEdit(record.id)}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
-                        title="Edit status"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                    </button>
-                )}
+                {/* MODERATOR RESTRICTION: Only show edit button for pending, rejected and applied_for_verification users to moderators */}
+                {(isCurrentUserAdmin || (isCurrentUserModerator && (
+                    currentStatus === 'pending' ||
+                    currentStatus === 'rejected' ||
+                    currentStatus === 'applied_for_verification'
+                ))) && (
+                        <button
+                            onClick={() => handleStatusEdit(record.id)}
+                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                            title="Edit status"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
+                    )}
             </div>
         )
     }

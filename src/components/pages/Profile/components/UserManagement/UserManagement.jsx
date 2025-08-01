@@ -45,6 +45,7 @@ const UserManagement = ({ userData }) => {
         active: 0,
         inactive: 0,
         pending: 0,
+        applied_for_verification: 0,
         rejected: 0,
         moderators: 0
     })
@@ -97,6 +98,8 @@ const UserManagement = ({ userData }) => {
                 return { ...baseParams, status: 'inactive' }
             case 'pending-users':
                 return { ...baseParams, status: 'pending' }
+            case 'applied_for_verification':
+                return { ...baseParams, status: 'applied_for_verification' }
             case 'rejected-users':
                 return { ...baseParams, status: 'rejected' }
             case 'moderators':
@@ -144,6 +147,10 @@ const UserManagement = ({ userData }) => {
         getCountQueryParams('pending'),
         { skip: !permissions.canManageUsers }
     )
+    const { data: appliedForVerificationData } = useGetUsersQuery(
+        getCountQueryParams('applied_for_verification'),
+        { skip: !permissions.canManageUsers }
+    )
     const { data: rejectedUsersData } = useGetUsersQuery(
         getCountQueryParams('rejected'),
         { skip: !permissions.canManageUsers }
@@ -160,10 +167,11 @@ const UserManagement = ({ userData }) => {
             active: activeUsersData?.totalItems || 0,
             inactive: inactiveUsersData?.totalItems || 0,
             pending: pendingUsersData?.totalItems || 0,
+            applied_for_verification: appliedForVerificationData?.totalItems || 0,
             rejected: rejectedUsersData?.totalItems || 0,
             moderators: moderatorsData?.totalItems || 0
         })
-    }, [allUsersData, activeUsersData, inactiveUsersData, pendingUsersData, rejectedUsersData, moderatorsData])
+    }, [allUsersData, activeUsersData, inactiveUsersData, pendingUsersData, appliedForVerificationData, rejectedUsersData, moderatorsData])
 
     // Extract users and pagination from API response
     const users = data?.users || []
@@ -196,8 +204,8 @@ const UserManagement = ({ userData }) => {
 
             // MODERATOR RESTRICTION: Moderators can only edit pending users
             if (isCurrentUserModerator && !isCurrentUserAdmin) {
-                if (currentUserStatus !== 'pending' || currentUserStatus !== 'rejected') {
-                    ToastMessage.notifyWarning('Moderators can only edit pending or rejected users. Once a user is active or inactive, only admins can modify their status.')
+                if (currentUserStatus !== 'pending' || currentUserStatus !== 'applied_for_verification' || currentUserStatus !== 'rejected') {
+                    ToastMessage.notifyWarning('Moderators can only edit pending, ongoing or rejected users. Once a user is active or inactive, only admins can modify their status.')
                     return
                 }
 
@@ -331,7 +339,7 @@ const UserManagement = ({ userData }) => {
 
         // MODERATOR RESTRICTION: Moderators can only modify regular users who are pending
         if (isCurrentUserModerator) {
-            return !isTargetAdmin && !isTargetModerator && (targetUserStatus === 'pending' || targetUserStatus === 'rejected')
+            return !isTargetAdmin && !isTargetModerator && (targetUserStatus === 'pending' || targetUserStatus === 'applied_for_verification' || targetUserStatus === 'rejected')
         }
 
         return false
@@ -381,6 +389,10 @@ const UserManagement = ({ userData }) => {
         {
             key: 'pending-users',
             label: `Pending (${tabCounts.pending})`,
+        },
+        {
+            key: 'applied_for_verification',
+            label: `Applied for Verification (${tabCounts.applied_for_verification})`,
         },
         {
             key: 'rejected-users',
