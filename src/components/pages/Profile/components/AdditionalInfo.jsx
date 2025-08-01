@@ -1050,21 +1050,21 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                     <div className="grid md:grid-cols-3 gap-4">
                         <div>
                             <span className="text-sm text-gray-600">LinkedIn:</span>
-                            <div className="text-blue-600 truncate">
+                            <a href={showValue(additionalInfo.socialMedia?.linkedin)} target='_blank' className="text-blue-600 truncate block cursor-pointer">
                                 {showValue(additionalInfo.socialMedia?.linkedin)}
-                            </div>
+                            </a>
                         </div>
                         <div>
                             <span className="text-sm text-gray-600">Twitter:</span>
-                            <div className="text-blue-600 truncate">
+                            <a href={showValue(additionalInfo.socialMedia?.twitter)} target='_blank' className="text-blue-600 truncate block cursor-pointer">
                                 {showValue(additionalInfo.socialMedia?.twitter)}
-                            </div>
+                            </a>
                         </div>
                         <div>
                             <span className="text-sm text-gray-600">Facebook:</span>
-                            <div className="text-blue-600 truncate">
+                            <a href={showValue(additionalInfo.socialMedia?.facebook)} target='_blank' className="text-blue-600 truncate block cursor-pointer">
                                 {showValue(additionalInfo.socialMedia?.facebook)}
-                            </div>
+                            </a>
                         </div>
                     </div>
                 </div>

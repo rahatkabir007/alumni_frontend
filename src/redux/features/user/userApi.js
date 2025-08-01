@@ -101,6 +101,15 @@ export const userApi = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['User'],
         }),
+
+        applyForVerification: builder.mutation({
+            query: ({ userId, verificationData }) => ({
+                url: `/users/${userId}/verification`,
+                method: 'POST',
+                body: verificationData,
+            }),
+            invalidatesTags: ['User'],
+        }),
     }),
 })
 
@@ -114,4 +123,5 @@ export const {
     useRemoveRoleMutation,
     useDeleteUserMutation,
     useChangePasswordMutation,
+    useApplyForVerificationMutation,
 } = userApi

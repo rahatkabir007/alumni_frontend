@@ -139,7 +139,7 @@ const AppWrapper = ({ children }) => {
             }
         }
     };
-    console.log(user);
+
     return (
         <div className="min-h-screen flex flex-col">
             {shouldShowNavigation && (
@@ -156,7 +156,9 @@ const AppWrapper = ({ children }) => {
             </main>
 
             {shouldShowNavigation && <Footer />}
-            {isAuthenticated && user?.status === 'pending' && <FloatingVerificationNotice />}
+
+            {/* Only show FloatingVerificationNotice if conditions are met */}
+            <FloatingVerificationNotice />
         </div>
     );
 };
