@@ -34,17 +34,56 @@ const UserTableColumns = ({
         const isCurrentUserAdmin = currentUserRoles?.includes('admin')
         const isCurrentUserModerator = currentUserRoles?.includes('moderator')
 
+        // Status-specific transitions based on user's current status
+        if (currentStatus === 'applied_for_verification') {
+            // For applied_for_verification users: show active, inactive, rejected (no pending)
+            if (isCurrentUserAdmin) {
+                return allStatusOptions.filter(option =>
+                    option.value === 'active' ||
+                    option.value === 'inactive' ||
+                    option.value === 'rejected'
+                )
+            } else if (isCurrentUserModerator) {
+                // MODERATOR RESTRICTION: Moderators can only approve (active) or reject
+                return allStatusOptions.filter(option =>
+                    option.value === 'active' ||
+                    option.value === 'rejected'
+                )
+            }
+            return allStatusOptions.filter(option =>
+                option.value === 'active' ||
+                option.value === 'inactive' ||
+                option.value === 'rejected'
+            )
+        }
+
+        if (currentStatus === 'rejected') {
+            // For rejected users: show only active and inactive
+            if (isCurrentUserAdmin) {
+                return allStatusOptions.filter(option =>
+                    option.value === 'active' ||
+                    option.value === 'inactive'
+                )
+            } else if (isCurrentUserModerator) {
+                // MODERATOR RESTRICTION: Moderators can only activate rejected users
+                return allStatusOptions.filter(option => option.value === 'active')
+            }
+            return allStatusOptions.filter(option =>
+                option.value === 'active' ||
+                option.value === 'inactive'
+            )
+        }
+
         // MODERATOR RESTRICTION: Only pending users can be edited by moderators, and only to active or rejected
-        if (currentStatus === 'pending' || currentStatus === 'applied_for_verification') {
+        if (currentStatus === 'pending') {
             if (isCurrentUserAdmin) {
                 return allStatusOptions // Admins can set to any status
             } else if (isCurrentUserModerator) {
-                // MODERATOR RESTRICTION: Moderators can only move pending/applied users to active, rejected, or keep as pending
+                // MODERATOR RESTRICTION: Moderators can only move pending users to active, rejected, or keep as pending
                 return allStatusOptions.filter(option =>
                     option.value === 'active' ||
                     option.value === 'pending' ||
-                    option.value === 'rejected' ||
-                    option.value === 'applied_for_verification'
+                    option.value === 'rejected'
                 )
             }
             return allStatusOptions
@@ -60,7 +99,10 @@ const UserTableColumns = ({
         }
 
         // Default: If user is verified (active or inactive), only show active and inactive
-        return allStatusOptions.filter(option => option.value !== 'pending')
+        return allStatusOptions.filter(option =>
+            option.value === 'active' ||
+            option.value === 'inactive'
+        )
     }
 
     const getStatusStyles = (status) => {

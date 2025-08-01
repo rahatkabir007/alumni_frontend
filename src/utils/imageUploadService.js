@@ -1,13 +1,13 @@
 class ImageUploadService {
     constructor() {
         this.providers = [
-            {
-                name: 'ImgBB',
-                upload: this.uploadToImgBB.bind(this),
-                apiKey: process.env.NEXT_PUBLIC_IMGBB_API_KEY,
-                maxSize: 32 * 1024 * 1024, // 32MB
-                enabled: !!process.env.NEXT_PUBLIC_IMGBB_API_KEY
-            },
+            // {
+            //     name: 'ImgBB',
+            //     upload: this.uploadToImgBB.bind(this),
+            //     apiKey: process.env.NEXT_PUBLIC_IMGBB_API_KEY,
+            //     maxSize: 32 * 1024 * 1024, // 32MB
+            //     enabled: !!process.env.NEXT_PUBLIC_IMGBB_API_KEY
+            // },
             {
                 name: 'Cloudinary',
                 upload: this.uploadToCloudinary.bind(this),
@@ -15,13 +15,20 @@ class ImageUploadService {
                 maxSize: 10 * 1024 * 1024, // 10MB for free tier
                 enabled: !!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
             },
-            {
-                name: 'PostImages',
-                upload: this.uploadToPostImages.bind(this),
-                apiKey: null, // No API key required
-                maxSize: 24 * 1024 * 1024, // 24MB
-                enabled: true
-            }
+            // {
+            //     name: 'PostImages',
+            //     upload: this.uploadToPostImages.bind(this),
+            //     apiKey: null, // No API key required
+            //     maxSize: 24 * 1024 * 1024, // 24MB
+            //     enabled: true
+            // },
+            // {
+            //     name: 'ImageKit',
+            //     upload: this.uploadToImageKit.bind(this),
+            //     apiKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY,
+            //     maxSize: 25 * 1024 * 1024, // 25MB
+            //     enabled: !!(process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY && process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT)
+            // }
         ];
 
         // Filter enabled providers
@@ -107,33 +114,33 @@ class ImageUploadService {
     }
 
     // ImgBB Upload
-    async uploadToImgBB(file) {
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('key', process.env.NEXT_PUBLIC_IMGBB_API_KEY);
+    // async uploadToImgBB(file) {
+    //     const formData = new FormData();
+    //     formData.append('image', file);
+    //     formData.append('key', process.env.NEXT_PUBLIC_IMGBB_API_KEY);
 
-        const response = await fetch('https://api.imgbb.com/1/upload', {
-            method: 'POST',
-            body: formData,
-        });
+    //     const response = await fetch('https://api.imgbb.com/1/upload', {
+    //         method: 'POST',
+    //         body: formData,
+    //     });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error?.message || `HTTP ${response.status}`);
-        }
+    //     if (!response.ok) {
+    //         const errorData = await response.json().catch(() => ({}));
+    //         throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+    //     }
 
-        const data = await response.json();
-        return {
-            url: data.data.url,
-            deleteUrl: data.data.delete_url
-        };
-    }
+    //     const data = await response.json();
+    //     return {
+    //         url: data.data.url,
+    //         deleteUrl: data.data.delete_url
+    //     };
+    // }
 
     // Cloudinary Upload
     async uploadToCloudinary(file) {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'alumni_db');
+        formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'unsigned_preset');
 
         const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
         const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
@@ -149,35 +156,59 @@ class ImageUploadService {
         const data = await response.json();
         return {
             url: data.secure_url,
-            deleteUrl: null
+            deleteUrl: null // Cloudinary requires API key for deletion
         };
     }
 
-    // PostImages Upload
-    async uploadToPostImages(file) {
-        const formData = new FormData();
-        formData.append('upload', file);
+    // // PostImages Upload
+    // async uploadToPostImages(file) {
+    //     const formData = new FormData();
+    //     formData.append('upload', file);
 
-        const response = await fetch('https://postimages.org/json/rr', {
-            method: 'POST',
-            body: formData,
-        });
+    //     const response = await fetch('https://postimages.org/json/rr', {
+    //         method: 'POST',
+    //         body: formData,
+    //     });
 
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
+    //     if (!response.ok) {
+    //         throw new Error(`HTTP ${response.status}`);
+    //     }
 
-        const data = await response.json();
+    //     const data = await response.json();
 
-        if (data.status !== 'OK' || !data.url) {
-            throw new Error(data.error || 'Upload failed');
-        }
+    //     if (!data.status === 'OK' || !data.url) {
+    //         throw new Error(data.error || 'Upload failed');
+    //     }
 
-        return {
-            url: data.url,
-            deleteUrl: null
-        };
-    }
+    //     return {
+    //         url: data.url,
+    //         deleteUrl: null
+    //     };
+    // }
+
+    // // ImageKit Upload
+    // async uploadToImageKit(file) {
+    //     const formData = new FormData();
+    //     formData.append('file', file);
+    //     formData.append('fileName', file.name);
+    //     formData.append('publicKey', process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY);
+
+    //     const response = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+    //         method: 'POST',
+    //         body: formData,
+    //     });
+
+    //     if (!response.ok) {
+    //         const errorData = await response.json().catch(() => ({}));
+    //         throw new Error(errorData.message || `HTTP ${response.status}`);
+    //     }
+
+    //     const data = await response.json();
+    //     return {
+    //         url: data.url,
+    //         deleteUrl: null
+    //     };
+    // }
 
     // Get provider status
     getProviderStatus() {
@@ -189,3 +220,7 @@ class ImageUploadService {
         }));
     }
 }
+
+// Export singleton instance
+export const imageUploadService = new ImageUploadService();
+export default imageUploadService;
