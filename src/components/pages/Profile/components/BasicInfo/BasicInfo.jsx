@@ -149,7 +149,7 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
                 isOpen={isPasswordModalOpen}
                 onClose={() => setIsPasswordModalOpen(false)}
                 onSubmit={handlePasswordChange}
-                isLoading={false} // TODO: Add password change loading state
+                isLoading={isChangingPassword}
             />
         </div>
     )
