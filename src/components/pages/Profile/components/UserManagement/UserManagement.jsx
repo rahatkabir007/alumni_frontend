@@ -45,6 +45,7 @@ const UserManagement = ({ userData }) => {
         active: 0,
         inactive: 0,
         pending: 0,
+        rejected: 0,
         moderators: 0
     })
 
@@ -96,6 +97,8 @@ const UserManagement = ({ userData }) => {
                 return { ...baseParams, status: 'inactive' }
             case 'pending-users':
                 return { ...baseParams, status: 'pending' }
+            case 'rejected-users':
+                return { ...baseParams, status: 'rejected' }
             case 'moderators':
                 return { ...baseParams, role: 'moderator' }
             default:
@@ -141,6 +144,10 @@ const UserManagement = ({ userData }) => {
         getCountQueryParams('pending'),
         { skip: !permissions.canManageUsers }
     )
+    const { data: rejectedUsersData } = useGetUsersQuery(
+        getCountQueryParams('rejected'),
+        { skip: !permissions.canManageUsers }
+    )
     const { data: moderatorsData } = useGetUsersQuery(
         getCountQueryParams('all', 'moderator'),
         { skip: !permissions.canManageUsers }
@@ -153,9 +160,10 @@ const UserManagement = ({ userData }) => {
             active: activeUsersData?.totalItems || 0,
             inactive: inactiveUsersData?.totalItems || 0,
             pending: pendingUsersData?.totalItems || 0,
+            rejected: rejectedUsersData?.totalItems || 0,
             moderators: moderatorsData?.totalItems || 0
         })
-    }, [allUsersData, activeUsersData, inactiveUsersData, pendingUsersData, moderatorsData])
+    }, [allUsersData, activeUsersData, inactiveUsersData, pendingUsersData, rejectedUsersData, moderatorsData])
 
     // Extract users and pagination from API response
     const users = data?.users || []
@@ -188,8 +196,8 @@ const UserManagement = ({ userData }) => {
 
             // MODERATOR RESTRICTION: Moderators can only edit pending users
             if (isCurrentUserModerator && !isCurrentUserAdmin) {
-                if (currentUserStatus !== 'pending') {
-                    ToastMessage.notifyWarning('Moderators can only edit pending users. Once a user is active or inactive, only admins can modify their status.')
+                if (currentUserStatus !== 'pending' || currentUserStatus !== 'rejected') {
+                    ToastMessage.notifyWarning('Moderators can only edit pending or rejected users. Once a user is active or inactive, only admins can modify their status.')
                     return
                 }
 
@@ -303,13 +311,13 @@ const UserManagement = ({ userData }) => {
     }
 
     // Helper functions
-    const isAdminUser = (user) => user.roles?.includes('admin')
     const canModifyUser = (targetUser) => {
         const isCurrentUserAdmin = userData.roles?.includes('admin')
         const isCurrentUserModerator = userData.roles?.includes('moderator')
         const isTargetAdmin = targetUser.roles?.includes('admin')
         const isTargetModerator = targetUser.roles?.includes('moderator')
         const targetUserStatus = targetUser.status || 'pending'
+
 
         // MODERATOR RESTRICTION: Moderators should never see admin users (this is a safety check)
         if (isCurrentUserModerator && !isCurrentUserAdmin && isTargetAdmin) {
@@ -323,7 +331,7 @@ const UserManagement = ({ userData }) => {
 
         // MODERATOR RESTRICTION: Moderators can only modify regular users who are pending
         if (isCurrentUserModerator) {
-            return !isTargetAdmin && !isTargetModerator && targetUserStatus === 'pending'
+            return !isTargetAdmin && !isTargetModerator && (targetUserStatus === 'pending' || targetUserStatus === 'rejected')
         }
 
         return false
@@ -373,6 +381,10 @@ const UserManagement = ({ userData }) => {
         {
             key: 'pending-users',
             label: `Pending (${tabCounts.pending})`,
+        },
+        {
+            key: 'rejected-users',
+            label: `Rejected (${tabCounts.rejected})`,
         },
         {
             key: 'moderators',

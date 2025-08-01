@@ -97,9 +97,9 @@ const FloatingVerificationNotice = () => {
                             onClick={() => setIsVerificationModalOpen(true)}
                             className={`${noticeContent.textColor} underline ${noticeContent.buttonHoverColor} font-semibold transition-colors cursor-pointer`}
                             disabled={isApplyingForVerification}
-                        ></button>
-                        {isApplyingForVerification ? 'Processing...' : noticeContent.buttonText}
-                        to access all features <br /> and appear in the alumni list.
+                        >{isApplyingForVerification ? 'Processing...' : noticeContent.buttonText}</button>
+
+                        {" "}to access all features <br /> and appear in the alumni list.
                     </span>
                 </div>
             </div >
