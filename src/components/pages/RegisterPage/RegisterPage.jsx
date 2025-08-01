@@ -1,6 +1,4 @@
 "use client"
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,66 +6,85 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useRegisterMutation } from '@/redux/features/auth/authApi';
 import { selectIsAuthenticated } from '@/redux/features/auth/authSlice';
-import InputComponent1 from '@/components/common/InputComponent1';
-import PasswordInputComponent1 from '@/components/common/PasswordInputComponent1';
-import SelectComponent1 from '@/components/common/SelectComponent1';
 import { handleApiError, handleApiSuccess } from '@/utils/errorHandler';
+import RegistrationStep1 from './components/RegistrationStep1';
+import RegistrationStep2 from './components/RegistrationStep2';
 
-const RegisterSchema = Yup.object().shape({
-    name: Yup.string()
-        .min(2, 'Name must be at least 2 characters')
-        .max(50, 'Name must be less than 50 characters')
-        .required('Name is required'),
-    email: Yup.string()
-        .email('Invalid email address')
-        .required('Email is required'),
-    alumni_type: Yup.string()
-        .oneOf(['student', 'teacher', 'management'], 'Please select a valid alumni type')
-        .required('Alumni type is required'),
-    password: Yup.string()
-        .min(8, 'Password must be at least 8 characters')
-        .matches(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-            'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-        )
-        .required('Password is required'),
-    confirmPassword: Yup.string()
-        .oneOf([Yup.ref('password'), null], 'Passwords must match')
-        .required('Please confirm your password'),
-});
+// Alumni SVG Component
+const AlumniSVG = () => (
+    <svg viewBox="0 0 400 300" className="w-full h-full text-blue-600">
+        <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#3B82F6" />
+                <stop offset="100%" stopColor="#1E40AF" />
+            </linearGradient>
+        </defs>
 
-// Alumni type options
-const alumniTypeOptions = [
-    { value: 'student', label: 'Student' },
-    { value: 'teacher', label: 'Teacher' },
-    { value: 'management', label: 'Management' }
-];
+        {/* Building */}
+        <rect x="100" y="120" width="200" height="120" fill="url(#grad1)" rx="8" />
+        <rect x="120" y="140" width="30" height="40" fill="#E5E7EB" />
+        <rect x="170" y="140" width="30" height="40" fill="#E5E7EB" />
+        <rect x="220" y="140" width="30" height="40" fill="#E5E7EB" />
+        <rect x="270" y="140" width="30" height="40" fill="#E5E7EB" />
+
+        {/* Roof */}
+        <polygon points="80,120 200,80 320,120" fill="#1F2937" />
+
+        {/* Flag */}
+        <rect x="195" y="60" width="10" height="40" fill="#374151" />
+        <polygon points="205,65 205,85 240,75" fill="#EF4444" />
+
+        {/* People/Graduates */}
+        <circle cx="150" cy="200" r="8" fill="#FDE68A" />
+        <rect x="145" y="208" width="10" height="20" fill="#3B82F6" />
+        <polygon points="140,208 160,208 150,200" fill="#1F2937" />
+
+        <circle cx="200" cy="200" r="8" fill="#FDE68A" />
+        <rect x="195" y="208" width="10" height="20" fill="#3B82F6" />
+        <polygon points="190,208 210,208 200,200" fill="#1F2937" />
+
+        <circle cx="250" cy="200" r="8" fill="#FDE68A" />
+        <rect x="245" y="208" width="10" height="20" fill="#3B82F6" />
+        <polygon points="240,208 260,208 250,200" fill="#1F2937" />
+
+        {/* Books */}
+        <rect x="50" y="220" width="8" height="15" fill="#EF4444" transform="rotate(-10 54 227)" />
+        <rect x="60" y="218" width="8" height="15" fill="#10B981" transform="rotate(-5 64 225)" />
+        <rect x="70" y="220" width="8" height="15" fill="#F59E0B" transform="rotate(5 74 227)" />
+    </svg>
+);
 
 export default function RegisterPage() {
     const router = useRouter();
     const dispatch = useDispatch();
     const [submitError, setSubmitError] = useState(null);
+    const [currentStep, setCurrentStep] = useState(1);
+    const [formData, setFormData] = useState({});
 
     const [register, { isLoading }] = useRegisterMutation();
     const isAuthenticated = useSelector(selectIsAuthenticated);
 
-    // Redirect if already authenticated
     useEffect(() => {
         if (isAuthenticated) {
             router.push('/');
         }
     }, [isAuthenticated, router]);
 
-    const handleSubmit = async (values, { setSubmitting }) => {
+    const handleStep1Submit = (values) => {
+        setFormData(values);
+        setCurrentStep(2);
+    };
+
+    const handleStep2Submit = async (values, { setSubmitting }) => {
         setSubmitError(null);
 
         try {
-            const result = await register({
-                name: values.name,
-                email: values.email,
-                alumni_type: values.alumni_type,
+            const finalData = {
+                ...formData,
                 password: values.password,
-            }).unwrap();
+            };
+
+            const result = await register(finalData).unwrap();
 
             if (result.success) {
                 handleApiSuccess(result, 'Account created successfully! Please login.');
@@ -85,201 +102,102 @@ export default function RegisterPage() {
         }
     };
 
+    const goBackToStep1 = () => {
+        setCurrentStep(1);
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-            {/* Background floating elements */}
-            <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-white opacity-5 rounded-full"></div>
-                <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-white opacity-3 rounded-full"></div>
-                <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-white opacity-5 rounded-full"></div>
-                <div className="absolute bottom-1/3 left-1/4 w-24 h-24 bg-white opacity-3 rounded-full"></div>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex">
+            {/* Left Side - SVG */}
+            <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12">
+                <div className="max-w-md w-full">
+                    <motion.div
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        <AlumniSVG />
+                        <div className="text-center mt-8">
+                            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                                Join Our Alumni Network
+                            </h3>
+                            <p className="text-gray-600 leading-relaxed">
+                                Connect with fellow graduates, share experiences, and build lasting relationships
+                                with the CIHS community.
+                            </p>
+                        </div>
+                    </motion.div>
+                </div>
             </div>
 
-            <div className="max-w-md w-full space-y-8 relative z-10">
-                {/* Back to Home Button */}
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="flex justify-start"
-                >
-                    <button
-                        onClick={() => router.push('/')}
-                        className="flex items-center text-gray-300 hover:text-white text-sm font-medium transition-colors group"
+            {/* Right Side - Form */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+                <div className="max-w-md w-full space-y-8">
+                    {/* Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-center"
                     >
-                        <svg className="w-4 h-4 mr-2 group-hover:transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                        Back to Home
-                    </button>
-                </motion.div>
+                        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                            Create Account
+                        </h2>
+                        <p className="text-gray-600 mb-4">
+                            Step {currentStep} of 2 - {currentStep === 1 ? 'Basic Information' : 'Security Setup'}
+                        </p>
 
-                {/* Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-center"
-                >
-                    <h2 className="text-4xl font-bold text-white mb-2">
-                        Join CIHS Alumni
-                    </h2>
-                    <p className="text-gray-400 mb-4">Create your alumni network account</p>
-                    <p className="text-sm text-gray-500">
-                        Already have an account?{' '}
-                        <Link href="/login" className="text-white font-semibold hover:text-gray-300 transition-colors">
-                            Sign in here
-                        </Link>
-                    </p>
-                </motion.div>
+                        {/* Progress Bar */}
+                        <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
+                            <div
+                                className="bg-black h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${(currentStep / 2) * 100}%` }}
+                            ></div>
+                        </div>
 
-                <Formik
-                    initialValues={{
-                        name: '',
-                        email: '',
-                        alumni_type: '',
-                        password: '',
-                        confirmPassword: '',
-                    }}
-                    validationSchema={RegisterSchema}
-                    onSubmit={handleSubmit}
-                >
-                    {({ isSubmitting, isValid, values, submitCount }) => {
-                        // Check if all required fields are filled
-                        const isFormValid = values.name.trim() &&
-                            values.email.trim() &&
-                            values.alumni_type.trim() &&
-                            values.password.trim() &&
-                            values.confirmPassword.trim() &&
-                            isValid;
+                        <p className="text-sm text-gray-500">
+                            Already have an account?{' '}
+                            <Link href="/login" className="text-black font-semibold hover:text-gray-700 transition-colors">
+                                Sign in here
+                            </Link>
+                        </p>
+                    </motion.div>
 
-                        return (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4 }}
-                            >
-                                <Form className="space-y-6">
-                                    {submitError && (
-                                        <motion.div
-                                            initial={{ opacity: 0, scale: 0.95 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            className="bg-red-900/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg backdrop-blur-sm"
-                                        >
-                                            {submitError}
-                                        </motion.div>
-                                    )}
+                    {/* Step Components */}
+                    {currentStep === 1 && (
+                        <RegistrationStep1
+                            formData={formData}
+                            onNext={handleStep1Submit}
+                        />
+                    )}
 
-                                    <div className="space-y-4">
-                                        <InputComponent1
-                                            name="name"
-                                            type="text"
-                                            label="Full Name"
-                                            placeholder="Enter your full name"
-                                            required
-                                            useFormik={true}
-                                            labelClassName="text-gray-300"
-                                            backgroundColor="bg-white/10"
-                                            borderColor="border-gray-600"
-                                            textColor="text-white"
-                                            placeholderColor="placeholder-gray-400"
-                                            focusBorderColor="focus:border-white/30"
-                                            focusRingColor="focus:ring-white/20"
-                                            errorClassName="text-red-300"
-                                        />
+                    {currentStep === 2 && (
+                        <RegistrationStep2
+                            onSubmit={handleStep2Submit}
+                            onBack={goBackToStep1}
+                            isLoading={isLoading}
+                            submitError={submitError}
+                        />
+                    )}
 
-                                        <InputComponent1
-                                            name="email"
-                                            type="email"
-                                            label="Email Address"
-                                            placeholder="Enter your email address"
-                                            required
-                                            useFormik={true}
-                                            labelClassName="text-gray-300"
-                                            backgroundColor="bg-white/10"
-                                            borderColor="border-gray-600"
-                                            textColor="text-white"
-                                            placeholderColor="placeholder-gray-400"
-                                            focusBorderColor="focus:border-white/30"
-                                            focusRingColor="focus:ring-white/20"
-                                            errorClassName="text-red-300"
-                                        />
-
-                                        <SelectComponent1
-                                            name="alumni_type"
-                                            label="Alumni Type"
-                                            placeholder="Select your alumni type"
-                                            options={alumniTypeOptions}
-                                            required
-                                            useFormik={true}
-                                            labelClassName="text-gray-300"
-                                            backgroundColor="bg-white/10"
-                                            borderColor="border-gray-600"
-                                            textColor="text-white"
-                                            placeholderColor="text-gray-400"
-                                            focusBorderColor="focus:border-white/30"
-                                            focusRingColor="focus:ring-white/20"
-                                            errorClassName="text-red-300"
-                                        />
-
-                                        <PasswordInputComponent1
-                                            name="password"
-                                            label="Password"
-                                            placeholder="Create a strong password"
-                                            required
-                                            useFormik={true}
-                                            labelClassName="text-gray-300"
-                                            backgroundColor="bg-white/10"
-                                            borderColor="border-gray-600"
-                                            textColor="text-white"
-                                            placeholderColor="placeholder-gray-400"
-                                            focusBorderColor="focus:border-white/30"
-                                            focusRingColor="focus:ring-white/20"
-                                            iconColor="text-gray-400"
-                                            iconHoverColor="hover:text-white"
-                                            errorClassName="text-red-300"
-                                        />
-
-                                        <PasswordInputComponent1
-                                            name="confirmPassword"
-                                            label="Confirm Password"
-                                            placeholder="Confirm your password"
-                                            required
-                                            useFormik={true}
-                                            labelClassName="text-gray-300"
-                                            backgroundColor="bg-white/10"
-                                            borderColor="border-gray-600"
-                                            textColor="text-white"
-                                            placeholderColor="placeholder-gray-400"
-                                            focusBorderColor="focus:border-white/30"
-                                            focusRingColor="focus:ring-white/20"
-                                            iconColor="text-gray-400"
-                                            iconHoverColor="hover:text-white"
-                                            errorClassName="text-red-300"
-                                        />
-                                    </div>
-
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        type="submit"
-                                        disabled={isLoading}
-                                        className="w-full bg-white text-black py-3 px-4 rounded-lg font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform cursor-pointer"
-                                    >
-                                        {isLoading ? (
-                                            <div className="flex items-center justify-center">
-                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
-                                                Creating Account...
-                                            </div>
-                                        ) : (
-                                            'Create Account'
-                                        )}
-                                    </motion.button>
-                                </Form>
-                            </motion.div>
-                        )
-                    }}
-                </Formik>
+                    {/* Back to Home */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                        className="text-center"
+                    >
+                        <button
+                            onClick={() => router.push('/')}
+                            className="flex items-center text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors mx-auto"
+                        >
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Back to Home
+                        </button>
+                    </motion.div>
+                </div>
             </div>
         </div>
     );
