@@ -57,11 +57,14 @@ export default function RequiredInfo({ user }) {
 
     const handleSubmit = async (values, { setSubmitting }) => {
         try {
+            console.log(values)
+
+            // return
             const response = await completeProfile({
                 ...values,
                 userId: user.id,
-                graduation_year: values.isGraduated ? values.graduationYear : null,
-                left_at: values.isGraduated ? null : values.leftAt,
+                graduation_year: values.isGraduated ? values.graduation_year : null,
+                left_at: values.isGraduated ? null : values.left_at,
             }).unwrap();
 
             if (response.success) {
@@ -180,10 +183,8 @@ export default function RequiredInfo({ user }) {
                                         joinedYear: '',
                                         batch: '',
                                         isGraduated: true,
-                                        graduationYear: '',
-                                        leftAt: '',
-                                        password: '',
-                                        confirmPassword: '',
+                                        graduation_year: null,
+                                        left_at: null,
                                     }}
                                     validationSchema={RequiredInfoSchema}
                                     onSubmit={handleSubmit}
@@ -198,7 +199,7 @@ export default function RequiredInfo({ user }) {
                                                         name="name"
                                                         type="text"
                                                         label="Full Name"
-                                                        disabled
+                                                        // disabled
                                                         value={user?.name || ''}
                                                         backgroundColor="bg-gray-50"
                                                         borderColor="border-gray-200"
@@ -362,7 +363,7 @@ export default function RequiredInfo({ user }) {
                                                         {/* Conditional Year Fields */}
                                                         {values.isGraduated ? (
                                                             <InputComponent1
-                                                                name="graduationYear"
+                                                                name="graduation_year"
                                                                 type="number"
                                                                 label="Graduation Year"
                                                                 placeholder="Year you graduated"
@@ -376,7 +377,7 @@ export default function RequiredInfo({ user }) {
                                                             />
                                                         ) : (
                                                             <InputComponent1
-                                                                name="leftAt"
+                                                                name="left_at"
                                                                 type="number"
                                                                 label="Year Left School"
                                                                 placeholder="Year you left school"

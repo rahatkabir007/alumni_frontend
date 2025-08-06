@@ -104,8 +104,8 @@ const BasicInfoDisplay = ({ userData }) => {
                         </label>
                         <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-lg border border-transparent">
                             {userData.isGraduated
-                                ? (userData.graduationYear || userData.graduation_year || 'Not provided')
-                                : (userData.leftAt || userData.left_at || 'Not provided')
+                                ? (userData.graduation_year || userData.graduation_year || 'Not provided')
+                                : (userData.left_at || userData.left_at || 'Not provided')
                             }
                         </p>
                     </div>

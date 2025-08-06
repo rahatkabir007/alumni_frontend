@@ -8,6 +8,7 @@ import { setCredentials } from '@/redux/features/auth/authSlice'
 
 const AccountInfo = ({ userData, onUpdate }) => {
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false)
+    const [isViewingVerification, setIsViewingVerification] = useState(false)
     const [applyForVerification, { isLoading: isApplyingForVerification }] = useApplyForVerificationMutation()
 
     const dispatch = useDispatch()
@@ -21,7 +22,7 @@ const AccountInfo = ({ userData, onUpdate }) => {
 
             const successMessage = userData.status === 'rejected'
                 ? 'Verification reapplication submitted successfully!'
-                : 'Verification application submitted successfully!';
+                : 'Verification application submitted successfully!'
 
             ToastMessage.notifySuccess(successMessage)
             resetForm()
@@ -55,19 +56,46 @@ const AccountInfo = ({ userData, onUpdate }) => {
 
     const getVerificationStatus = () => {
         if (userData.status === 'active') {
-            return { text: 'Verified', color: 'text-green-600', showButton: false }
+            return { text: 'Verified', color: 'text-green-600', showButton: false, showViewButton: false }
         } else if (userData.status === 'applied_for_verification') {
-            return { text: 'Verification Application Submitted', color: 'text-blue-600', showButton: false }
+            return {
+                text: 'Verification Application Submitted',
+                color: 'text-blue-600',
+                showButton: false,
+                showViewButton: hasVerificationFields
+            }
         } else if (userData.status === 'rejected' && !hasVerificationFields) {
-            return { text: 'Verification Rejected', color: 'text-red-600', showButton: true, buttonText: 'Reapply for Verification' }
+            return {
+                text: 'Verification Rejected',
+                color: 'text-red-600',
+                showButton: true,
+                buttonText: 'Reapply for Verification',
+                showViewButton: false
+            }
         } else if (userData.status === 'rejected' && hasVerificationFields) {
-            return { text: 'Reapplication Pending', color: 'text-yellow-600', showButton: false }
+            return {
+                text: 'Reapplication Pending',
+                color: 'text-yellow-600',
+                showButton: false,
+                showViewButton: true
+            }
         } else if (userData.status === 'pending' && hasVerificationFields) {
-            return { text: 'Waiting for Verification', color: 'text-yellow-600', showButton: false }
+            return {
+                text: 'Waiting for Verification',
+                color: 'text-yellow-600',
+                showButton: false,
+                showViewButton: true
+            }
         } else if (userData.status === 'pending') {
-            return { text: 'Not Verified', color: 'text-yellow-600', showButton: true, buttonText: 'Apply for Verification' }
+            return {
+                text: 'Not Verified',
+                color: 'text-yellow-600',
+                showButton: true,
+                buttonText: 'Apply for Verification',
+                showViewButton: false
+            }
         } else {
-            return { text: 'Inactive', color: 'text-red-600', showButton: false }
+            return { text: 'Inactive', color: 'text-red-600', showButton: false, showViewButton: false }
         }
     }
 
@@ -86,19 +114,39 @@ const AccountInfo = ({ userData, onUpdate }) => {
                         <span className="text-gray-500">Account Status:</span>
                         <span className={`ml-2 ${verificationStatus.color}`}>
                             {verificationStatus.text}
-                            {verificationStatus.showButton && (
-                                <button
-                                    onClick={() => setIsVerificationModalOpen(true)}
-                                    className={`ml-2 px-3 py-1 text-white text-xs rounded transition ${userData.status === 'rejected'
-                                        ? 'bg-red-500 hover:bg-red-600'
-                                        : 'bg-yellow-500 hover:bg-yellow-600'
-                                        }`}
-                                    type="button"
-                                    disabled={isApplyingForVerification}
-                                >
-                                    {isApplyingForVerification ? 'Processing...' : verificationStatus.buttonText}
-                                </button>
-                            )}
+
+                            {/* Action Buttons Container */}
+                            <div className="inline-flex items-center gap-2 ml-2">
+                                {/* Apply/Reapply Button */}
+                                {verificationStatus.showButton && (
+                                    <button
+                                        onClick={() => setIsVerificationModalOpen(true)}
+                                        className={`px-3 py-1 text-white text-xs rounded transition ${userData.status === 'rejected'
+                                            ? 'bg-red-500 hover:bg-red-600'
+                                            : 'bg-yellow-500 hover:bg-yellow-600'
+                                            }`}
+                                        type="button"
+                                        disabled={isApplyingForVerification}
+                                    >
+                                        {isApplyingForVerification ? 'Processing...' : verificationStatus.buttonText}
+                                    </button>
+                                )}
+
+                                {/* View Verification Details Button */}
+                                {verificationStatus.showViewButton && (
+                                    <button
+                                        onClick={() => setIsViewingVerification(true)}
+                                        className="px-2 py-1 text-blue-600 hover:text-blue-800 transition-colors"
+                                        type="button"
+                                        title="View verification details"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </button>
+                                )}
+                            </div>
                         </span>
                     </div>
                     <div>
@@ -155,12 +203,22 @@ const AccountInfo = ({ userData, onUpdate }) => {
                 </div>
             </div>
 
-            {/* Verification Modal */}
+            {/* Apply/Reapply Verification Modal */}
             <VerificationModal
                 isOpen={isVerificationModalOpen}
                 onClose={() => setIsVerificationModalOpen(false)}
                 onSubmit={handleVerificationSubmit}
                 isLoading={isApplyingForVerification}
+                viewMode={false}
+            />
+
+            {/* View Verification Details Modal */}
+            <VerificationModal
+                isOpen={isViewingVerification}
+                onClose={() => setIsViewingVerification(false)}
+                viewMode={true}
+                existingData={userData}
+                title="My Verification Details"
             />
         </>
     )

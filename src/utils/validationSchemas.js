@@ -70,13 +70,13 @@ export const validationRules = {
         .nullable()
         .transform((value, originalValue) => originalValue === '' ? null : value),
 
-    graduationYear: Yup.number()
+    graduation_year: Yup.number()
         .min(1998, 'Graduation year must be after 1998')
         .max(new Date().getFullYear() + 10, `Graduation year cannot exceed ${new Date().getFullYear() + 10}`)
         .nullable()
         .transform((value, originalValue) => originalValue === '' ? null : value),
 
-    leftAt: Yup.number()
+    left_at: Yup.number()
         .min(1998, 'Left at year must be after 1998')
         .max(new Date().getFullYear(), `Left at year cannot exceed ${new Date().getFullYear()}`)
         .nullable()
@@ -136,15 +136,15 @@ export const RegistrationStep1Schema = Yup.object().shape({
         then: (schema) => validationRules.isGraduated.required('Education status is required for students'),
         otherwise: (schema) => validationRules.isGraduated
     }),
-    graduationYear: Yup.number().when(['alumni_type', 'isGraduated'], {
+    graduation_year: Yup.number().when(['alumni_type', 'isGraduated'], {
         is: (alumni_type, isGraduated) => alumni_type === 'student' && isGraduated === true,
-        then: (schema) => validationRules.graduationYear.required('Graduation year is required when graduated'),
-        otherwise: (schema) => validationRules.graduationYear
+        then: (schema) => validationRules.graduation_year.required('Graduation year is required when graduated'),
+        otherwise: (schema) => validationRules.graduation_year
     }),
-    leftAt: Yup.number().when(['alumni_type', 'isGraduated'], {
+    left_at: Yup.number().when(['alumni_type', 'isGraduated'], {
         is: (alumni_type, isGraduated) => alumni_type === 'student' && isGraduated === false,
-        then: (schema) => validationRules.leftAt.required('Year left is required when not graduated'),
-        otherwise: (schema) => validationRules.leftAt
+        then: (schema) => validationRules.left_at.required('Year left is required when not graduated'),
+        otherwise: (schema) => validationRules.left_at
     })
 });
 
@@ -170,15 +170,15 @@ export const ProfileUpdateSchema = Yup.object().shape({
     bio: validationRules.bio,
     joinedYear: validationRules.joinedYear,
     isGraduated: validationRules.isGraduated,
-    graduationYear: Yup.number().when('isGraduated', {
+    graduation_year: Yup.number().when('isGraduated', {
         is: true,
-        then: (schema) => validationRules.graduationYear.required('Graduation year is required when graduated'),
-        otherwise: (schema) => validationRules.graduationYear
+        then: (schema) => validationRules.graduation_year.required('Graduation year is required when graduated'),
+        otherwise: (schema) => validationRules.graduation_year
     }),
-    leftAt: Yup.number().when('isGraduated', {
+    left_at: Yup.number().when('isGraduated', {
         is: false,
-        then: (schema) => validationRules.leftAt.required('Year left is required when not graduated'),
-        otherwise: (schema) => validationRules.leftAt
+        then: (schema) => validationRules.left_at.required('Year left is required when not graduated'),
+        otherwise: (schema) => validationRules.left_at
     })
 });
 
@@ -213,14 +213,14 @@ export const RequiredInfoSchema = Yup.object().shape({
         then: (schema) => validationRules.isGraduated.required('Education status is required for students'),
         otherwise: (schema) => validationRules.isGraduated
     }),
-    graduationYear: Yup.number().when(['alumni_type', 'isGraduated'], {
+    graduation_year: Yup.number().when(['alumni_type', 'isGraduated'], {
         is: (alumni_type, isGraduated) => alumni_type === 'student' && isGraduated === true,
-        then: (schema) => validationRules.graduationYear.required('Graduation year is required when graduated'),
-        otherwise: (schema) => validationRules.graduationYear
+        then: (schema) => validationRules.graduation_year.required('Graduation year is required when graduated'),
+        otherwise: (schema) => validationRules.graduation_year
     }),
-    leftAt: Yup.number().when(['alumni_type', 'isGraduated'], {
+    left_at: Yup.number().when(['alumni_type', 'isGraduated'], {
         is: (alumni_type, isGraduated) => alumni_type === 'student' && isGraduated === false,
-        then: (schema) => validationRules.leftAt.required('Year left is required when not graduated'),
-        otherwise: (schema) => validationRules.leftAt
+        then: (schema) => validationRules.left_at.required('Year left is required when not graduated'),
+        otherwise: (schema) => validationRules.left_at
     })
 });

@@ -32,12 +32,12 @@ const BasicInfo = ({ userData, onUpdate, refetch }) => {
             const transformedValues = {
                 ...values,
                 email: values.email || userData.email,
-                graduation_year: values.graduationYear || null,
-                left_at: values.leftAt || null,
+                graduation_year: values.graduation_year || null,
+                left_at: values.left_at || null,
                 isGraduated: values.isGraduated !== undefined ? values.isGraduated : true,
-                graduationYear: undefined,
+                graduation_year: undefined,
                 joinedYear: values.joinedYear || null,
-                leftAt: undefined
+                left_at: undefined
             };
 
             // Clean up undefined values

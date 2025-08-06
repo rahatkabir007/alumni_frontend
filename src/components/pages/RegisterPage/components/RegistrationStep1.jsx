@@ -26,8 +26,8 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                     joinedYear: formData.joinedYear || '',
                     batch: formData.batch || '',
                     isGraduated: formData.isGraduated !== undefined ? formData.isGraduated : true,
-                    graduationYear: formData.graduationYear || '',
-                    leftAt: formData.leftAt || '',
+                    graduation_year: formData.graduation_year || '',
+                    left_at: formData.left_at || '',
                 }}
                 validationSchema={RegistrationStep1Schema}
                 onSubmit={onNext}
@@ -205,7 +205,7 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                                     {/* Conditional Year Fields */}
                                     {values.isGraduated ? (
                                         <InputComponent1
-                                            name="graduationYear"
+                                            name="graduation_year"
                                             type="number"
                                             label="Graduation Year"
                                             placeholder="Year you graduated"
@@ -219,7 +219,7 @@ const RegistrationStep1 = ({ formData, onNext }) => {
                                         />
                                     ) : (
                                         <InputComponent1
-                                            name="leftAt"
+                                            name="left_at"
                                             type="number"
                                             label="Year Left School"
                                             placeholder="Year you left school"

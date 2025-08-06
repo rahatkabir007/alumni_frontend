@@ -1,13 +1,16 @@
 "use client"
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import GlobalModal from '@/components/antd/Modal/GlobalModal'
 import BlackTag from '@/components/common/BlackTag'
+import BlackButton from '@/components/common/BlackButton'
+import VerificationModal from '../BasicInfo/VerificationModal'
 import { useLazyGetUserByIdQuery } from '@/redux/features/user/userApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import Image from 'next/image'
 
 const UserDetailsModal = ({ isOpen, onClose, userId }) => {
     const [triggerGetUser, { data: userData, isLoading, error }] = useLazyGetUserByIdQuery()
+    const [isViewingVerification, setIsViewingVerification] = useState(false)
 
     useEffect(() => {
         if (isOpen && userId) {
@@ -22,6 +25,25 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
             onClose()
         }
     }, [error, onClose])
+
+    // Check if user has verification fields that should be viewable
+    const hasViewableVerificationFields = () => {
+        if (!userData || !userData.verification_fields) return false;
+
+        const verificationFields = userData.verification_fields;
+        const hasImages = verificationFields.verification_images?.length > 0;
+        const hasSocialMedia = Object.values(verificationFields.socialMedia || {}).some(link => link);
+
+        return hasImages || hasSocialMedia;
+    };
+
+    // Check if verification details should be shown based on user status
+    const shouldShowVerificationDetails = () => {
+        if (!userData) return false;
+
+        const relevantStatuses = ['applied_for_verification', 'rejected', 'active'];
+        return relevantStatuses.includes(userData.status) && hasViewableVerificationFields();
+    };
 
     const getStatusStyles = (status) => {
         switch (status) {
@@ -152,145 +174,173 @@ const UserDetailsModal = ({ isOpen, onClose, userId }) => {
     }
 
     return (
-        <GlobalModal
-            isModalOpen={isOpen}
-            setModalHandler={onClose}
-            title={userData ? `${userData.name || 'User'} Profile` : 'User Profile'}
-            width={900}
-            closeIcon={true}
-        >
-            <div className="p-8 bg-gradient-to-br from-gray-50 to-white">
-                {isLoading ? (
-                    <div className="text-center py-12">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
-                        <p className="text-gray-600">Loading user details...</p>
-                    </div>
-                ) : userData ? (
-                    <div className="space-y-8">
-                        {/* Profile Header */}
-                        <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
-                            <div className="flex-shrink-0">
-                                {userData.profilePhoto ? (
-                                    <Image
-                                        src={userData.profilePhoto}
-                                        alt={userData.name}
-                                        className="w-16 h-16 rounded-full object-cover"
-                                        width={64}
-                                        height={64}
-                                    />
-                                ) : (
-                                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white font-semibold text-lg">
-                                        {userData.name?.charAt(0).toUpperCase() || 'U'}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-xl font-semibold text-gray-900">
-                                    {userData.name || 'Unknown User'}
-                                </h3>
-                                <p className="text-gray-600">{userData.email}</p>
-                                <div className="flex items-center gap-2 mt-2">
-                                    {/* Status Badge */}
-                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyles(userData.status)}`}>
-                                        {userData.status === 'applied_for_verification' ? 'Applied for Verification' :
-                                            userData.status?.charAt(0).toUpperCase() + userData.status?.slice(1) || 'Unknown'}
-                                        {(userData.status === 'pending' || userData.status === 'rejected') && ' (Unverified)'}
-                                    </span>
-
-                                    {/* Alumni Type */}
-                                    {userData.alumni_type && (
-                                        <BlackTag size="xs" className="bg-blue-50 text-blue-700 border-blue-200">
-                                            {userData.alumni_type.charAt(0).toUpperCase() + userData.alumni_type.slice(1)}
-                                        </BlackTag>
+        <>
+            <GlobalModal
+                isModalOpen={isOpen}
+                setModalHandler={onClose}
+                title={userData ? `${userData.name || 'User'} Profile` : 'User Profile'}
+                width={900}
+                closeIcon={true}
+            >
+                <div className="p-8 bg-gradient-to-br from-gray-50 to-white">
+                    {isLoading ? (
+                        <div className="text-center py-12">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+                            <p className="text-gray-600">Loading user details...</p>
+                        </div>
+                    ) : userData ? (
+                        <div className="space-y-8">
+                            {/* Profile Header */}
+                            <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
+                                <div className="flex-shrink-0">
+                                    {userData.profilePhoto ? (
+                                        <Image
+                                            src={userData.profilePhoto}
+                                            alt={userData.name}
+                                            className="w-16 h-16 rounded-full object-cover"
+                                            width={64}
+                                            height={64}
+                                        />
+                                    ) : (
+                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white font-semibold text-lg">
+                                            {userData.name?.charAt(0).toUpperCase() || 'U'}
+                                        </div>
                                     )}
                                 </div>
-                            </div>
-                        </div>
+                                <div className="flex-1">
+                                    <h3 className="text-xl font-semibold text-gray-900">
+                                        {userData.name || 'Unknown User'}
+                                    </h3>
+                                    <p className="text-gray-600">{userData.email}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        {/* Status Badge */}
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyles(userData.status)}`}>
+                                            {userData.status === 'applied_for_verification' ? 'Applied for Verification' :
+                                                userData.status?.charAt(0).toUpperCase() + userData.status?.slice(1) || 'Unknown'}
+                                            {(userData.status === 'pending' || userData.status === 'rejected') && ' (Unverified)'}
+                                        </span>
 
-                        {/* Roles Section */}
-                        {userData.roles && userData.roles.length > 0 && (
-                            <div>
-                                <h4 className="text-sm font-medium text-gray-700 mb-2">Roles</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {userData.roles.map((role, index) => (
-                                        <BlackTag
-                                            key={index}
-                                            variant={role === 'admin' ? 'solid' : 'outline'}
-                                            size="sm"
-                                            className={
-                                                role === 'admin'
-                                                    ? 'bg-red-600 text-white border-red-600'
-                                                    : role === 'moderator'
-                                                        ? 'border-orange-500 text-orange-600 bg-orange-50'
-                                                        : 'border-blue-500 text-blue-600 bg-blue-50'
-                                            }
-                                        >
-                                            {role.charAt(0).toUpperCase() + role.slice(1)}
-                                        </BlackTag>
-                                    ))}
+                                        {/* Alumni Type */}
+                                        {userData.alumni_type && (
+                                            <BlackTag size="xs" className="bg-blue-50 text-blue-700 border-blue-200">
+                                                {userData.alumni_type.charAt(0).toUpperCase() + userData.alumni_type.slice(1)}
+                                            </BlackTag>
+                                        )}
+
+                                        {/* Verification Details Button */}
+                                        {shouldShowVerificationDetails() && (
+                                            <button
+                                                onClick={() => setIsViewingVerification(true)}
+                                                className="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+                                                title="View verification details"
+                                            >
+                                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                                Verification Details
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        )}
 
-                        {/* Basic Information */}
-                        <div>
-                            <h4 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                                {renderField('Full Name', userData.name)}
-                                {renderField('Email', userData.email)}
-                                {renderField('Phone', userData.phone)}
-                                {renderField('Location', userData.location)}
-                                {renderField('Profession', userData.profession)}
-                                {renderField('Blood Group', userData.blood_group)}
-                            </div>
-                        </div>
+                            {/* Roles Section */}
+                            {userData.roles && userData.roles.length > 0 && (
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-700 mb-2">Roles</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {userData.roles.map((role, index) => (
+                                            <BlackTag
+                                                key={index}
+                                                variant={role === 'admin' ? 'solid' : 'outline'}
+                                                size="sm"
+                                                className={
+                                                    role === 'admin'
+                                                        ? 'bg-red-600 text-white border-red-600'
+                                                        : role === 'moderator'
+                                                            ? 'border-orange-500 text-orange-600 bg-orange-50'
+                                                            : 'border-blue-500 text-blue-600 bg-blue-50'
+                                                }
+                                            >
+                                                {role.charAt(0).toUpperCase() + role.slice(1)}
+                                            </BlackTag>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
-                        {/* Education Information */}
-                        <div>
-                            <h4 className="text-lg font-semibold text-gray-900 mb-4">Education Information</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                                {renderField('Batch/Class', userData.batch)}
-                                {renderField('Education Status', userData.isGraduated ? 'Graduated' : 'Left Early')}
-                                {userData.isGraduated ?
-                                    renderField('Graduation Year', userData.graduation_year) :
-                                    renderField('Year Left School', userData.left_at)
-                                }
-                            </div>
-                        </div>
-
-                        {/* Bio Section */}
-                        {userData.bio && (
+                            {/* Basic Information */}
                             <div>
-                                <h4 className="text-lg font-semibold text-gray-900 mb-4">About</h4>
-                                <div className="bg-gray-50 p-4 rounded-md border">
-                                    <p className="text-gray-900 whitespace-pre-wrap">{userData.bio}</p>
+                                <h4 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {renderField('Full Name', userData.name)}
+                                    {renderField('Email', userData.email)}
+                                    {renderField('Phone', userData.phone)}
+                                    {renderField('Location', userData.location)}
+                                    {renderField('Profession', userData.profession)}
+                                    {renderField('Blood Group', userData.blood_group)}
                                 </div>
                             </div>
-                        )}
 
-                        {/* Additional Information Section */}
-                        {renderAdditionalInfo()}
+                            {/* Education Information */}
+                            <div>
+                                <h4 className="text-lg font-semibold text-gray-900 mb-4">Education Information</h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {renderField('Batch/Class', userData.batch)}
+                                    {renderField('Education Status', userData.isGraduated ? 'Graduated' : 'Left Early')}
+                                    {userData.isGraduated ?
+                                        renderField('Graduation Year', userData.graduation_year) :
+                                        renderField('Year Left School', userData.left_at)
+                                    }
+                                </div>
+                            </div>
 
-                        {/* Account Information */}
-                        <div>
-                            <h4 className="text-lg font-semibold text-gray-900 mb-4">Account Information</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                                {renderField('User ID', userData.id)}
-                                {renderField('Registration Method', userData.provider === 'google' ? 'Google' : 'Email')}
-                                {renderField('Member Since', formatDate(userData.created_at))}
-                                {renderField('Last Updated', formatDate(userData.updated_at))}
+                            {/* Bio Section */}
+                            {userData.bio && (
+                                <div>
+                                    <h4 className="text-lg font-semibold text-gray-900 mb-4">About</h4>
+                                    <div className="bg-gray-50 p-4 rounded-md border">
+                                        <p className="text-gray-900 whitespace-pre-wrap">{userData.bio}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Additional Information Section */}
+                            {/* {renderAdditionalInfo()} */}
+
+                            {/* Account Information */}
+                            <div>
+                                <h4 className="text-lg font-semibold text-gray-900 mb-4">Account Information</h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {renderField('User ID', userData.id)}
+                                    {renderField('Registration Method', userData.provider === 'google' ? 'Google' : 'Email')}
+                                    {renderField('Member Since', formatDate(userData.created_at))}
+                                    {renderField('Last Updated', formatDate(userData.updated_at))}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ) : (
-                    <div className="text-center py-12">
-                        <div className="text-gray-400 text-4xl mb-4">⚠️</div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">User Not Found</h3>
-                        <p className="text-gray-600">The requested user could not be found.</p>
-                    </div>
-                )}
-            </div>
-        </GlobalModal>
+                    ) : (
+                        <div className="text-center py-12">
+                            <div className="text-gray-400 text-4xl mb-4">⚠️</div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">User Not Found</h3>
+                            <p className="text-gray-600">The requested user could not be found.</p>
+                        </div>
+                    )}
+                </div>
+            </GlobalModal>
+
+            {/* Verification Details Modal */}
+            {shouldShowVerificationDetails() && (
+                <VerificationModal
+                    isOpen={isViewingVerification}
+                    onClose={() => setIsViewingVerification(false)}
+                    viewMode={true}
+                    existingData={userData}
+                    title={`${userData.name || 'User'}'s Verification Details`}
+                />
+            )}
+        </>
     )
 }
 

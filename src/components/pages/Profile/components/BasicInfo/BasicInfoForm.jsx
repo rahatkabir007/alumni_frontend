@@ -17,11 +17,11 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                 profession: userData.profession || '',
                 branch: userData.branch || '',
                 blood_group: userData.blood_group || '',
-                graduationYear: userData.graduationYear || userData.graduation_year || '',
+                graduation_year: userData.graduation_year || userData.graduation_year || '',
                 batch: userData.batch || '',
                 bio: userData.bio || '',
                 isGraduated: userData.isGraduated !== undefined ? userData.isGraduated : true,
-                leftAt: userData.leftAt || userData.left_at || '',
+                left_at: userData.left_at || userData.left_at || '',
                 joinedYear: userData.joinedYear || userData.joined_year || '',
                 alumni_type: userData.alumni_type || 'student' // Add this for conditional validation
             }}
@@ -160,7 +160,7 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                                 {/* Conditional Year Fields */}
                                 {values.isGraduated ? (
                                     <InputComponent1
-                                        name="graduationYear"
+                                        name="graduation_year"
                                         type="number"
                                         label="Graduation Year"
                                         placeholder="Year you graduated"
@@ -174,7 +174,7 @@ const BasicInfoForm = ({ userData, onSave, onCancel, isLoading }) => {
                                     />
                                 ) : (
                                     <InputComponent1
-                                        name="leftAt"
+                                        name="left_at"
                                         type="number"
                                         label="Year Left School"
                                         placeholder="Year you left school"
