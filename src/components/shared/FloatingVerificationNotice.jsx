@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { useSelector } from 'react-redux';
-import { selectCurrentUser } from '@/redux/features/auth/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectCurrentUser, setCredentials } from '@/redux/features/auth/authSlice';
 import { useApplyForVerificationMutation } from '@/redux/features/user/userApi';
 import { ToastMessage } from '@/utils/ToastMessage';
 import VerificationModal from '@/components/pages/Profile/components/BasicInfo/VerificationModal';
 
 const FloatingVerificationNotice = () => {
     const user = useSelector(selectCurrentUser);
+    const dispatch = useDispatch();
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
     const [applyForVerification, { isLoading: isApplyingForVerification }] = useApplyForVerificationMutation();
 
@@ -40,7 +41,10 @@ const FloatingVerificationNotice = () => {
             const successMessage = user.status === 'rejected'
                 ? 'Verification reapplication submitted successfully!'
                 : 'Verification application submitted successfully!';
-
+            dispatch(setCredentials({
+                user: { ...userData, verification_fields: values, status: "applied_for_verification" },
+                token: localStorage.getItem('token')
+            }))
             ToastMessage.notifySuccess(successMessage);
             resetForm();
             setIsVerificationModalOpen(false);

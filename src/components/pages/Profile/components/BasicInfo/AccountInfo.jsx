@@ -38,7 +38,7 @@ const AccountInfo = ({ userData, onUpdate }) => {
             }
 
             dispatch(setCredentials({
-                user: { ...userData, verification_fields: values },
+                user: { ...userData, verification_fields: values, status: "applied_for_verification" },
                 token: localStorage.getItem('token')
             }))
         } catch (error) {
@@ -110,7 +110,7 @@ const AccountInfo = ({ userData, onUpdate }) => {
                         <span className="text-gray-500">User ID:</span>
                         <span className="ml-2 text-gray-900">{userData.id}</span>
                     </div>
-                    <div>
+                    <div className='flex items-center'>
                         <span className="text-gray-500">Account Status:</span>
                         <span className={`ml-2 ${verificationStatus.color}`}>
                             {verificationStatus.text}
@@ -136,7 +136,7 @@ const AccountInfo = ({ userData, onUpdate }) => {
                                 {verificationStatus.showViewButton && (
                                     <button
                                         onClick={() => setIsViewingVerification(true)}
-                                        className="px-2 py-1 text-blue-600 hover:text-blue-800 transition-colors"
+                                        className="px-2  text-blue-600 hover:text-blue-800 transition-colors"
                                         type="button"
                                         title="View verification details"
                                     >
