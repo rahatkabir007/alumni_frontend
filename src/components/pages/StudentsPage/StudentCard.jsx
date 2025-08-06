@@ -1,6 +1,7 @@
 import BlackButton from '@/components/common/BlackButton'
 import BlackTag from '@/components/common/BlackTag'
 import ElegantCard from '@/components/common/ElegantCard'
+import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
@@ -18,7 +19,9 @@ const StudentCard = ({ student }) => {
             {/* Profile Photo or Initials */}
             <div className="relative flex items-center justify-center h-40 bg-gradient-to-br from-blue-400 to-green-400 rounded-lg">
                 {student?.profilePhoto ? (
-                    <img
+                    <Image
+                        width={400}
+                        height={400}
                         src={student.profilePhoto}
                         alt={student.name}
                         className="h-28 w-28 rounded-full object-cover border-4 border-white shadow-lg"
@@ -67,6 +70,16 @@ const StudentCard = ({ student }) => {
                             {student.location}
                         </div>
                     )}
+                    {
+                        student.blood_group && (
+                            <div className="flex items-center text-gray-500 text-xs">
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9V7a3 3 0 00-6 0v2m6 0h6m-6 0v6m0-6a3 3 0 016 0v2m-6 0h-6m6 0v6m0-6a3 3 0 01-6 0v-2" />
+                                </svg>
+                                {student.blood_group}
+                            </div>
+                        )
+                    }
                 </div>
                 {/* Achievements or About */}
                 {student.achievements && typeof student.achievements === 'string' && (

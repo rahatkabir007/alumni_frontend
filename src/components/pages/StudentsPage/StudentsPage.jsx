@@ -126,7 +126,7 @@ const StudentsPage = () => {
             {/* Alumni Grid */}
             <ScrollReveal direction="up" delay={0.4}>
                 <section className="py-12">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[60vh]">
                         {
                             (isLoading || isFetching) ? <div className="text-center">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>

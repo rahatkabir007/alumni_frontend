@@ -7,6 +7,7 @@ import BlackButton from '@/components/common/BlackButton'
 import { useState, useEffect } from 'react'
 import { ToastMessage } from '@/utils/ToastMessage'
 import imageUploadService from '@/utils/imageUploadService'
+import Image from 'next/image'
 
 const VerificationSchema = Yup.object().shape({
     verification_images: Yup.array()
@@ -289,7 +290,9 @@ const VerificationModal = ({
                                             {values.verification_images.map((image, index) => (
                                                 <div key={image.id} className="relative group">
                                                     <div className="aspect-square rounded-lg overflow-hidden border border-gray-200">
-                                                        <img
+                                                        <Image
+                                                            width={400}
+                                                            height={400}
                                                             src={image.url}
                                                             alt={`Verification ${index + 1}`}
                                                             className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"

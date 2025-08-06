@@ -2,7 +2,6 @@ import BlackButton from '@/components/common/BlackButton'
 import BlackTag from '@/components/common/BlackTag'
 import ElegantCard from '@/components/common/ElegantCard'
 import Link from 'next/link'
-import React from 'react'
 
 const OldStudentCard = ({ student }) => {
     return (

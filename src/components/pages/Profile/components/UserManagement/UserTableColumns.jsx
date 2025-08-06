@@ -5,6 +5,7 @@ import BlackTag from '@/components/common/BlackTag'
 import CustomSwitch from '@/components/antd/Swtich/CustomSwitch'
 import ActionPopover from '@/components/antd/Popover/ActionPopover'
 import UserActionsMenu from './UserActionsMenu'
+import Image from 'next/image'
 
 const UserTableColumns = ({
     onConfirmModal,
@@ -310,7 +311,9 @@ const UserTableColumns = ({
                         {/* Profile Picture or Initial */}
                         <div className="flex-shrink-0">
                             {record.profilePhoto ? (
-                                <img
+                                <Image
+                                    width={40}
+                                    height={40}
                                     className="h-10 w-10 rounded-full object-cover"
                                     src={record.profilePhoto}
                                     alt={record.name}

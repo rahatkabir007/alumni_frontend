@@ -74,9 +74,10 @@ const AccountInfo = ({ userData, onUpdate }) => {
             }
         } else if (userData.status === 'rejected' && hasVerificationFields) {
             return {
-                text: 'Reapplication Pending',
+                text: 'Verification Rejected',
                 color: 'text-yellow-600',
-                showButton: false,
+                buttonText: 'Reapply',
+                showButton: true,
                 showViewButton: true
             }
         } else if (userData.status === 'pending' && hasVerificationFields) {
@@ -112,7 +113,7 @@ const AccountInfo = ({ userData, onUpdate }) => {
                     </div>
                     <div className='flex items-center'>
                         <span className="text-gray-500">Account Status:</span>
-                        <span className={`ml-2 ${verificationStatus.color}`}>
+                        <span className={`ml-2 ${verificationStatus.color} flex items-center gap-2`}>
                             {verificationStatus.text}
 
                             {/* Action Buttons Container */}
