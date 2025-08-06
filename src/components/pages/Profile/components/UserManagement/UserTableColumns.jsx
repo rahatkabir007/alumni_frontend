@@ -23,10 +23,10 @@ const UserTableColumns = ({
     // MODERATOR RESTRICTION: Moderators can only edit pending users and change them to active
     const getStatusOptions = (currentStatus) => {
         const allStatusOptions = [
-            { value: 'active', label: 'Active' },
-            { value: 'inactive', label: 'Inactive' },
+            { value: 'active', label: 'Activate' },
+            { value: 'inactive', label: 'Inactivate' },
             { value: 'pending', label: 'Pending' },
-            { value: 'rejected', label: 'Rejected' },
+            { value: 'rejected', label: 'Reject' },
             { value: 'applied_for_verification', label: 'Applied for Verification' }
         ]
 
@@ -239,12 +239,13 @@ const UserTableColumns = ({
             return (
                 <div className="flex items-center gap-2">
                     <Select
-                        value={currentStatus}
+                        // value={currentStatus}
                         onChange={(newStatus) => handleStatusSave(record.id, newStatus)}
                         size="small"
                         className="min-w-[110px]"
                         options={statusOptions} // Uses filtered options based on user role restrictions
                         autoFocus
+                        placeholder="Select status"
                     />
                     <button
                         onClick={handleStatusCancel}

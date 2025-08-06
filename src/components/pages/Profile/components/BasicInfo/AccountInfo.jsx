@@ -3,10 +3,14 @@ import { useState } from 'react'
 import { useApplyForVerificationMutation } from '@/redux/features/user/userApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import VerificationModal from './VerificationModal'
+import { useDispatch } from 'react-redux'
+import { setCredentials } from '@/redux/features/auth/authSlice'
 
 const AccountInfo = ({ userData, onUpdate }) => {
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false)
     const [applyForVerification, { isLoading: isApplyingForVerification }] = useApplyForVerificationMutation()
+
+    const dispatch = useDispatch()
 
     const handleVerificationSubmit = async (values, { setSubmitting, resetForm }) => {
         try {
@@ -27,9 +31,15 @@ const AccountInfo = ({ userData, onUpdate }) => {
             if (onUpdate) {
                 onUpdate({
                     ...userData,
-                    verification_fields: values
+                    verification_fields: values,
+                    status: userData.status === 'rejected' ? 'applied_for_verification' : userData.status
                 })
             }
+
+            dispatch(setCredentials({
+                user: { ...userData, verification_fields: values },
+                token: localStorage.getItem('token')
+            }))
         } catch (error) {
             console.error('Failed to apply for verification:', error)
             ToastMessage.notifyError(error.message || 'Failed to submit verification application')
