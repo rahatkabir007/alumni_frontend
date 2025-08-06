@@ -4,6 +4,7 @@ body {
   background: #f8fafc;
   color: #1e293b;
   font-family: var(--font-figtree), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }
 
 .container-x{

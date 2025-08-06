@@ -113,7 +113,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                                             </div>
                                         )}
                                     </div>
-                                    <span>{currentUser.name || 'Alumni'}</span>
+                                    <span className='truncate'>{currentUser.name || 'Alumni'}</span>
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
@@ -250,7 +250,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                                                 )}
                                             </div>
                                             <div>
-                                                <div className="text-white font-medium text-lg">{currentUser.name || 'Alumni'}</div>
+                                                <div className="text-white font-medium text-lg truncate">{currentUser.name || 'Alumni'}</div>
                                                 <div className="text-gray-400 text-sm">{currentUser.email}</div>
                                             </div>
                                         </div>
