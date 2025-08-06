@@ -12,17 +12,14 @@ import '@/styles/antd.css'
 
 const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
     const router = useRouter()
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    // const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    const [openSubmenu, setOpenSubmenu] = useState(null) // For desktop submenus
+    // const [openSubmenu, setOpenSubmenu] = useState(null) // For desktop submenus
     const [mobileOpenSubmenu, setMobileOpenSubmenu] = useState(null) // For mobile submenus
     const [isMobile, setIsMobile] = useState(false) // Track mobile state
-    const dropdownRef = useRef(null)
-    const submenuRefs = useRef({})
 
     // Get auth state from Redux
     const isAuthenticated = useSelector(selectIsAuthenticated)
-    const token = useSelector(selectToken)
     const reduxUser = useSelector(selectCurrentUser)
 
     // Simplified loading logic
@@ -44,9 +41,16 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
         {
             key: 'alumni',
             label: (
-                <span className="flex items-center">
+                <span className="flex items-center gap-2">
                     Alumni
-                    <DownOutlined className="ml-1 text-xs" />
+                    <svg
+                        className={`w-5 h-5 transition-transform `}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                 </span>
             ),
             children: [
@@ -67,9 +71,16 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
         {
             key: 'blogs',
             label: (
-                <span className="flex items-center">
+                <span className="flex items-center gap-2">
                     Blogs & Events
-                    <DownOutlined className="ml-1 text-xs" />
+                    <svg
+                        className={`w-5 h-5 transition-transform `}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                 </span>
             ),
             children: [
@@ -203,10 +214,10 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
 
             // Reset states when switching between mobile and desktop
             if (wasMobile !== mobile) {
-                setOpenSubmenu(null)
+                // setOpenSubmenu(null)
                 setMobileOpenSubmenu(null)
                 setIsMobileMenuOpen(false)
-                setIsDropdownOpen(false)
+                // setIsDropdownOpen(false)
             }
         }
 
@@ -215,7 +226,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
 
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
-    }, [isMobile])
+    }, [isMobile, isMobileMenuOpen])
 
     return (
         <nav className="sticky top-0 z-50 bg-black shadow-xl border-b border-gray-800">
@@ -279,7 +290,14 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                                             )}
                                         </div>
                                         <span className='truncate'>{currentUser.name || 'Alumni'}</span>
-                                        <DownOutlined />
+                                        <svg
+                                            className={`w-5 h-5 transition-transform `}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
                                     </button>
                                 </Dropdown>
                             ) : (
