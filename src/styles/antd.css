@@ -365,3 +365,84 @@
 .user-management-table .ant-table-tbody tr td button:hover {
     text-decoration: underline;
 }
+
+/* Navigation Menu Styles */
+.navigation-menu.ant-menu-horizontal {
+    background: transparent !important;
+    border-bottom: none !important;
+    line-height: 64px !important;
+}
+
+.navigation-menu .ant-menu-item,
+.navigation-menu .ant-menu-submenu {
+    color: #d1d5db !important;
+    border-bottom: none !important;
+    margin: 0 8px !important;
+    padding: 0 12px !important;
+    border-radius: 6px !important;
+    transition: all 0.3s ease !important;
+}
+
+.navigation-menu .ant-menu-item:hover,
+.navigation-menu .ant-menu-submenu:hover,
+.navigation-menu .ant-menu-item-selected,
+.navigation-menu .ant-menu-submenu-selected {
+    color: white !important;
+    background-color: rgba(55, 65, 81, 0.5) !important;
+}
+
+.navigation-menu .ant-menu-item a,
+.navigation-menu .ant-menu-submenu-title {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+.navigation-menu .ant-menu-submenu-arrow {
+    color: #d1d5db !important;
+}
+
+.navigation-menu .ant-menu-item:hover .ant-menu-submenu-arrow,
+.navigation-menu .ant-menu-submenu:hover .ant-menu-submenu-arrow {
+    color: white !important;
+}
+
+/* Dropdown Menu Styles */
+.ant-dropdown {
+    z-index: 1050 !important;
+}
+
+.ant-dropdown .ant-dropdown-menu {
+    background: #111827 !important;
+    border: 1px solid #374151 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item {
+    color: #d1d5db !important;
+    padding: 8px 16px !important;
+    transition: all 0.3s ease !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item:hover {
+    background-color: #374151 !important;
+    color: white !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item-danger {
+    color: #f87171 !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item-danger:hover {
+    background-color: #374151 !important;
+    color: #fca5a5 !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item-disabled {
+    color: #6b7280 !important;
+    cursor: not-allowed !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item-divider {
+    border-top-color: #374151 !important;
+}
