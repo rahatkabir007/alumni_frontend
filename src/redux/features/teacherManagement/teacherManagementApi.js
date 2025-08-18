@@ -17,8 +17,9 @@ export const teacherManagementApi = apiSlice.injectEndpoints({
                 if (status !== 'all') queryParams.append('status', status)
                 if (role !== 'all') queryParams.append('role', role)
                 if (excludeAdmins) queryParams.append('excludeAdmins', 'true')
+                queryParams.append('alumni_type', "teacher_management")
 
-                return `/users?${queryParams.toString()}`
+                return `/users/verified?${queryParams.toString()}`
             },
             transformResponse: (response) => {
                 // Transform the API response to match our expected structure
@@ -48,7 +49,7 @@ export const teacherManagementApi = apiSlice.injectEndpoints({
         }),
 
         getTeacherManagementById: builder.query({
-            query: (userId) => `/users/${userId}`,
+            query: ({ userId, includeDetails }) => `/users/${userId}?includeDetails=${includeDetails}`,
             transformResponse: (response) => {
                 if (response.success && response.data) {
                     return response.data
