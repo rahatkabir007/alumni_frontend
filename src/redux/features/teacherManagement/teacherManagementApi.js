@@ -47,8 +47,6 @@ export const teacherManagementApi = apiSlice.injectEndpoints({
             invalidatesTags: ['User'],
         }),
 
-
-
         getTeacherManagementById: builder.query({
             query: (userId) => `/users/${userId}`,
             transformResponse: (response) => {

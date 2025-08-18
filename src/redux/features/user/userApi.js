@@ -84,7 +84,7 @@ export const userApi = apiSlice.injectEndpoints({
 
         getUserById: builder.query({
             query: ({ userId, includeDetails }) => {
-                console.log(`Fetching user with ID: ${userId}, includeDetails: ${includeDetails}`)
+                // console.log(`Fetching user with ID: ${userId}, includeDetails: ${includeDetails}`)
                 return `/users/${userId}?includeDetails=${includeDetails}`
             },
             transformResponse: (response) => {

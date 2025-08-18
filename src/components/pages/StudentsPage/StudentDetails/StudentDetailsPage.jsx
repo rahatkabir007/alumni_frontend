@@ -6,24 +6,35 @@ import BlackButton from '@/components/common/BlackButton'
 import ElegantCard from '@/components/common/ElegantCard'
 import BlackTag from '@/components/common/BlackTag'
 import { student } from '@/datas/studentsPage'
+import { useGetAlumniByIdQuery } from '@/redux/features/alumni/alumniApi'
 
 const StudentDetailPage = () => {
     const params = useParams()
     const router = useRouter()
     const studentId = params.id
 
-    if (!student) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">Student not found</h1>
-                    <BlackButton onClick={() => router.push('/students')}>
-                        Back to Alumni Directory
-                    </BlackButton>
-                </div>
-            </div>
-        )
-    }
+    const { data, isLoading } = useGetAlumniByIdQuery(
+        {
+            userId: studentId,
+            includeDetails: true
+        },
+        { skip: !studentId }
+    )
+
+    console.log(data)
+
+    // if (!student) {
+    //     return (
+    //         <div className="min-h-screen flex items-center justify-center">
+    //             <div className="text-center">
+    //                 <h1 className="text-2xl font-bold text-gray-900 mb-4">Student not found</h1>
+    //                 <BlackButton onClick={() => router.push('/students')}>
+    //                     Back to Alumni Directory
+    //                 </BlackButton>
+    //             </div>
+    //         </div>
+    //     )
+    // }
 
     return (
         <div className="bg-gray-50 min-h-screen">

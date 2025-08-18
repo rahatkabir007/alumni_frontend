@@ -48,10 +48,8 @@ export const alumniApi = apiSlice.injectEndpoints({
             invalidatesTags: ['User'],
         }),
 
-
-
         getAlumniById: builder.query({
-            query: (userId) => `/users/${userId}`,
+            query: ({ userId, includeDetails }) => `/users/${userId}?includeDetails=${includeDetails}`,
             transformResponse: (response) => {
                 if (response.success && response.data) {
                     return response.data
