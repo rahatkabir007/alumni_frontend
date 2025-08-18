@@ -42,12 +42,12 @@ const TeacherCard = ({ teacher }) => {
                 )}
 
                 {/* Status Badge */}
-                {/* <BlackTag
+                <BlackTag
                     className={`absolute top-4 right-4 ${teacherStatus === 'active' ? 'bg-green-600 text-white' : 'bg-yellow-500 text-black'}`}
                     size="xs"
                 >
                     {teacherStatus === 'active' ? 'Current Faculty' : 'Retired'}
-                </BlackTag> */}
+                </BlackTag>
 
                 {/* Alumni Type Badge */}
                 {teacher.alumni_type && (

@@ -79,7 +79,7 @@ const StudentDetailPage = () => {
             {/* Header */}
             <ScrollReveal direction="up" delay={0.2}>
                 <section className="py-16 bg-black text-white">
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-0">
                         <BlackButton
                             variant="outline"
                             size="sm"

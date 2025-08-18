@@ -676,7 +676,7 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                     {({ remove, push }) => (
                         <div className="space-y-2">
                             {values.achievements?.map((_, index) => (
-                                <div key={index} className="flex gap-2">
+                                <div key={index} className="flex gap-2 w-full">
                                     <TextareaComponent1
                                         name={`achievements.${index}`}
                                         placeholder="Describe your achievement..."
@@ -688,6 +688,7 @@ const AdditionalInfo = ({ userData, onUpdate, refetch }) => {
                                         focusBorderColor="focus:border-black"
                                         focusRingColor="focus:ring-black/10"
                                         className="flex-1"
+                                        containerClassName='w-full'
                                     />
                                     <button
                                         type="button"
