@@ -268,7 +268,7 @@ const StudentDetailPage = () => {
                             {/* Sidebar */}
                             <div className="space-y-6">
                                 {/* Contact Information */}
-                                <ElegantCard className="sticky top-8">
+                                <ElegantCard className=" top-8">
                                     <h3 className="text-lg font-bold text-gray-900 mb-4">Contact Information</h3>
                                     <div className="space-y-3">
                                         {student.email && (
