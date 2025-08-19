@@ -8,7 +8,7 @@ import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
 import InputComponent1 from '@/components/common/InputComponent1'
 import TextareaComponent1 from '@/components/common/TextareaComponent1'
-import ImageUploader from '../ImageUploader'
+import ImageUploader from '../../ImageUploader'
 import Image from 'next/image'
 
 const GalleryUploadSchema = Yup.object().shape({

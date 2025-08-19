@@ -8,15 +8,17 @@ import { useRouter } from 'next/navigation'
 import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
 import ProfileSidebar from './components/ProfileSidebar'
-import BasicInfo from './components/BasicInfo/BasicInfo'
-import BlogManagement from './components/BlogManagement'
-import EventManagement from './components/EventManagement'
-import GalleryManagement from './components/GalleryManagement'
-import ReviewsTestimonials from './components/ReviewsTestimonials'
-import UserManagement from './components/UserManagement/UserManagement'
-import AnnouncementManagement from './components/AnnouncementManagement'
-import AdditionalInfo from './components/AdditionalInfo'
+
+
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
+import BasicInfo from './components/RegularUserComponents/BasicInfo/BasicInfo'
+import AdditionalInfo from './components/RegularUserComponents/AdditionalInfo/AdditionalInfo'
+import Blogs from './components/RegularUserComponents/Blogs/Blogs'
+import Events from './components/RegularUserComponents/Events/Events'
+import ReviewsTestimonials from './components/RegularUserComponents/ReviewsTestimonials/ReviewsTestimonials'
+import BlogManagement from './components/AdminComponents/BlogManagement/BlogManagement'
+import EventManagement from './components/AdminComponents/EventManagement/EventManagement'
+import Gallery from './components/RegularUserComponents/Gallery/Gallery'
 
 const ProfilePage = () => {
   const dispatch = useDispatch()
@@ -131,17 +133,25 @@ const ProfilePage = () => {
       case 'additional-info':
         return <AdditionalInfo userData={currentUser} onUpdate={handleUserUpdate} refetch={handleRefreshData} />
       case 'blogs':
-        return <BlogManagement userData={currentUser} />
+        return <Blogs userData={currentUser} />
       case 'events':
-        return <EventManagement userData={currentUser} />
+        return <Events userData={currentUser} />
       case 'gallery':
-        return <GalleryManagement userData={currentUser} />
+        return <Gallery userData={currentUser} />
       case 'reviews':
         return <ReviewsTestimonials userData={currentUser} />
       case 'users':
         return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_USERS) ?
           <UserManagement userData={currentUser} /> : null
-      case 'announcements':
+      case 'gallery_management':
+        return <GalleryManagement userData={currentUser} />
+      case 'blog_management':
+        return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_BLOGS) ?
+          <BlogManagement userData={currentUser} /> : null
+      case 'event_management':
+        return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_EVENTS) ?
+          <EventManagement userData={currentUser} /> : null
+      case 'announcement_management':
         return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_ANNOUNCEMENTS) ?
           <AnnouncementManagement userData={currentUser} /> : null
 

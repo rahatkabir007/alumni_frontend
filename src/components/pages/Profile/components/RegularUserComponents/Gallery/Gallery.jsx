@@ -6,10 +6,10 @@ import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
 import BlackTag from '@/components/common/BlackTag'
 import Pagination from '@/components/common/Pagination'
-import GalleryUploadForm from './GalleryManagement/GalleryUploadForm'
-import GalleryGrid from './GalleryManagement/GalleryGrid'
+import GalleryUploadForm from './GalleryUploadForm'
+import GalleryGrid from './GalleryGrid'
 
-const GalleryManagement = ({ userData }) => {
+const Gallery = ({ userData }) => {
     const [showUploadForm, setShowUploadForm] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const [statusFilter, setStatusFilter] = useState('all')
@@ -212,4 +212,4 @@ const GalleryManagement = ({ userData }) => {
     )
 }
 
-export default GalleryManagement
+export default Gallery

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser, setCredentials } from '@/redux/features/auth/authSlice';
 import { useApplyForVerificationMutation } from '@/redux/features/user/userApi';
 import { ToastMessage } from '@/utils/ToastMessage';
-import VerificationModal from '@/components/pages/Profile/components/BasicInfo/VerificationModal';
+import VerificationModal from '@/components/pages/Profile/components/RegularUserComponents/BasicInfo/VerificationModal';
 
 const FloatingVerificationNotice = () => {
     const user = useSelector(selectCurrentUser);
