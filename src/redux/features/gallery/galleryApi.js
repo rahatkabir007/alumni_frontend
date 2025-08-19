@@ -2,76 +2,10 @@ import { apiSlice } from '../api/apiSlice'
 
 export const galleryApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getAllGalleries: builder.query({
-            query: (params = {}) => {
-                const { page = 1, limit = 12, status = 'active', year, userId, sortBy = 'createdAt', sortOrder = 'desc' } = params
-
-                const queryParams = new URLSearchParams({
-                    page: page.toString(),
-                    limit: limit.toString(),
-                    sortBy,
-                    sortOrder
-                })
-
-                if (status !== 'all') queryParams.append('status', status)
-                if (year) queryParams.append('year', year)
-                if (userId) queryParams.append('userId', userId)
-
-                return `/galleries?${queryParams.toString()}`
-            },
-            transformResponse: (response) => {
-                if (response.success && response.data) {
-                    return response.data
-                }
-                return {
-                    galleries: [],
-                    currentPage: 1,
-                    totalPages: 1,
-                    totalItems: 0,
-                    itemsPerPage: 12,
-                    hasNextPage: false,
-                    hasPrevPage: false
-                }
-            },
-            providesTags: ['Gallery'],
-        }),
-
-        getUserGalleries: builder.query({
-            query: ({ userId, ...params }) => {
-                const { page = 1, limit = 12, status = 'all', year, sortBy = 'createdAt', sortOrder = 'desc' } = params
-
-                const queryParams = new URLSearchParams({
-                    page: page.toString(),
-                    limit: limit.toString(),
-                    sortBy,
-                    sortOrder
-                })
-
-                if (status !== 'all') queryParams.append('status', status)
-                if (year) queryParams.append('year', year)
-
-                return `/galleries/user/${userId}?${queryParams.toString()}`
-            },
-            transformResponse: (response) => {
-                if (response.success && response.data) {
-                    return response.data
-                }
-                return {
-                    galleries: [],
-                    currentPage: 1,
-                    totalPages: 1,
-                    totalItems: 0,
-                    itemsPerPage: 12,
-                    hasNextPage: false,
-                    hasPrevPage: false
-                }
-            },
-            providesTags: ['Gallery'],
-        }),
-
+        // Get user's own galleries
         getMyGalleries: builder.query({
             query: (params = {}) => {
-                const { page = 1, limit = 12, status = 'all', year, sortBy = 'createdAt', sortOrder = 'desc' } = params
+                const { page = 1, limit = 12, year, sortBy = 'createdAt', sortOrder = 'desc' } = params
 
                 const queryParams = new URLSearchParams({
                     page: page.toString(),
@@ -80,10 +14,9 @@ export const galleryApi = apiSlice.injectEndpoints({
                     sortOrder
                 })
 
-                if (status !== 'all') queryParams.append('status', status)
                 if (year) queryParams.append('year', year)
 
-                return `/galleries/my/galleries?${queryParams.toString()}`
+                return `/gallery/my?${queryParams.toString()}`
             },
             transformResponse: (response) => {
                 if (response.success && response.data) {
@@ -102,9 +35,96 @@ export const galleryApi = apiSlice.injectEndpoints({
             providesTags: ['Gallery'],
         }),
 
+        // Get all galleries (for public view and admin management)
+        getAllGalleries: builder.query({
+            query: (params = {}) => {
+                const { page = 1, limit = 24, status, year, sortBy = 'createdAt', sortOrder = 'desc' } = params
+
+                const queryParams = new URLSearchParams({
+                    page: page.toString(),
+                    limit: limit.toString(),
+                    sortBy,
+                    sortOrder
+                })
+
+                // Only add status filter if it's provided and not empty
+                if (status && status !== 'all' && status.trim() !== '') {
+                    queryParams.append('status', status)
+                }
+
+                if (year) queryParams.append('year', year)
+
+                return `/gallery?${queryParams.toString()}`
+            },
+            transformResponse: (response) => {
+                if (response.success && response.data) {
+                    return response.data
+                }
+                return {
+                    galleries: [],
+                    currentPage: 1,
+                    totalPages: 1,
+                    totalItems: 0,
+                    itemsPerPage: 24,
+                    hasNextPage: false,
+                    hasPrevPage: false
+                }
+            },
+            providesTags: ['Gallery'],
+        }),
+
+        // Create new gallery entry
+        createGallery: builder.mutation({
+            query: (galleryData) => ({
+                url: '/gallery',
+                method: 'POST',
+                body: galleryData,
+            }),
+            invalidatesTags: ['Gallery'],
+        }),
+
+        // Update gallery entry
+        updateGallery: builder.mutation({
+            query: ({ galleryId, galleryData }) => ({
+                url: `/gallery/${galleryId}`,
+                method: 'PATCH',
+                body: galleryData,
+            }),
+            invalidatesTags: ['Gallery'],
+        }),
+
+        // Update gallery status (admin only)
+        updateGalleryStatus: builder.mutation({
+            query: ({ galleryId, status }) => ({
+                url: `/gallery/${galleryId}/status`,
+                method: 'PATCH',
+                body: { status },
+            }),
+            invalidatesTags: ['Gallery'],
+            // Optimistic update
+            async onQueryStarted({ galleryId, status }, { dispatch, queryFulfilled, getState }) {
+                try {
+                    await queryFulfilled
+                    // Force invalidate all gallery queries
+                    dispatch(galleryApi.util.invalidateTags(['Gallery']))
+                } catch (error) {
+                    console.error('Failed to update gallery status:', error)
+                }
+            },
+        }),
+
+        // Delete gallery entry
+        deleteGallery: builder.mutation({
+            query: (galleryId) => ({
+                url: `/gallery/${galleryId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Gallery'],
+        }),
+
+        // Get gallery by ID
         getGalleryById: builder.query({
-            query: ({ galleryId, includeDetails = false }) =>
-                `/galleries/${galleryId}?includeDetails=${includeDetails}`,
+            query: (galleryId) => `/gallery/${galleryId}`,
             transformResponse: (response) => {
                 if (response.success && response.data) {
                     return response.data
@@ -113,52 +133,16 @@ export const galleryApi = apiSlice.injectEndpoints({
             },
             providesTags: (result, error, galleryId) => [{ type: 'Gallery', id: galleryId }],
         }),
-
-        createGallery: builder.mutation({
-            query: (galleryData) => ({
-                url: '/galleries',
-                method: 'POST',
-                body: galleryData,
-            }),
-            invalidatesTags: ['Gallery'],
-        }),
-
-        updateGallery: builder.mutation({
-            query: ({ galleryId, galleryData }) => ({
-                url: `/galleries/${galleryId}`,
-                method: 'PATCH',
-                body: galleryData,
-            }),
-            invalidatesTags: ['Gallery'],
-        }),
-
-        updateGalleryStatus: builder.mutation({
-            query: ({ galleryId, status }) => ({
-                url: `/galleries/${galleryId}/status`,
-                method: 'PATCH',
-                body: { status },
-            }),
-            invalidatesTags: ['Gallery'],
-        }),
-
-        deleteGallery: builder.mutation({
-            query: (galleryId) => ({
-                url: `/galleries/${galleryId}`,
-                method: 'DELETE',
-            }),
-            invalidatesTags: ['Gallery'],
-        }),
     }),
 })
 
 export const {
-    useGetAllGalleriesQuery,
-    useGetUserGalleriesQuery,
     useGetMyGalleriesQuery,
-    useGetGalleryByIdQuery,
-    useLazyGetGalleryByIdQuery,
+    useGetAllGalleriesQuery,
     useCreateGalleryMutation,
     useUpdateGalleryMutation,
     useUpdateGalleryStatusMutation,
     useDeleteGalleryMutation,
+    useGetGalleryByIdQuery,
+    useLazyGetGalleryByIdQuery,
 } = galleryApi

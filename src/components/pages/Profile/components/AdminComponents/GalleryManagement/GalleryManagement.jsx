@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useGetAllGalleriesQuery, useUpdateGalleryStatusMutation } from '@/redux/features/gallery/galleryApi'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import { ToastMessage } from '@/utils/ToastMessage'
@@ -11,7 +11,7 @@ import GlobalModal from '@/components/antd/Modal/GlobalModal'
 import Image from 'next/image'
 
 const GalleryManagement = ({ userData }) => {
-    const [activeTab, setActiveTab] = useState('pending')
+    const [activeTab, setActiveTab] = useState('pending_approval')
     const [currentPage, setCurrentPage] = useState(1)
     const [yearFilter, setYearFilter] = useState('')
     const [selectedImage, setSelectedImage] = useState(null)
@@ -30,18 +30,22 @@ const GalleryManagement = ({ userData }) => {
     } = useGetAllGalleriesQuery({
         page: currentPage,
         limit: 15,
-        status: activeTab,
+        status: activeTab, // Always pass the activeTab as status
         year: yearFilter || undefined,
         sortBy: 'createdAt',
         sortOrder: 'desc'
     })
 
-    const galleries = galleryData?.galleries || []
+    // Filter galleries on frontend as additional safety
+    const galleries = (galleryData?.galleries || []).filter(gallery => {
+        return gallery.status === activeTab
+    })
+
     const totalItems = galleryData?.totalItems || 0
     const totalPages = galleryData?.totalPages || 1
 
     const tabs = [
-        { id: 'pending', label: 'Pending Approval', count: 0 },
+        { id: 'pending_approval', label: 'Pending Approval', count: 0 },
         { id: 'active', label: 'Approved', count: 0 },
         { id: 'rejected', label: 'Rejected', count: 0 }
     ]
@@ -58,6 +62,7 @@ const GalleryManagement = ({ userData }) => {
     const handleTabChange = (tabId) => {
         setActiveTab(tabId)
         setCurrentPage(1)
+        setSelectedImage(null)
     }
 
     const handlePageChange = (page) => {
@@ -75,6 +80,26 @@ const GalleryManagement = ({ userData }) => {
             return
         }
 
+        const gallery = galleries.find(g => g.id === galleryId)
+        if (!gallery) {
+            ToastMessage.notifyError('Gallery item not found')
+            return
+        }
+
+        const currentStatus = gallery.status
+
+        // Validate status transitions
+        const validTransitions = {
+            'pending_approval': ['active', 'rejected'],
+            'rejected': ['active'],
+            'active': ['rejected'] // Allow rejecting approved items if needed
+        }
+
+        if (!validTransitions[currentStatus]?.includes(newStatus)) {
+            ToastMessage.notifyError(`Cannot change status from ${currentStatus} to ${newStatus}`)
+            return
+        }
+
         setProcessingIds(prev => new Set(prev).add(galleryId))
 
         try {
@@ -83,11 +108,22 @@ const GalleryManagement = ({ userData }) => {
                 status: newStatus
             }).unwrap()
 
-            ToastMessage.notifySuccess(`Gallery ${newStatus === 'active' ? 'approved' : 'rejected'} successfully!`)
-            refetch()
+            const actionText = newStatus === 'active' ? 'approved' : 'rejected'
+            ToastMessage.notifySuccess(`Gallery ${actionText} successfully!`)
+
+            // Force refetch to update the data
+            setTimeout(() => {
+                refetch()
+            }, 500)
+
+            if (selectedImage && selectedImage.id === galleryId) {
+                setSelectedImage(null)
+            }
+
         } catch (error) {
             console.error('Failed to update gallery status:', error)
-            ToastMessage.notifyError(error.message || 'Failed to update gallery status')
+            const errorMessage = error?.data?.message || error?.message || 'Failed to update gallery status'
+            ToastMessage.notifyError(errorMessage)
         } finally {
             setProcessingIds(prev => {
                 const newSet = new Set(prev)
@@ -101,7 +137,7 @@ const GalleryManagement = ({ userData }) => {
         switch (status) {
             case 'active': return 'bg-green-100 text-green-800'
             case 'rejected': return 'bg-red-100 text-red-800'
-            case 'pending': return 'bg-yellow-100 text-yellow-800'
+            case 'pending_approval': return 'bg-yellow-100 text-yellow-800'
             default: return 'bg-gray-100 text-gray-800'
         }
     }
@@ -115,18 +151,19 @@ const GalleryManagement = ({ userData }) => {
 
     const renderActionButtons = (gallery) => {
         const isProcessing = processingIds.has(gallery.id)
+        const currentStatus = gallery.status
 
-        if (gallery.status === 'pending') {
+        if (currentStatus === 'pending_approval') {
             return (
                 <div className="flex gap-2">
                     <BlackButton
                         size="xs"
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 text-white"
                         onClick={() => handleStatusUpdate(gallery.id, 'active')}
                         disabled={isProcessing}
                         loading={isProcessing}
                     >
-                        Approve
+                        {isProcessing ? 'Processing...' : 'Approve'}
                     </BlackButton>
                     <BlackButton
                         size="xs"
@@ -139,19 +176,37 @@ const GalleryManagement = ({ userData }) => {
                     </BlackButton>
                 </div>
             )
-        } else if (gallery.status === 'rejected') {
+        } else if (currentStatus === 'rejected') {
             return (
                 <BlackButton
                     size="xs"
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 text-white"
                     onClick={() => handleStatusUpdate(gallery.id, 'active')}
                     disabled={isProcessing}
                     loading={isProcessing}
                 >
-                    Approve
+                    {isProcessing ? 'Processing...' : 'Approve'}
                 </BlackButton>
             )
+        } else if (currentStatus === 'active') {
+            return (
+                <div className="flex gap-2">
+                    <BlackTag size="xs" className="bg-green-100 text-green-800">
+                        Approved
+                    </BlackTag>
+                    <BlackButton
+                        size="xs"
+                        variant="outline"
+                        className="text-red-600 border-red-600 hover:bg-red-50"
+                        onClick={() => handleStatusUpdate(gallery.id, 'rejected')}
+                        disabled={isProcessing}
+                    >
+                        Reject
+                    </BlackButton>
+                </div>
+            )
         }
+
         return null
     }
 
@@ -188,8 +243,8 @@ const GalleryManagement = ({ userData }) => {
                                 key={tab.id}
                                 onClick={() => handleTabChange(tab.id)}
                                 className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
-                                        ? 'border-black text-black'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                    ? 'border-black text-black'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 {tab.label}
@@ -228,6 +283,11 @@ const GalleryManagement = ({ userData }) => {
                             Clear Filter
                         </BlackButton>
                     )}
+
+                    {/* Debug info - remove in production */}
+                    <div className="text-xs text-gray-500">
+                        Status Filter: {activeTab} | Total: {totalItems} | Filtered: {galleries.length}
+                    </div>
                 </div>
             </ElegantCard>
 
@@ -257,7 +317,7 @@ const GalleryManagement = ({ userData }) => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <h4 className="text-lg font-semibold text-gray-900 mb-2">No Images Found</h4>
-                        <p className="text-gray-600">No gallery images in {activeTab} status.</p>
+                        <p className="text-gray-600">No gallery images with {activeTab} status.</p>
                     </div>
                 </ElegantCard>
             ) : (
@@ -305,11 +365,9 @@ const GalleryManagement = ({ userData }) => {
                                         </div>
                                     </div>
 
-                                    {renderActionButtons(gallery) && (
-                                        <div className="mt-2">
-                                            {renderActionButtons(gallery)}
-                                        </div>
-                                    )}
+                                    <div className="mt-2">
+                                        {renderActionButtons(gallery)}
+                                    </div>
                                 </div>
                             </ElegantCard>
                         ))}
@@ -402,11 +460,9 @@ const GalleryManagement = ({ userData }) => {
                                         </div>
                                     </div>
 
-                                    {renderActionButtons(selectedImage) && (
-                                        <div>
-                                            {renderActionButtons(selectedImage)}
-                                        </div>
-                                    )}
+                                    <div>
+                                        {renderActionButtons(selectedImage)}
+                                    </div>
                                 </div>
                             )}
                         </div>
