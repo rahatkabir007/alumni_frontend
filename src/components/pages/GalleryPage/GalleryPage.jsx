@@ -1,32 +1,71 @@
 "use client"
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useGetAllGalleriesQuery } from '@/redux/features/gallery/galleryApi'
 import ScrollReveal from '@/components/animations/ScrollReveal'
 import StaggerContainer from '@/components/animations/StaggerContainer'
 import BlackButton from '@/components/common/BlackButton'
-import ElegantCard from '@/components/common/ElegantCard'
 import BlackTag from '@/components/common/BlackTag'
-import { motion, AnimatePresence } from 'framer-motion'
 import IntroSection from '@/components/common/IntroSection'
-import { categories } from '@/datas/blogsPage'
-import GalleryCard from './GalleryCard'
-import { galleryItems } from '@/datas/galleryPage'
+import Pagination from '@/components/common/Pagination'
+import GlobalModal from '@/components/antd/Modal/GlobalModal'
+import Image from 'next/image'
 
 const GalleryPage = () => {
     const router = useRouter()
-    const [selectedCategory, setSelectedCategory] = useState('all')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [yearFilter, setYearFilter] = useState('')
     const [selectedImage, setSelectedImage] = useState(null)
 
-    const filteredItems = galleryItems?.filter(item =>
-        selectedCategory === 'all' || item.category === selectedCategory
-    )
+    const {
+        data: galleryData,
+        isLoading,
+        isFetching,
+        error
+    } = useGetAllGalleriesQuery({
+        page: currentPage,
+        limit: 24,
+        status: 'active',
+        year: yearFilter || undefined,
+        sortBy: 'createdAt',
+        sortOrder: 'desc'
+    })
 
-    const openLightbox = (item) => {
-        setSelectedImage(item)
+    const galleries = galleryData?.galleries || []
+    const totalItems = galleryData?.totalItems || 0
+    const totalPages = galleryData?.totalPages || 1
+
+    const getCurrentYearRange = () => {
+        const currentYear = new Date().getFullYear()
+        const years = []
+        for (let year = currentYear; year >= 1998; year--) {
+            years.push(year)
+        }
+        return years
     }
 
-    const closeLightbox = () => {
+    const handlePageChange = (page) => {
+        setCurrentPage(page)
+    }
+
+    const handleYearChange = (year) => {
+        setCurrentPage(1)
+        setYearFilter(year)
+    }
+
+    const openImageModal = (gallery) => {
+        setSelectedImage(gallery)
+    }
+
+    const closeImageModal = () => {
         setSelectedImage(null)
+    }
+
+    const getInitials = (name) => {
+        if (!name) return 'A'
+        const parts = name.trim().split(' ')
+        if (parts.length === 1) return parts[0][0]
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
     }
 
     return (
@@ -38,7 +77,6 @@ const GalleryPage = () => {
                 description='Explore the rich history and vibrant memories of CIHS through our alumni gallery. From events to daily life, relive the moments that shaped our community.'
             />
 
-
             {/* Upload CTA */}
             <ScrollReveal direction="up" delay={0.3}>
                 <section className="py-8 bg-white border-b">
@@ -46,10 +84,10 @@ const GalleryPage = () => {
                         <div className="flex flex-col md:flex-row items-center justify-between">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900 mb-2">Share Your Memories</h2>
-                                <p className="text-gray-600">Have photos from your CIHS days? Share them with the community!</p>
+                                <p className="text-gray-600">Have photos from your CIHS days? Login and share them with the community!</p>
                             </div>
                             <BlackButton
-                                onClick={() => router.push('/contact')}
+                                onClick={() => router.push('/profile')}
                                 icon={
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -63,26 +101,37 @@ const GalleryPage = () => {
                 </section>
             </ScrollReveal>
 
-            {/* Category Filter */}
+            {/* Year Filter */}
             <ScrollReveal direction="up" delay={0.4}>
                 <section className="py-8 bg-white border-b">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex flex-wrap gap-2 items-center justify-center">
-                            {categories?.map(category => (
-                                <button
-                                    key={category}
-                                    onClick={() => setSelectedCategory(category)}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === category
-                                        ? 'bg-black text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                        }`}
+                        <div className="flex flex-wrap gap-4 items-center justify-center">
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm font-medium text-gray-700">Filter by Year:</label>
+                                <select
+                                    value={yearFilter}
+                                    onChange={(e) => handleYearChange(e.target.value)}
+                                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
                                 >
-                                    {category === 'all' ? 'All Categories' : category}
-                                </button>
-                            ))}
+                                    <option value="">All Years</option>
+                                    {getCurrentYearRange().map(year => (
+                                        <option key={year} value={year}>{year}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {yearFilter && (
+                                <BlackButton
+                                    size="xs"
+                                    variant="outline"
+                                    onClick={() => handleYearChange('')}
+                                >
+                                    Clear Filter
+                                </BlackButton>
+                            )}
 
                             <BlackTag size="sm" className="ml-4">
-                                {filteredItems.length} photos
+                                {totalItems} photos
                             </BlackTag>
                         </div>
                     </div>
@@ -93,99 +142,143 @@ const GalleryPage = () => {
             <ScrollReveal direction="up" delay={0.5}>
                 <section className="py-12">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <StaggerContainer staggerDelay={0.1} className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {filteredItems?.map((item) => (
-                                <GalleryCard key={item?.id} item={item} />
-                            ))}
-                        </StaggerContainer>
+                        {isLoading || isFetching ? (
+                            <div className="text-center py-12">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+                                <p className="text-gray-600">Loading gallery...</p>
+                            </div>
+                        ) : error ? (
+                            <div className="text-center py-12">
+                                <div className="text-red-400 text-4xl mb-4">⚠️</div>
+                                <h4 className="text-lg font-semibold text-gray-900 mb-2">Failed to Load Gallery</h4>
+                                <p className="text-gray-600">There was an error loading the gallery images.</p>
+                            </div>
+                        ) : galleries.length === 0 ? (
+                            <div className="text-center py-12">
+                                <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <h4 className="text-lg font-semibold text-gray-900 mb-2">No Images Found</h4>
+                                <p className="text-gray-600">No gallery images match your search criteria.</p>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Masonry/Staggered Grid */}
+                                <StaggerContainer staggerDelay={0.05} className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+                                    {galleries.map((gallery, index) => (
+                                        <div
+                                            key={gallery.id}
+                                            className="break-inside-avoid relative group cursor-pointer"
+                                            onClick={() => openImageModal(gallery)}
+                                        >
+                                            <div className="relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                                                <Image
+                                                    src={gallery.image}
+                                                    alt={gallery.title || `Gallery image`}
+                                                    width={400}
+                                                    height={Math.floor(Math.random() * 200) + 300} // Random height for masonry effect
+                                                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
+                                                    style={{ height: 'auto' }}
+                                                />
+
+                                                {/* Overlay with title and year */}
+                                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-end">
+                                                    <div className="p-4 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
+                                                        {gallery.title && (
+                                                            <h3 className="font-semibold text-lg mb-1">{gallery.title}</h3>
+                                                        )}
+                                                        <p className="text-sm opacity-90">{gallery.year}</p>
+                                                        {gallery.user && (
+                                                            <p className="text-xs opacity-75 mt-1">
+                                                                By {gallery.user.name}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </StaggerContainer>
+
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                    <div className="flex justify-center mt-12">
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            totalItems={totalItems}
+                                            itemsPerPage={galleryData?.itemsPerPage || 24}
+                                            onPageChange={handlePageChange}
+                                            isLoading={isLoading || isFetching}
+                                        />
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
                 </section>
             </ScrollReveal>
 
-            {/* Lightbox */}
-            <AnimatePresence>
-                {selectedImage && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
-                        onClick={closeLightbox}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.8 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0.8 }}
-                            className="relative max-w-4xl max-h-full"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <button
-                                onClick={closeLightbox}
-                                className="absolute -top-10 right-0 text-white hover:text-gray-300 z-10"
-                            >
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+            {/* Image Preview Modal */}
+            {selectedImage && (
+                <GlobalModal
+                    isModalOpen={!!selectedImage}
+                    setModalHandler={closeImageModal}
+                    title={selectedImage.title || 'Gallery Image'}
+                    width={900}
+                    closeIcon={true}
+                >
+                    <div className="p-6">
+                        <div className="relative mb-6">
+                            <Image
+                                src={selectedImage.image}
+                                alt={selectedImage.title || 'Gallery image'}
+                                width={800}
+                                height={600}
+                                className="w-full h-auto max-h-96 object-contain rounded-lg"
+                            />
+                        </div>
 
-                            <div className="bg-white rounded-lg overflow-hidden">
-                                <div
-                                    className="h-96 bg-gray-300"
-                                    style={{
-                                        backgroundImage: `url(${selectedImage.image})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center'
-                                    }}
-                                />
+                        <div className="space-y-4">
+                            {selectedImage.description && (
+                                <div>
+                                    <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
+                                    <p className="text-gray-700">{selectedImage.description}</p>
+                                </div>
+                            )}
 
-                                <div className="p-6">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-2xl font-bold text-gray-900">{selectedImage.title}</h3>
-                                        <BlackTag>{selectedImage.category}</BlackTag>
-                                    </div>
-
-                                    <p className="text-gray-600 mb-4">{selectedImage.description}</p>
-
-                                    <div className="flex items-center justify-between text-sm text-gray-500">
-                                        <div className="flex items-center">
-                                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
-                                                {selectedImage.uploadedBy.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <p className="font-medium text-gray-900">{selectedImage.uploadedBy}</p>
-                                                <p className="text-xs">
-                                                    {selectedImage.userType === 'teacher'
-                                                        ? `Teacher, ${selectedImage.department} Department`
-                                                        : `Alumni, Batch ${selectedImage.batch}`
-                                                    }
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="text-right">
-                                            <p className="font-medium">{selectedImage.year}</p>
-                                            <div className="flex items-center space-x-4 mt-1">
-                                                <span className="flex items-center">
-                                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                                    </svg>
-                                                    {selectedImage.likes}
-                                                </span>
-                                                <span className="flex items-center">
-                                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                                    </svg>
-                                                    {selectedImage.comments}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span className="font-medium text-gray-900">Year:</span>
+                                    <span className="ml-2 text-gray-700">{selectedImage.year}</span>
+                                </div>
+                                <div>
+                                    <span className="font-medium text-gray-900">Uploaded:</span>
+                                    <span className="ml-2 text-gray-700">
+                                        {new Date(selectedImage.createdAt).toLocaleDateString()}
+                                    </span>
                                 </div>
                             </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
+                            {selectedImage.user && (
+                                <div className="flex items-center pt-4 border-t border-gray-200">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white font-bold mr-3">
+                                        {getInitials(selectedImage.user.name)}
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-900">{selectedImage.user.name}</p>
+                                        <p className="text-sm text-gray-600">
+                                            {selectedImage.user.alumni_type === 'student'
+                                                ? `Alumni, Batch ${selectedImage.user.batch}`
+                                                : 'Faculty Member'}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </GlobalModal>
+            )}
 
             {/* CTA Section */}
             <ScrollReveal direction="up" delay={0.6}>
@@ -199,11 +292,11 @@ const GalleryPage = () => {
                         </p>
                         <div className='flex justify-center items-center'>
                             <BlackButton
-                                onClick={() => router.push('/contact')}
+                                onClick={() => router.push('/profile')}
                                 size="lg"
                                 className="bg-white text-black hover:bg-gray-200"
                             >
-                                Contact Us to Upload
+                                Upload Your Photos
                             </BlackButton>
                         </div>
                     </div>

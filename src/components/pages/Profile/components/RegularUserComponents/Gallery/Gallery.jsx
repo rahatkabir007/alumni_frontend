@@ -12,7 +12,6 @@ import GalleryGrid from './GalleryGrid'
 const Gallery = ({ userData }) => {
     const [showUploadForm, setShowUploadForm] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
-    const [statusFilter, setStatusFilter] = useState('all')
     const [yearFilter, setYearFilter] = useState('')
 
     const canUploadGallery = checkUserPermission(userData.roles, PERMISSIONS.UPLOAD_GALLERY)
@@ -26,7 +25,6 @@ const Gallery = ({ userData }) => {
     } = useGetMyGalleriesQuery({
         page: currentPage,
         limit: 12,
-        status: statusFilter,
         year: yearFilter || undefined,
         sortBy: 'createdAt',
         sortOrder: 'desc'
@@ -45,10 +43,9 @@ const Gallery = ({ userData }) => {
         setCurrentPage(page)
     }
 
-    const handleFilterChange = (newFilters) => {
-        setCurrentPage(1) // Reset to first page when filters change
-        if (newFilters.status !== undefined) setStatusFilter(newFilters.status)
-        if (newFilters.year !== undefined) setYearFilter(newFilters.year)
+    const handleYearChange = (year) => {
+        setCurrentPage(1)
+        setYearFilter(year)
     }
 
     const getCurrentYearRange = () => {
@@ -105,24 +102,10 @@ const Gallery = ({ userData }) => {
             <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                     <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-700">Status:</label>
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => handleFilterChange({ status: e.target.value })}
-                            className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                        >
-                            <option value="all">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="pending_approval">Pending Approval</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
                         <label className="text-sm font-medium text-gray-700">Year:</label>
                         <select
                             value={yearFilter}
-                            onChange={(e) => handleFilterChange({ year: e.target.value })}
+                            onChange={(e) => handleYearChange(e.target.value)}
                             className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
                         >
                             <option value="">All Years</option>
@@ -132,13 +115,13 @@ const Gallery = ({ userData }) => {
                         </select>
                     </div>
 
-                    {(statusFilter !== 'all' || yearFilter) && (
+                    {yearFilter && (
                         <BlackButton
                             size="xs"
                             variant="outline"
-                            onClick={() => handleFilterChange({ status: 'all', year: '' })}
+                            onClick={() => handleYearChange('')}
                         >
-                            Clear Filters
+                            Clear Filter
                         </BlackButton>
                     )}
                 </div>
@@ -194,17 +177,22 @@ const Gallery = ({ userData }) => {
                 </>
             )}
 
-            {/* Empty State for Users Without Upload Permission */}
-            {!canUploadGallery && !isLoading && !error && galleries.length === 0 && (
+            {/* Empty State */}
+            {!isLoading && !error && galleries.length === 0 && (
                 <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
                     <div className="text-center py-12">
                         <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <h4 className="text-lg font-semibold text-gray-900 mb-2">No Gallery Images</h4>
-                        <p className="text-gray-600">
-                            You don't have permission to upload gallery images or haven't uploaded any yet.
+                        <p className="text-gray-600 mb-4">
+                            {canUploadGallery ? "Start uploading images to create your gallery" : "You don't have permission to upload gallery images or haven't uploaded any yet."}
                         </p>
+                        {canUploadGallery && (
+                            <BlackButton onClick={() => setShowUploadForm(true)}>
+                                Upload Your First Image
+                            </BlackButton>
+                        )}
                     </div>
                 </ElegantCard>
             )}
@@ -213,3 +201,4 @@ const Gallery = ({ userData }) => {
 }
 
 export default Gallery
+
