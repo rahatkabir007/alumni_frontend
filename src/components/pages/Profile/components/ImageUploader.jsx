@@ -45,7 +45,7 @@ const ImageUploader = ({
                 });
             });
 
-            ToastMessage.notifySuccess(`Image uploaded successfully via ${result.provider}`);
+            // ToastMessage.notifySuccess(`Image uploaded successfully`);
             await onUpload(result.url);
         } catch (error) {
             console.error('Upload error:', error);
