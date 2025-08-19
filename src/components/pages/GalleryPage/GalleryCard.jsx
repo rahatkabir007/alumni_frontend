@@ -14,7 +14,7 @@ const GalleryCard = ({ item }) => {
                     className="h-48 bg-gradient-to-br from-gray-300 to-gray-400 group-hover:scale-105 transition-transform duration-300"
                     style={{
                         backgroundImage: `url(${item.image})`,
-                        backgroundSize: 'cover',
+                        backgroundSize: 'contain',
                         backgroundPosition: 'center'
                     }}
                 />
