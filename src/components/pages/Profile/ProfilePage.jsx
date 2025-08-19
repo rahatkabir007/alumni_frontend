@@ -21,6 +21,7 @@ import EventManagement from './components/AdminComponents/EventManagement/EventM
 import Gallery from './components/RegularUserComponents/Gallery/Gallery'
 import UserManagement from './components/AdminComponents/UserManagement/UserManagement'
 import GalleryManagement from './components/AdminComponents/GalleryManagement/GalleryManagement'
+import AnnouncementManagement from './components/AdminComponents/Announcements/AnnouncementManagement'
 
 const ProfilePage = () => {
   const dispatch = useDispatch()

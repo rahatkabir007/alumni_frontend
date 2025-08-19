@@ -37,9 +37,9 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
             }
         }
         if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_GALLERY)) {
-            if (!items.some(item => item.id === 'gallery-management')) {
+            if (!items.some(item => item.id === 'gallery_management')) {
                 items.push({
-                    id: 'gallery-management',
+                    id: 'gallery_management',
                     label: 'Gallery Management',
                     icon: (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,9 +50,9 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
             }
         }
         if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_BLOGS)) {
-            if (!items.some(item => item.id === 'blog-management')) {
+            if (!items.some(item => item.id === 'blog_management')) {
                 items.push({
-                    id: 'blog-management',
+                    id: 'blog_management',
                     label: 'Blogs Management',
                     icon: (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,9 +63,9 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
             }
         }
         if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_EVENTS)) {
-            if (!items.some(item => item.id === 'event-management')) {
+            if (!items.some(item => item.id === 'event_management')) {
                 items.push({
-                    id: 'event-management',
+                    id: 'event_management',
                     label: 'Events Management',
                     icon: (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,9 +77,9 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
         }
 
         if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_ANNOUNCEMENTS) || checkUserPermission(userData.roles, PERMISSIONS.POST_ANNOUNCEMENT)) {
-            if (!items.some(item => item.id === 'announcements')) {
+            if (!items.some(item => item.id === 'announcement_management')) {
                 items.push({
-                    id: 'announcements',
+                    id: 'announcement_management',
                     label: 'Announcements',
                     icon: (
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
