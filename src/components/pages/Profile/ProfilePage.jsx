@@ -19,6 +19,8 @@ import ReviewsTestimonials from './components/RegularUserComponents/ReviewsTesti
 import BlogManagement from './components/AdminComponents/BlogManagement/BlogManagement'
 import EventManagement from './components/AdminComponents/EventManagement/EventManagement'
 import Gallery from './components/RegularUserComponents/Gallery/Gallery'
+import UserManagement from './components/AdminComponents/UserManagement/UserManagement'
+import GalleryManagement from './components/AdminComponents/GalleryManagement/GalleryManagement'
 
 const ProfilePage = () => {
   const dispatch = useDispatch()
@@ -144,7 +146,8 @@ const ProfilePage = () => {
         return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_USERS) ?
           <UserManagement userData={currentUser} /> : null
       case 'gallery_management':
-        return <GalleryManagement userData={currentUser} />
+        return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_GALLERY) ?
+          <GalleryManagement userData={currentUser} /> : null
       case 'blog_management':
         return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_BLOGS) ?
           <BlogManagement userData={currentUser} /> : null

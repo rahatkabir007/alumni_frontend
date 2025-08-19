@@ -18,6 +18,9 @@ export const PERMISSIONS = {
     APPROVE_REVIEW: 'approve_review',
     MODERATE_CONTENT: 'moderate_content',
     MANAGE_USERS: 'manage_users', // Moved to moderator level to allow user management access
+    MANAGE_GALLERY: 'manage_gallery', // Allows managing gallery content
+    MANAGE_BLOGS: 'manage_blogs', // Allows managing blog content
+    MANAGE_EVENTS: 'manage_events', // Allows managing event content
     // MODERATOR RESTRICTION: BLOCK_USER permission is split - moderators can activate (pending to active) but not deactivate (active to inactive)
 
     // Admin permissions  
