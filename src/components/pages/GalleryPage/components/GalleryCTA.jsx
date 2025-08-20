@@ -3,9 +3,12 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import ScrollReveal from '@/components/animations/ScrollReveal'
 import BlackButton from '@/components/common/BlackButton'
+import { useDispatch } from 'react-redux'
+import { setActiveSection } from '@/redux/features/profile/profileSlice'
 
 const GalleryCTA = () => {
     const router = useRouter()
+    const dispatch = useDispatch()
 
     return (
         <ScrollReveal direction="up" delay={0.6}>
@@ -19,7 +22,10 @@ const GalleryCTA = () => {
                     </p>
                     <div className='flex justify-center items-center'>
                         <BlackButton
-                            onClick={() => router.push('/profile')}
+                            onClick={() => {
+                                router.push('/profile')
+                                dispatch(setActiveSection("gallery"))
+                            }}
                             size="lg"
                             className="bg-white text-black hover:bg-gray-200"
                         >

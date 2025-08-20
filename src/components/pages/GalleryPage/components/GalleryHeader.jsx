@@ -4,9 +4,12 @@ import { useRouter } from 'next/navigation'
 import ScrollReveal from '@/components/animations/ScrollReveal'
 import BlackButton from '@/components/common/BlackButton'
 import IntroSection from '@/components/common/IntroSection'
+import { useDispatch } from 'react-redux'
+import { setActiveSection } from '@/redux/features/profile/profileSlice'
 
 const GalleryHeader = () => {
     const router = useRouter()
+    const dispatch = useDispatch()
 
     return (
         <>
@@ -27,7 +30,10 @@ const GalleryHeader = () => {
                                 <p className="text-gray-600">Have photos from your CIHS days? Login and share them with the community!</p>
                             </div>
                             <BlackButton
-                                onClick={() => router.push('/profile')}
+                                onClick={() => {
+                                    router.push('/profile')
+                                    dispatch(setActiveSection("gallery"))
+                                }}
                                 icon={
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
