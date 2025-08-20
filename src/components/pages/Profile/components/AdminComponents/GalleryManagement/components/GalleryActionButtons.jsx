@@ -23,14 +23,14 @@ const GalleryActionButtons = ({ gallery, processingIds, onStatusUpdate }) => {
                     size="xs"
                     variant="outline"
                     className="text-red-600 border-red-600 hover:bg-red-50"
-                    onClick={() => onStatusUpdate(gallery.id, 'rejected')}
+                    onClick={() => onStatusUpdate(gallery.id, 'inactive')}
                     disabled={isProcessing}
                 >
                     Reject
                 </BlackButton>
             </div>
         )
-    } else if (currentStatus === 'rejected') {
+    } else if (currentStatus === 'inactive') {
         return (
             <BlackButton
                 size="xs"
@@ -52,7 +52,7 @@ const GalleryActionButtons = ({ gallery, processingIds, onStatusUpdate }) => {
                     size="xs"
                     variant="outline"
                     className="text-red-600 border-red-600 hover:bg-red-50"
-                    onClick={() => onStatusUpdate(gallery.id, 'rejected')}
+                    onClick={() => onStatusUpdate(gallery.id, 'inactive')}
                     disabled={isProcessing}
                 >
                     Reject

@@ -15,7 +15,7 @@ const GalleryTabs = ({
     const tabs = [
         { id: 'pending_approval', label: 'Pending Approval', count: 0 },
         { id: 'active', label: 'Approved', count: 0 },
-        { id: 'rejected', label: 'Rejected', count: 0 }
+        { id: 'inactive', label: 'Rejected', count: 0 }
     ]
 
     const getCurrentYearRange = () => {
