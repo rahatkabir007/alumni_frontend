@@ -12,7 +12,7 @@ const GalleryActionButtons = ({ gallery, processingIds, onStatusUpdate }) => {
             <div className="flex gap-2">
                 <BlackButton
                     size="xs"
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    className="bg-green-600 hover:bg-green-700 text-white px-2"
                     onClick={() => onStatusUpdate(gallery.id, 'active')}
                     disabled={isProcessing}
                     loading={isProcessing}
@@ -22,7 +22,7 @@ const GalleryActionButtons = ({ gallery, processingIds, onStatusUpdate }) => {
                 <BlackButton
                     size="xs"
                     variant="outline"
-                    className="text-red-600 border-red-600 hover:bg-red-50"
+                    className="bg-red-600 hover:bg-red-700 text-white px-2"
                     onClick={() => onStatusUpdate(gallery.id, 'inactive')}
                     disabled={isProcessing}
                 >
@@ -34,7 +34,7 @@ const GalleryActionButtons = ({ gallery, processingIds, onStatusUpdate }) => {
         return (
             <BlackButton
                 size="xs"
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-green-600 hover:bg-green-700 text-white px-2"
                 onClick={() => onStatusUpdate(gallery.id, 'active')}
                 disabled={isProcessing}
                 loading={isProcessing}
@@ -48,15 +48,6 @@ const GalleryActionButtons = ({ gallery, processingIds, onStatusUpdate }) => {
                 <BlackTag size="xs" className="bg-green-100 text-green-800">
                     Approved
                 </BlackTag>
-                <BlackButton
-                    size="xs"
-                    variant="outline"
-                    className="text-red-600 border-red-600 hover:bg-red-50"
-                    onClick={() => onStatusUpdate(gallery.id, 'inactive')}
-                    disabled={isProcessing}
-                >
-                    Reject
-                </BlackButton>
             </div>
         )
     }
