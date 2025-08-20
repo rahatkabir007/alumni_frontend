@@ -106,11 +106,13 @@ export const commentsApi = apiSlice.injectEndpoints({
                 const params = new URLSearchParams({
                     maxDepth: maxDepth.toString()
                 })
+                // The endpoint should match your backend route: /replies/:replyId/nested
                 return `/replies/${replyId}/nested?${params.toString()}`
             },
             transformResponse: (response) => {
+                console.log('Nested replies API response:', response) // Debug log
                 if (response.success && response.data) {
-                    // The API returns data as an array directly, not nested in a replies property
+                    // The API returns data as an array directly
                     return {
                         replies: Array.isArray(response.data) ? response.data : [],
                         totalCount: Array.isArray(response.data) ? response.data.length : 0

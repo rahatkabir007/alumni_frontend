@@ -22,10 +22,20 @@ const ReplyItem = ({ reply, commentId, depth = 0, maxDepth = 3, onUpdate }) => {
     const {
         data: nestedRepliesData,
         isLoading: isLoadingNested,
+        error: nestedError,
         refetch: refetchNested
     } = useGetNestedRepliesQuery(
         { replyId: reply.id, maxDepth: maxDepth - depth },
-        { skip: !showNestedReplies || depth >= maxDepth }
+        { 
+            skip: !showNestedReplies || depth >= maxDepth,
+            // Add debug logging
+            onCompleted: (data) => {
+                console.log('✅ Nested replies loaded:', data)
+            },
+            onError: (error) => {
+                console.error('❌ Failed to load nested replies:', error)
+            }
+        }
     )
 
     const isOwner = currentUser?.id === reply.userId
@@ -83,6 +93,19 @@ const ReplyItem = ({ reply, commentId, depth = 0, maxDepth = 3, onUpdate }) => {
     const handleShowNestedReplies = () => {
         setShowNestedReplies(!showNestedReplies)
     }
+
+    // Debug logging
+    console.log("🚀 ~ ReplyItem Debug:", {
+        replyId: reply.id,
+        hasNestedReplies,
+        showNestedReplies,
+        depth,
+        maxDepth,
+        nestedRepliesData,
+        nestedError,
+        isLoadingNested,
+        skipQuery: !showNestedReplies || depth >= maxDepth
+    })
 
     return (
         <div className="ml-4 pl-4 border-l-2 border-gray-100">
@@ -220,6 +243,16 @@ const ReplyItem = ({ reply, commentId, depth = 0, maxDepth = 3, onUpdate }) => {
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
                                     <span className="ml-2 text-xs text-gray-500">Loading replies...</span>
                                 </div>
+                            ) : nestedError ? (
+                                <div className="text-xs text-red-500 py-2">
+                                    Error loading replies: {nestedError.message}
+                                    <button
+                                        onClick={() => refetchNested()}
+                                        className="text-blue-500 hover:text-blue-600 ml-1"
+                                    >
+                                        Try again
+                                    </button>
+                                </div>
                             ) : nestedRepliesData?.replies?.length > 0 ? (
                                 <div className="space-y-4">
                                     {nestedRepliesData.replies.map((nestedReply) => (
@@ -238,7 +271,7 @@ const ReplyItem = ({ reply, commentId, depth = 0, maxDepth = 3, onUpdate }) => {
                                 </div>
                             ) : hasNestedReplies ? (
                                 <div className="text-xs text-gray-500 italic py-2">
-                                    Failed to load replies.
+                                    Failed to load replies. 
                                     <button
                                         onClick={() => refetchNested()}
                                         className="text-blue-500 hover:text-blue-600 ml-1"
