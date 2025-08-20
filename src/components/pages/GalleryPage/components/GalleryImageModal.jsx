@@ -53,7 +53,7 @@ const GalleryImageModal = ({ selectedImage, onClose }) => {
                                 {new Date(selectedImage.createdAt).toLocaleDateString()}
                             </span>
                         </div>
-                        <div className='flex  justify-end'>
+                        <div className='flex justify-end'>
                             <LikeButton
                                 type="gallery"
                                 id={selectedImage.id}
