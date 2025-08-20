@@ -1,6 +1,6 @@
 "use client"
 import { useState } from 'react'
-import { useDeleteGalleryMutation, useUpdateGalleryMutation } from '@/redux/features/gallery/galleryApi'
+import { useDeleteGalleryMutation } from '@/redux/features/gallery/galleryApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import ElegantCard from '@/components/common/ElegantCard'
@@ -8,10 +8,10 @@ import BlackButton from '@/components/common/BlackButton'
 import BlackTag from '@/components/common/BlackTag'
 import Image from 'next/image'
 import GlobalModal from '@/components/antd/Modal/GlobalModal'
+import GalleryUploadForm from './GalleryUploadForm'
 
 const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
     const [deleteGallery, { isLoading: isDeleting }] = useDeleteGalleryMutation()
-    const [updateGallery, { isLoading: isUpdating }] = useUpdateGalleryMutation()
     const [selectedImage, setSelectedImage] = useState(null)
     const [editingGallery, setEditingGallery] = useState(null)
     const [deleteConfirm, setDeleteConfirm] = useState(null)
@@ -39,19 +39,9 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
         }
     }
 
-    const handleEdit = async (galleryData) => {
-        try {
-            await updateGallery({
-                galleryId: editingGallery.id,
-                galleryData
-            }).unwrap()
-            ToastMessage.notifySuccess('Gallery image updated successfully!')
-            setEditingGallery(null)
-            if (onRefresh) onRefresh()
-        } catch (error) {
-            console.error('Failed to update gallery image:', error)
-            ToastMessage.notifyError(error.message || 'Failed to update gallery image')
-        }
+    const handleEditSuccess = (result) => {
+        setEditingGallery(null)
+        if (onRefresh) onRefresh()
     }
 
     if (!galleries || galleries.length === 0) {
@@ -93,28 +83,48 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
                             </div>
 
                             {/* Action Buttons Overlay */}
-                            {(isOwner || canManageGallery) && (
-                                <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                    <BlackButton
-                                        size="xs"
-                                        variant="outline"
-                                        className="text-white border-white hover:bg-white hover:text-black"
-                                        onClick={() => setEditingGallery(gallery)}
-                                        disabled={isUpdating}
-                                    >
-                                        Edit
-                                    </BlackButton>
-                                    <BlackButton
-                                        size="xs"
-                                        variant="outline"
-                                        className="text-red-400 border-red-400 hover:bg-red-400 hover:text-white"
-                                        onClick={() => setDeleteConfirm(gallery)}
-                                        disabled={isDeleting}
-                                    >
-                                        Delete
-                                    </BlackButton>
-                                </div>
-                            )}
+                            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                {/* View Button */}
+                                <button
+                                    onClick={() => setSelectedImage(gallery)}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors"
+                                    title="View image"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+
+                                {/* Edit and Delete buttons for owner/admin */}
+                                {(isOwner || canManageGallery) && (
+                                    <>
+                                        {/* Edit Button */}
+                                        <button
+                                            onClick={() => setEditingGallery(gallery)}
+                                            className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full transition-colors"
+                                            title="Edit image"
+                                            disabled={isDeleting}
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            </svg>
+                                        </button>
+
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={() => setDeleteConfirm(gallery)}
+                                            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-colors"
+                                            title="Delete image"
+                                            disabled={isDeleting}
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </>
+                                )}
+                            </div>
                         </div>
 
                         <div className="p-4">
@@ -165,6 +175,34 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
                             <span>Year: {selectedImage.year}</span>
                             <span>Uploaded: {new Date(selectedImage.createdAt).toLocaleDateString()}</span>
                         </div>
+                        {selectedImage.like_count > 0 && (
+                            <div className="mt-2 flex items-center text-sm text-gray-500">
+                                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                                </svg>
+                                {selectedImage.like_count} likes
+                            </div>
+                        )}
+                    </div>
+                </GlobalModal>
+            )}
+
+            {/* Edit Gallery Modal */}
+            {editingGallery && (
+                <GlobalModal
+                    isModalOpen={!!editingGallery}
+                    setModalHandler={() => setEditingGallery(null)}
+                    title="Edit Gallery Image"
+                    width={800}
+                    closeIcon={true}
+                >
+                    <div className="p-6">
+                        <GalleryUploadForm
+                            editData={editingGallery}
+                            isEditMode={true}
+                            onSuccess={handleEditSuccess}
+                            onCancel={() => setEditingGallery(null)}
+                        />
                     </div>
                 </GlobalModal>
             )}
@@ -179,9 +217,19 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
                     closeIcon={true}
                 >
                     <div className="p-6">
-                        <p className="text-gray-700 mb-4">
-                            Are you sure you want to delete this gallery image? This action cannot be undone.
-                        </p>
+                        <div className="flex items-center mb-4">
+                            <div className="flex-shrink-0">
+                                <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <div className="ml-4">
+                                <h3 className="text-lg font-medium text-gray-900">Are you sure?</h3>
+                                <p className="text-gray-700">
+                                    This will permanently delete "{deleteConfirm.title}" from your gallery. This action cannot be undone.
+                                </p>
+                            </div>
+                        </div>
                         <div className="flex gap-3 justify-end">
                             <BlackButton
                                 variant="outline"

@@ -1,8 +1,8 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Formik, Form } from 'formik'
 import * as Yup from 'yup'
-import { useCreateGalleryMutation } from '@/redux/features/gallery/galleryApi'
+import { useCreateGalleryMutation, useUpdateGalleryMutation } from '@/redux/features/gallery/galleryApi'
 import { ToastMessage } from '@/utils/ToastMessage'
 import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
@@ -28,11 +28,23 @@ const GalleryUploadSchema = Yup.object().shape({
         .required('Image is required')
 })
 
-const GalleryUploadForm = ({ onSuccess, onCancel }) => {
-    const [createGallery, { isLoading }] = useCreateGalleryMutation()
+const GalleryUploadForm = ({ onSuccess, onCancel, editData = null, isEditMode = false }) => {
+    const [createGallery, { isLoading: isCreating }] = useCreateGalleryMutation()
+    const [updateGallery, { isLoading: isUpdating }] = useUpdateGalleryMutation()
     const [selectedFile, setSelectedFile] = useState(null)
     const [previewUrl, setPreviewUrl] = useState('')
     const [isUploading, setIsUploading] = useState(false)
+    const [imageChanged, setImageChanged] = useState(false)
+
+    const isLoading = isCreating || isUpdating
+
+    // Set initial values for edit mode
+    useEffect(() => {
+        if (isEditMode && editData) {
+            setPreviewUrl(editData.image)
+            setImageChanged(false)
+        }
+    }, [isEditMode, editData])
 
     const handleFileSelect = (event) => {
         const file = event.target.files?.[0]
@@ -52,35 +64,52 @@ const GalleryUploadForm = ({ onSuccess, onCancel }) => {
         setSelectedFile(file)
         const url = URL.createObjectURL(file)
         setPreviewUrl(url)
+        setImageChanged(true)
     }
 
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-        if (!selectedFile) {
-            ToastMessage.notifyError('Please select an image')
-            return
-        }
-
         try {
             setIsUploading(true)
-            ToastMessage.notifyInfo('Uploading image...')
+            let imageUrl = values.image
 
-            // Upload image first
-            const uploadResult = await imageUploadService.uploadImage(selectedFile)
+            // Upload new image if file was changed
+            if (selectedFile && imageChanged) {
+                ToastMessage.notifyInfo('Uploading image...')
+                const uploadResult = await imageUploadService.uploadImage(selectedFile)
+                imageUrl = uploadResult.url
+            } else if (isEditMode && !imageChanged) {
+                // Keep existing image URL for edit mode
+                imageUrl = editData.image
+            }
 
-            // Then create gallery entry with uploaded image URL
-            const result = await createGallery({
+            const galleryData = {
                 ...values,
-                image: uploadResult.url
-            }).unwrap()
+                image: imageUrl
+            }
 
-            ToastMessage.notifySuccess('Gallery image uploaded successfully!')
-            resetForm()
-            setSelectedFile(null)
-            setPreviewUrl('')
+            let result
+            if (isEditMode) {
+                result = await updateGallery({
+                    id: editData.id,
+                    ...galleryData
+                }).unwrap()
+                ToastMessage.notifySuccess('Gallery image updated successfully!')
+            } else {
+                result = await createGallery(galleryData).unwrap()
+                ToastMessage.notifySuccess('Gallery image uploaded successfully!')
+            }
+
+            if (!isEditMode) {
+                resetForm()
+                setSelectedFile(null)
+                setPreviewUrl('')
+                setImageChanged(false)
+            }
+
             if (onSuccess) onSuccess(result)
         } catch (error) {
-            console.error('Failed to upload gallery image:', error)
-            ToastMessage.notifyError(error.message || 'Failed to upload gallery image')
+            console.error(`Failed to ${isEditMode ? 'update' : 'upload'} gallery image:`, error)
+            ToastMessage.notifyError(error.message || `Failed to ${isEditMode ? 'update' : 'upload'} gallery image`)
         } finally {
             setSubmitting(false)
             setIsUploading(false)
@@ -89,37 +118,59 @@ const GalleryUploadForm = ({ onSuccess, onCancel }) => {
 
     const removeImage = () => {
         setSelectedFile(null)
-        setPreviewUrl('')
-        if (previewUrl) {
+        if (isEditMode) {
+            setPreviewUrl(editData?.image || '')
+            setImageChanged(false)
+        } else {
+            setPreviewUrl('')
+        }
+        if (previewUrl && imageChanged) {
             URL.revokeObjectURL(previewUrl)
         }
     }
 
+    const getInitialValues = () => {
+        if (isEditMode && editData) {
+            return {
+                title: editData.title || '',
+                description: editData.description || '',
+                year: editData.year || new Date().getFullYear(),
+                image: editData.image || null
+            }
+        }
+        return {
+            title: '',
+            description: '',
+            year: new Date().getFullYear(),
+            image: null
+        }
+    }
+
     return (
-        <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
+        <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }} shadow={isEditMode && "none"} border={isEditMode && false}>
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-900">Upload Gallery Image</h3>
-                {onCancel && (
-                    <BlackButton
-                        variant="outline"
-                        size="sm"
+                <h3 className="text-xl font-bold text-gray-900">
+                    {isEditMode ? '' : 'Upload Gallery Image'}
+                </h3>
+                {(!isEditMode && onCancel) && (
+                    <button
                         onClick={onCancel}
                         disabled={isLoading || isUploading}
+                        className="p-2 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+                        title="Cancel"
                     >
-                        Cancel
-                    </BlackButton>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 )}
             </div>
 
             <Formik
-                initialValues={{
-                    title: '',
-                    description: '',
-                    year: new Date().getFullYear(),
-                    image: null
-                }}
+                initialValues={getInitialValues()}
                 validationSchema={GalleryUploadSchema}
                 onSubmit={handleSubmit}
+                enableReinitialize={true}
             >
                 {({ isSubmitting, setFieldValue, values }) => {
                     // Update form value when image is selected
@@ -166,16 +217,46 @@ const GalleryUploadForm = ({ onSuccess, onCancel }) => {
                                                 height={300}
                                                 className="w-full h-48 object-cover rounded-lg"
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={removeImage}
-                                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
-                                                disabled={isUploading || isLoading}
-                                            >
-                                                ×
-                                            </button>
+                                            <div className="absolute top-2 right-2 flex gap-2">
+                                                {/* Change Image Button */}
+                                                <label
+                                                    htmlFor="image-change"
+                                                    className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer"
+                                                    title="Change image"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleFileSelect}
+                                                    className="hidden"
+                                                    id="image-change"
+                                                    disabled={isUploading || isLoading}
+                                                />
+
+                                                {/* Remove Image Button */}
+                                                <button
+                                                    type="button"
+                                                    onClick={removeImage}
+                                                    className="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
+                                                    disabled={isUploading || isLoading}
+                                                    title="Remove image"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <p className="text-sm text-green-600">✓ Image selected for upload</p>
+                                        <p className="text-sm text-green-600 flex items-center gap-1">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            {imageChanged ? 'New image selected' : 'Image ready'}
+                                        </p>
                                     </div>
                                 )}
                             </div>
@@ -241,9 +322,9 @@ const GalleryUploadForm = ({ onSuccess, onCancel }) => {
                                     type="submit"
                                     size="sm"
                                     loading={isSubmitting || isLoading || isUploading}
-                                    disabled={isSubmitting || isLoading || isUploading || !selectedFile}
+                                    disabled={isSubmitting || isLoading || isUploading || (!selectedFile && !isEditMode)}
                                 >
-                                    {isUploading ? 'Uploading...' : 'Upload to Gallery'}
+                                    {isUploading ? 'Processing...' : isEditMode ? 'Update Gallery' : 'Upload to Gallery'}
                                 </BlackButton>
                             </div>
                         </Form>
