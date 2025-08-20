@@ -9,6 +9,7 @@ import BlackTag from '@/components/common/BlackTag'
 import Image from 'next/image'
 import GlobalModal from '@/components/antd/Modal/GlobalModal'
 import GalleryUploadForm from './GalleryUploadForm'
+import GalleryInteractions from '@/components/common/GalleryInteractions/GalleryInteractions'
 
 const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
     const [deleteGallery, { isLoading: isDeleting }] = useDeleteGalleryMutation()
@@ -134,18 +135,13 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
                             {gallery.description && (
                                 <p className="text-sm text-gray-600 line-clamp-2 mb-2">{gallery.description}</p>
                             )}
-                            <div className="flex justify-between items-center text-xs text-gray-500">
+                            <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
                                 <span>Year: {gallery.year}</span>
                                 <span>{new Date(gallery.createdAt).toLocaleDateString()}</span>
                             </div>
-                            {gallery.like_count > 0 && (
-                                <div className="flex items-center mt-2 text-xs text-gray-500">
-                                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
-                                    </svg>
-                                    {gallery.like_count} likes
-                                </div>
-                            )}
+
+                            {/* Gallery Interactions */}
+                            <GalleryInteractions gallery={gallery} showInline={false} />
                         </div>
                     </ElegantCard>
                 ))}
@@ -157,7 +153,7 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
                     isModalOpen={!!selectedImage}
                     setModalHandler={() => setSelectedImage(null)}
                     title={selectedImage.title || 'Gallery Image'}
-                    width={800}
+                    width={900}
                     closeIcon={true}
                 >
                     <div className="p-4">
@@ -166,23 +162,18 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
                             alt={selectedImage.title || 'Gallery image'}
                             width={800}
                             height={600}
-                            className="w-full h-auto max-h-96 object-contain rounded-lg"
+                            className="w-full h-auto max-h-96 object-contain rounded-lg mb-4"
                         />
                         {selectedImage.description && (
-                            <p className="mt-4 text-gray-700">{selectedImage.description}</p>
+                            <p className="mb-4 text-gray-700">{selectedImage.description}</p>
                         )}
-                        <div className="mt-4 flex justify-between text-sm text-gray-500">
+                        <div className="mb-4 flex justify-between text-sm text-gray-500">
                             <span>Year: {selectedImage.year}</span>
                             <span>Uploaded: {new Date(selectedImage.createdAt).toLocaleDateString()}</span>
                         </div>
-                        {selectedImage.like_count > 0 && (
-                            <div className="mt-2 flex items-center text-sm text-gray-500">
-                                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
-                                </svg>
-                                {selectedImage.like_count} likes
-                            </div>
-                        )}
+
+                        {/* Interactions in Modal */}
+                        <GalleryInteractions gallery={selectedImage} showInline={true} />
                     </div>
                 </GlobalModal>
             )}
