@@ -2,6 +2,8 @@
 import React from 'react'
 import GlobalModal from '@/components/antd/Modal/GlobalModal'
 import Image from 'next/image'
+import CommentsList from '@/components/common/Comments/CommentsList'
+import LikeButton from '@/components/common/LikeButton/LikeButton'
 
 const GalleryImageModal = ({ selectedImage, onClose }) => {
     const getInitials = (name) => {
@@ -68,6 +70,20 @@ const GalleryImageModal = ({ selectedImage, onClose }) => {
                             </div>
                         </div>
                     )}
+                </div>
+                <LikeButton
+                    type="gallery"
+                    id={selectedImage.id}
+                    initialLikeCount={selectedImage.like_count}
+                    initialIsLiked={selectedImage.isLikedByCurrentUser || false}
+                    showCount={true}
+                />
+                <div className="p-6">
+                    <CommentsList
+                        type="gallery"
+                        id={selectedImage.id}
+                        title="Comments"
+                    />
                 </div>
             </div>
         </GlobalModal>

@@ -18,24 +18,24 @@ const LikeButton = ({
     const [optimisticLikeCount, setOptimisticLikeCount] = useState(initialLikeCount)
     const [optimisticIsLiked, setOptimisticIsLiked] = useState(initialIsLiked)
 
-    const { data: likeStatus, refetch } = useGetLikeStatusQuery(
-        { type, id },
-        { skip: !isAuthenticated }
-    )
+    // const { data: likeStatus, refetch } = useGetLikeStatusQuery(
+    //     { type, id },
+    //     { skip: !isAuthenticated }
+    // )
 
     const [toggleLike, { isLoading }] = useToggleLikeMutation()
 
     // Update optimistic state when real data comes in or initial props change
-    useEffect(() => {
-        if (likeStatus) {
-            setOptimisticLikeCount(likeStatus.likeCount || initialLikeCount)
-            setOptimisticIsLiked(likeStatus.isLiked || initialIsLiked)
-        } else {
-            // Use initial props if no server data
-            setOptimisticLikeCount(initialLikeCount)
-            setOptimisticIsLiked(initialIsLiked)
-        }
-    }, [likeStatus, initialLikeCount, initialIsLiked])
+    // useEffect(() => {
+    //     if (likeStatus) {
+    //         setOptimisticLikeCount(likeStatus.likeCount || initialLikeCount)
+    //         setOptimisticIsLiked(likeStatus.isLiked || initialIsLiked)
+    //     } else {
+    //         // Use initial props if no server data
+    //         setOptimisticLikeCount(initialLikeCount)
+    //         setOptimisticIsLiked(initialIsLiked)
+    //     }
+    // }, [likeStatus, initialLikeCount, initialIsLiked])
 
     const handleLike = async () => {
         if (!isAuthenticated) {
@@ -59,9 +59,9 @@ const LikeButton = ({
             }).unwrap()
 
             // Refetch to ensure consistency
-            setTimeout(() => {
-                refetch()
-            }, 500)
+            // setTimeout(() => {
+            //     refetch()
+            // }, 500)
         } catch (error) {
             // Revert optimistic update on error
             setOptimisticIsLiked(!newIsLiked)
@@ -99,8 +99,8 @@ const LikeButton = ({
             onClick={handleLike}
             disabled={isLoading}
             className={`flex items-center gap-1 transition-all duration-200 ${optimisticIsLiked
-                    ? 'text-red-500 hover:text-red-600 scale-105'
-                    : 'text-gray-500 hover:text-red-500'
+                ? 'text-red-500 hover:text-red-600 scale-105'
+                : 'text-gray-500 hover:text-red-500'
                 } disabled:opacity-50 ${className}`}
             title={isAuthenticated ? (optimisticIsLiked ? 'Unlike' : 'Like') : 'Login to like'}
         >

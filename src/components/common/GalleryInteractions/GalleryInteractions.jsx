@@ -73,7 +73,7 @@ const GalleryInteractions = ({ gallery, showInline = false }) => {
                 <GlobalModal
                     isModalOpen={showComments}
                     setModalHandler={() => setShowComments(false)}
-                    title={`Comments - ${gallery.title || 'Gallery Image'}`}
+                    title={`${gallery.title || 'Gallery Image'}`}
                     width={700}
                     closeIcon={true}
                 >
