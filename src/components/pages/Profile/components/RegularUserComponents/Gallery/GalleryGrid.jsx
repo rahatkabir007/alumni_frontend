@@ -10,6 +10,8 @@ import Image from 'next/image'
 import GlobalModal from '@/components/antd/Modal/GlobalModal'
 import GalleryUploadForm from './GalleryUploadForm'
 import GalleryInteractions from '@/components/common/GalleryInteractions/GalleryInteractions'
+import LikeButton from '@/components/common/LikeButton/LikeButton'
+import CommentsList from '@/components/common/Comments/CommentsList'
 
 const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
     const [deleteGallery, { isLoading: isDeleting }] = useDeleteGalleryMutation()
@@ -173,7 +175,18 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
                         </div>
 
                         {/* Interactions in Modal */}
-                        <GalleryInteractions gallery={selectedImage} showInline={true} />
+                        <LikeButton
+                            type="gallery"
+                            id={selectedImage.id}
+                            initialLikeCount={selectedImage.like_count}
+                            initialIsLiked={selectedImage.isLikedByCurrentUser || false}
+                            showCount={true}
+                        />
+                        <CommentsList
+                            type="gallery"
+                            id={selectedImage.id}
+                            title="Comments"
+                        />
                     </div>
                 </GlobalModal>
             )}

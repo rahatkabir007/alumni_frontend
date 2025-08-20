@@ -21,8 +21,10 @@ const CommentItem = ({ comment, onUpdate }) => {
 
     const isOwner = currentUser?.id === comment.userId
     const canEdit = isOwner || currentUser?.roles?.some(role =>
-        ['admin', 'super_admin'].includes(role.name)
+        ['admin', 'super_admin', 'moderator'].includes(role.name)
     )
+
+
 
     const handleUpdate = async () => {
         if (!editContent.trim()) {

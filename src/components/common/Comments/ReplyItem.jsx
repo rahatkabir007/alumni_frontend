@@ -40,7 +40,7 @@ const ReplyItem = ({ reply, commentId, depth = 0, maxDepth = 3, onUpdate }) => {
 
     const isOwner = currentUser?.id === reply.userId
     const canEdit = isOwner || currentUser?.roles?.some(role =>
-        ['admin', 'super_admin'].includes(role.name)
+        ['admin', 'super_admin', 'moderator'].includes(role.name)
     )
 
 

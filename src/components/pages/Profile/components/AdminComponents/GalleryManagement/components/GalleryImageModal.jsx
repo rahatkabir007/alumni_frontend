@@ -4,6 +4,8 @@ import GlobalModal from '@/components/antd/Modal/GlobalModal'
 import BlackTag from '@/components/common/BlackTag'
 import Image from 'next/image'
 import GalleryActionButtons from './GalleryActionButtons'
+import LikeButton from '@/components/common/LikeButton/LikeButton'
+import CommentsList from '@/components/common/Comments/CommentsList'
 
 const GalleryImageModal = ({
     selectedImage,
@@ -94,6 +96,18 @@ const GalleryImageModal = ({
                             </div>
                         </div>
                     )}
+                    <LikeButton
+                        type="gallery"
+                        id={selectedImage.id}
+                        initialLikeCount={selectedImage.like_count}
+                        initialIsLiked={selectedImage.isLikedByCurrentUser || false}
+                        showCount={true}
+                    />
+                    <CommentsList
+                        type="gallery"
+                        id={selectedImage.id}
+                        title="Comments"
+                    />
                 </div>
             </div>
         </GlobalModal>
