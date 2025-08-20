@@ -26,7 +26,7 @@ const ReplyItem = ({ reply, commentId, depth = 0, maxDepth = 3, onUpdate }) => {
         refetch: refetchNested
     } = useGetNestedRepliesQuery(
         { replyId: reply.id, maxDepth: maxDepth - depth },
-        { 
+        {
             skip: !showNestedReplies || depth >= maxDepth,
             // Add debug logging
             onCompleted: (data) => {
@@ -271,7 +271,7 @@ const ReplyItem = ({ reply, commentId, depth = 0, maxDepth = 3, onUpdate }) => {
                                 </div>
                             ) : hasNestedReplies ? (
                                 <div className="text-xs text-gray-500 italic py-2">
-                                    Failed to load replies. 
+                                    Failed to load replies.
                                     <button
                                         onClick={() => refetchNested()}
                                         className="text-blue-500 hover:text-blue-600 ml-1"
