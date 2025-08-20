@@ -1,27 +1,21 @@
 "use client"
-import { useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { selectCurrentUser, selectIsAuthenticated, selectToken, logout, setCredentials } from '@/redux/features/auth/authSlice'
-import { useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi'
-import { ToastMessage } from '@/utils/ToastMessage'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/navigation'
-import ElegantCard from '@/components/common/ElegantCard'
-import BlackButton from '@/components/common/BlackButton'
+import { selectCurrentUser, selectIsAuthenticated, selectToken, setCredentials, logout } from '@/redux/features/auth/authSlice'
+import { setHasTriedFetch } from '@/redux/features/profile/profileSlice'
+import { useProfile } from '@/hooks/useProfile'
+import { ToastMessage } from '@/utils/ToastMessage'
 import ProfileSidebar from './components/ProfileSidebar'
-
-
-import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import BasicInfo from './components/RegularUserComponents/BasicInfo/BasicInfo'
-import AdditionalInfo from './components/RegularUserComponents/AdditionalInfo/AdditionalInfo'
-import Blogs from './components/RegularUserComponents/Blogs/Blogs'
-import Events from './components/RegularUserComponents/Events/Events'
-import ReviewsTestimonials from './components/RegularUserComponents/ReviewsTestimonials/ReviewsTestimonials'
-import BlogManagement from './components/AdminComponents/BlogManagement/BlogManagement'
-import EventManagement from './components/AdminComponents/EventManagement/EventManagement'
 import Gallery from './components/RegularUserComponents/Gallery/Gallery'
+import AdditionalInfo from './components/RegularUserComponents/AdditionalInfo/AdditionalInfo'
 import UserManagement from './components/AdminComponents/UserManagement/UserManagement'
 import GalleryManagement from './components/AdminComponents/GalleryManagement/GalleryManagement'
+import BlogManagement from './components/AdminComponents/BlogManagement/BlogManagement'
+import EventManagement from './components/AdminComponents/EventManagement/EventManagement'
 import AnnouncementManagement from './components/AdminComponents/Announcements/AnnouncementManagement'
+import { useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi'
 
 const ProfilePage = () => {
   const dispatch = useDispatch()
@@ -32,13 +26,15 @@ const ProfilePage = () => {
 
   const [triggerGetUser, { isLoading: isUserLoading }] = useLazyGetCurrentUserQuery()
 
-  const [activeSection, setActiveSection] = useState('basic-info')
-  const [hasTriedFetch, setHasTriedFetch] = useState(false)
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  // Debug log to see current user state
-  useEffect(() => {
-  }, [currentUser, isAuthenticated, token]);
+  // Use profile hook with error handling
+  const {
+    activeSection,
+    isRefreshing,
+    hasTriedFetch,
+    handleSectionChange,
+    handleRefreshData,
+    handleUserUpdate
+  } = useProfile()
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -52,19 +48,17 @@ const ProfilePage = () => {
   // Fetch user data if we have token but no user data
   useEffect(() => {
     const fetchUserDataIfNeeded = async () => {
-      // Check if we have token but no user data
       const storedToken = token || localStorage.getItem('token');
 
       if (storedToken && !currentUser && !hasTriedFetch && !isUserLoading) {
         console.log('Profile Page - Have token but no user data, fetching...');
-        setHasTriedFetch(true)
+        dispatch(setHasTriedFetch(true))
 
         try {
           console.log('Profile Page - Fetching user data...');
           const result = await triggerGetUser().unwrap()
           console.log('Profile Page - User data fetched successfully:', result);
 
-          // Set credentials with the fetched user data and stored token
           dispatch(setCredentials({
             user: result,
             token: storedToken
@@ -73,14 +67,12 @@ const ProfilePage = () => {
         } catch (error) {
           console.error('Profile Page - Failed to fetch user data:', error);
 
-          // Only logout on authentication errors
           if (error.status === 401 || error.status === 403) {
-            console.log('Profile Page - Authentication failed, logging out...');
             dispatch(logout())
             ToastMessage.notifyError('Session expired. Please login again.')
             router.push('/login')
           } else {
-            ToastMessage.notifyWarning('Failed to load profile data')
+            ToastMessage.notifyError('Failed to refresh data')
           }
         }
       }
@@ -89,78 +81,44 @@ const ProfilePage = () => {
     fetchUserDataIfNeeded()
   }, [currentUser, token, hasTriedFetch, isUserLoading, triggerGetUser, dispatch, router])
 
-  const handleRefreshData = async () => {
-    try {
-      setIsRefreshing(true)
-      const result = await triggerGetUser().unwrap()
-
-      const storedToken = token || localStorage.getItem('token');
-      dispatch(setCredentials({
-        user: result,
-        token: storedToken
-      }));
-
-      // ToastMessage.notifyInfo('Profile data refreshed!')
-    } catch (error) {
-      console.error('Profile Page - Failed to refresh user data:', error);
-
-      if (error.status === 401 || error.status === 403) {
-        dispatch(logout())
-        ToastMessage.notifyError('Session expired. Please login again.')
-        router.push('/login')
-      } else {
-        ToastMessage.notifyError('Failed to refresh data')
-      }
-    } finally {
-      setIsRefreshing(false)
-    }
-  }
-
-  const handleUserUpdate = (updatedData) => {
-    const storedToken = token || localStorage.getItem('token');
-    dispatch(setCredentials({
-      user: { ...currentUser, ...updatedData },
-      token: storedToken
-    }));
-  }
-
-  const renderActiveSection = () => {
-    if (!currentUser) {
-      console.log('No current user, not rendering section');
-      return null;
-    }
-
+  const renderContent = () => {
     switch (activeSection) {
       case 'basic-info':
-        return <BasicInfo userData={currentUser} onUpdate={handleUserUpdate} refetch={handleRefreshData} />
+        return (
+          <BasicInfo
+            userData={currentUser}
+            onUpdate={handleUserUpdate}
+            refetch={handleRefreshData}
+          />
+        )
       case 'additional-info':
-        return <AdditionalInfo userData={currentUser} onUpdate={handleUserUpdate} refetch={handleRefreshData} />
-      case 'blogs':
-        return <Blogs userData={currentUser} />
-      case 'events':
-        return <Events userData={currentUser} />
+        return (
+          <AdditionalInfo
+            userData={currentUser}
+            onUpdate={handleUserUpdate}
+            refetch={handleRefreshData}
+          />
+        )
       case 'gallery':
         return <Gallery userData={currentUser} />
-      case 'reviews':
-        return <ReviewsTestimonials userData={currentUser} />
       case 'users':
-        return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_USERS) ?
-          <UserManagement userData={currentUser} /> : null
+        return <UserManagement userData={currentUser} />
       case 'gallery_management':
-        return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_GALLERY) ?
-          <GalleryManagement userData={currentUser} /> : null
+        return <GalleryManagement userData={currentUser} />
       case 'blog_management':
-        return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_BLOGS) ?
-          <BlogManagement userData={currentUser} /> : null
+        return <BlogManagement userData={currentUser} />
       case 'event_management':
-        return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_EVENTS) ?
-          <EventManagement userData={currentUser} /> : null
+        return <EventManagement userData={currentUser} />
       case 'announcement_management':
-        return checkUserPermission(currentUser.roles, PERMISSIONS.MANAGE_ANNOUNCEMENTS) ?
-          <AnnouncementManagement userData={currentUser} /> : null
-
+        return <AnnouncementManagement userData={currentUser} />
       default:
-        return <BasicInfo userData={currentUser} onUpdate={handleUserUpdate} />
+        return (
+          <BasicInfo
+            userData={currentUser}
+            onUpdate={handleUserUpdate}
+            refetch={handleRefreshData}
+          />
+        )
     }
   }
 
@@ -172,10 +130,12 @@ const ProfilePage = () => {
   // Show loading if we're fetching and have no data
   if ((isUserLoading || !hasTriedFetch) && !currentUser) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading profile...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your profile...</p>
+          </div>
         </div>
       </div>
     )
@@ -184,55 +144,39 @@ const ProfilePage = () => {
   // Show error state if we have no user data after trying to fetch
   if (!currentUser && hasTriedFetch && !isUserLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <ElegantCard className="text-center max-w-md" hover={false} initial={{ opacity: 0, y: 0 }}>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">No Profile Data</h2>
-          <p className="text-gray-600 mb-6">Unable to load your profile information.</p>
-          <div className="space-y-2 text-sm text-gray-500 mb-4">
-            <p>Debug Info:</p>
-            <p>Authenticated: {isAuthenticated ? 'Yes' : 'No'}</p>
-            <p>Token: {(token || localStorage.getItem('token')) ? 'Present' : 'Missing'}</p>
-            <p>Has Tried Fetch: {hasTriedFetch ? 'Yes' : 'No'}</p>
-            <p>Loading: {isUserLoading ? 'Yes' : 'No'}</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <div className="text-red-400 text-4xl mb-4">⚠️</div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Failed to Load Profile</h4>
+            <p className="text-gray-600 mb-4">There was an error loading your profile data.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              Refresh Page
+            </button>
           </div>
-          <BlackButton onClick={() => {
-            handleRefreshData()
-            ToastMessage.notifyInfo('Profile data refreshed!')
-          }}>
-            Try Again
-          </BlackButton>
-        </ElegantCard>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
           <div className="lg:col-span-1">
             <ProfileSidebar
               userData={currentUser}
               activeSection={activeSection}
-              onSectionChange={setActiveSection}
+              onSectionChange={handleSectionChange}
               onRefresh={handleRefreshData}
-              isRefreshing={isRefreshing}
             />
           </div>
 
-          {/* Main Content */}
           <div className="lg:col-span-3">
-            {isRefreshing ? (
-              <ElegantCard hover={false} initial={{ opacity: 0, y: 0 }}>
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
-                  <p className="text-gray-600">Refreshing profile data...</p>
-                </div>
-              </ElegantCard>
-            ) : (
-              renderActiveSection()
-            )}
+            {renderContent()}
           </div>
         </div>
       </div>

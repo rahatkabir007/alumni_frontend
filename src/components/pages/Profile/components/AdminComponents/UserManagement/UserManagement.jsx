@@ -9,6 +9,7 @@ import DataTable from '@/components/antd/Table/DataTable'
 import UserTableColumns from './UserTableColumns'
 import UserManagementModal from './UserManagementModal'
 import UserDetailsModal from './UserDetailsModal'
+import { useUserManagement } from '@/hooks/useUserManagement'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import {
     useGetUsersQuery,
@@ -22,22 +23,25 @@ import { handleApiError } from '@/utils/errorHandler'
 import '@/styles/antd.css'
 
 const UserManagement = ({ userData }) => {
-    const [activeTab, setActiveTab] = useState('all-users')
-    const [searchTerm, setSearchTerm] = useState('')
+    const {
+        activeTab,
+        currentPage,
+        searchTerm,
+        confirmModal,
+        userDetailsModal,
+        handleTabChange,
+        handlePageChange,
+        handleSearchChange,
+        openConfirmModal,
+        closeConfirmModal,
+        setConfirmModalLoading,
+        openUserDetailsModal,
+        closeUserDetailsModal
+    } = useUserManagement()
+
     const [debouncedSearch, setDebouncedSearch] = useState('')
-    const [currentPage, setCurrentPage] = useState(1)
     const [sortBy, setSortBy] = useState('created_at')
     const [sortOrder, setSortOrder] = useState('desc')
-    const [confirmModal, setConfirmModal] = useState({
-        open: false,
-        type: '',
-        user: null,
-        loading: false
-    })
-    const [userDetailsModal, setUserDetailsModal] = useState({
-        isOpen: false,
-        userId: null
-    })
 
     // Separate queries for each tab to maintain counts
     const [tabCounts, setTabCounts] = useState({
@@ -59,7 +63,6 @@ const UserManagement = ({ userData }) => {
     }
 
     // Mutations
-    // const [updateUser] = useUpdateUserMutation()
     const [updateStatus] = useUpdateStatusMutation()
     const [updateRole] = useUpdateRoleMutation()
     const [removeRole] = useRemoveRoleMutation()
@@ -69,11 +72,11 @@ const UserManagement = ({ userData }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm)
-            setCurrentPage(1)
+            handlePageChange(1)
         }, 500)
 
         return () => clearTimeout(timer)
-    }, [searchTerm])
+    }, [searchTerm, handlePageChange])
 
     // Main query based on active tab
     const getQueryParams = () => {
@@ -185,13 +188,81 @@ const UserManagement = ({ userData }) => {
     }
 
     // Event Handlers
-    const handleSearchChange = (e) => setSearchTerm(e.target.value)
-    const handleTabChange = (tabId) => {
-        setActiveTab(tabId)
-        setCurrentPage(1)
+    const handleSearchInputChange = (e) => {
+        handleSearchChange(e.target.value)
     }
-    const handlePageChange = (page) => setCurrentPage(page)
 
+    const handleConfirmAction = async () => {
+        const { type, user } = confirmModal
+        setConfirmModalLoading(true)
+
+        try {
+            if (type === 'delete') {
+                await deleteUser(user.id).unwrap()
+                ToastMessage.notifySuccess('User deleted successfully')
+            } else if (type === 'block') {
+                await updateStatus({
+                    userId: user.id,
+                    status: 'inactive'
+                }).unwrap()
+                ToastMessage.notifySuccess('User blocked successfully')
+            } else if (type === 'unblock') {
+                await updateStatus({
+                    userId: user.id,
+                    status: 'active'
+                }).unwrap()
+                ToastMessage.notifySuccess('User unblocked successfully')
+            }
+            refetch()
+            closeConfirmModal()
+        } catch (error) {
+            handleApiError(error, null, true, `Failed to ${type} user`)
+            setConfirmModalLoading(false)
+        }
+    }
+
+    // Helper functions
+    const canModifyUser = (targetUser) => {
+        const isCurrentUserAdmin = userData.roles?.includes('admin')
+        const isCurrentUserModerator = userData.roles?.includes('moderator')
+        const isTargetAdmin = targetUser.roles?.includes('admin')
+        const isTargetModerator = targetUser.roles?.includes('moderator')
+        const targetUserStatus = targetUser.status || 'pending'
+
+
+        // MODERATOR RESTRICTION: Moderators should never see admin users (this is a safety check)
+        if (isCurrentUserModerator && !isCurrentUserAdmin && isTargetAdmin) {
+            return false
+        }
+
+        // Admins can modify anyone except other admins
+        if (isCurrentUserAdmin) {
+            return !isTargetAdmin
+        }
+
+        // MODERATOR RESTRICTION: Moderators can only modify regular users who are pending
+        if (isCurrentUserModerator) {
+            return !isTargetAdmin && !isTargetModerator && (targetUserStatus === 'pending' || targetUserStatus === 'applied_for_verification' || targetUserStatus === 'rejected')
+        }
+
+        return false
+    }
+
+    // MODERATOR RESTRICTION: Client-side filter function to ensure no admin users are shown to moderators
+    const filterUsersForModerator = (user) => {
+        const isCurrentUserModerator = userData.roles?.includes('moderator')
+        const isCurrentUserAdmin = userData.roles?.includes('admin')
+        const isUserAdmin = user.roles?.includes('admin')
+
+        // If current user is moderator (but not admin), filter out admin users
+        if (isCurrentUserModerator && !isCurrentUserAdmin && isUserAdmin) {
+            return false
+        }
+
+        return true
+    }
+
+    // Add missing handler functions
     const handleStatusChange = async (userId, newStatus) => {
         try {
             // MODERATOR RESTRICTION: Enhanced validation for moderator actions
@@ -204,7 +275,7 @@ const UserManagement = ({ userData }) => {
 
             // MODERATOR RESTRICTION: Moderators can only edit pending users
             if (isCurrentUserModerator && !isCurrentUserAdmin) {
-                if (currentUserStatus !== 'pending' || currentUserStatus !== 'applied_for_verification' || currentUserStatus !== 'rejected') {
+                if (currentUserStatus !== 'pending' && currentUserStatus !== 'applied_for_verification' && currentUserStatus !== 'rejected') {
                     ToastMessage.notifyWarning('Moderators can only edit pending, ongoing or rejected users. Once a user is active or inactive, only admins can modify their status.')
                     return
                 }
@@ -260,103 +331,9 @@ const UserManagement = ({ userData }) => {
         }
     }
 
-    const handleConfirmAction = async () => {
-        const { type, user } = confirmModal
-        setConfirmModal(prev => ({ ...prev, loading: true }))
-
-        try {
-            if (type === 'delete') {
-                await deleteUser(user.id).unwrap()
-                ToastMessage.notifySuccess('User deleted successfully')
-            } else if (type === 'block') {
-                await updateStatus({
-                    userId: user.id,
-                    status: 'inactive'
-                }).unwrap()
-                ToastMessage.notifySuccess('User blocked successfully')
-            } else if (type === 'unblock') {
-                await updateStatus({
-                    userId: user.id,
-                    status: 'active'
-                }).unwrap()
-                ToastMessage.notifySuccess('User unblocked successfully')
-            }
-            refetch()
-            setConfirmModal({ open: false, type: '', user: null, loading: false })
-        } catch (error) {
-            handleApiError(error, null, true, `Failed to ${type} user`)
-            setConfirmModal(prev => ({ ...prev, loading: false }))
-        }
-    }
-
-    const openConfirmModal = (type, user) => {
-        setConfirmModal({
-            open: true,
-            type,
-            user,
-            loading: false
-        })
-    }
-
-    const closeConfirmModal = () => {
-        setConfirmModal({ open: false, type: '', user: null, loading: false })
-    }
-
     // Handler for user name click
     const handleUserClick = (userId) => {
-        setUserDetailsModal({
-            isOpen: true,
-            userId: userId
-        })
-    }
-
-    // Handler to close user details modal
-    const closeUserDetailsModal = () => {
-        setUserDetailsModal({
-            isOpen: false,
-            userId: null
-        })
-    }
-
-    // Helper functions
-    const canModifyUser = (targetUser) => {
-        const isCurrentUserAdmin = userData.roles?.includes('admin')
-        const isCurrentUserModerator = userData.roles?.includes('moderator')
-        const isTargetAdmin = targetUser.roles?.includes('admin')
-        const isTargetModerator = targetUser.roles?.includes('moderator')
-        const targetUserStatus = targetUser.status || 'pending'
-
-
-        // MODERATOR RESTRICTION: Moderators should never see admin users (this is a safety check)
-        if (isCurrentUserModerator && !isCurrentUserAdmin && isTargetAdmin) {
-            return false
-        }
-
-        // Admins can modify anyone except other admins
-        if (isCurrentUserAdmin) {
-            return !isTargetAdmin
-        }
-
-        // MODERATOR RESTRICTION: Moderators can only modify regular users who are pending
-        if (isCurrentUserModerator) {
-            return !isTargetAdmin && !isTargetModerator && (targetUserStatus === 'pending' || targetUserStatus === 'applied_for_verification' || targetUserStatus === 'rejected')
-        }
-
-        return false
-    }
-
-    // MODERATOR RESTRICTION: Client-side filter function to ensure no admin users are shown to moderators
-    const filterUsersForModerator = (user) => {
-        const isCurrentUserModerator = userData.roles?.includes('moderator')
-        const isCurrentUserAdmin = userData.roles?.includes('admin')
-        const isUserAdmin = user.roles?.includes('admin')
-
-        // If current user is moderator (but not admin), filter out admin users
-        if (isCurrentUserModerator && !isCurrentUserAdmin && isUserAdmin) {
-            return false
-        }
-
-        return true
+        openUserDetailsModal(userId)
     }
 
     // Table columns configuration
@@ -461,7 +438,7 @@ const UserManagement = ({ userData }) => {
                     <Input
                         placeholder="Search users by name or email..."
                         value={searchTerm}
-                        onChange={handleSearchChange}
+                        onChange={handleSearchInputChange}
                         prefix={<SearchOutlined />}
                         size="large"
                         className="w-full"

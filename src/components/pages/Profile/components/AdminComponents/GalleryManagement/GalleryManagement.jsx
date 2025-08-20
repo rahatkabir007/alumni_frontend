@@ -1,6 +1,7 @@
 "use client"
-import React, { useState } from 'react'
+import React from 'react'
 import { useGetAllGalleriesQuery, useUpdateGalleryStatusMutation } from '@/redux/features/gallery/galleryApi'
+import { useGalleryManagement } from '@/hooks/useGalleryManagement'
 import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import { ToastMessage } from '@/utils/ToastMessage'
 import GalleryManagementHeader from './components/GalleryManagementHeader'
@@ -10,11 +11,21 @@ import GalleryImageModal from './components/GalleryImageModal'
 import AccessDenied from './components/AccessDenied'
 
 const GalleryManagement = ({ userData }) => {
-    const [activeTab, setActiveTab] = useState('pending_approval')
-    const [currentPage, setCurrentPage] = useState(1)
-    const [yearFilter, setYearFilter] = useState('')
-    const [selectedImage, setSelectedImage] = useState(null)
-    const [processingIds, setProcessingIds] = useState(new Set())
+    const {
+        activeTab,
+        currentPage,
+        yearFilter,
+        selectedImage,
+        processingIds,
+        handleTabChange,
+        handlePageChange,
+        handleYearChange,
+        handleImageClick,
+        closeImageModal,
+        startProcessing,
+        stopProcessing,
+        isProcessing
+    } = useGalleryManagement()
 
     const canManageGallery = checkUserPermission(userData.roles, PERMISSIONS.MANAGE_GALLERY)
 
@@ -43,21 +54,6 @@ const GalleryManagement = ({ userData }) => {
     const totalItems = galleryData?.totalItems || 0
     const totalPages = galleryData?.totalPages || 1
 
-    const handleTabChange = (tabId) => {
-        setActiveTab(tabId)
-        setCurrentPage(1)
-        setSelectedImage(null)
-    }
-
-    const handlePageChange = (page) => {
-        setCurrentPage(page)
-    }
-
-    const handleYearChange = (year) => {
-        setCurrentPage(1)
-        setYearFilter(year)
-    }
-
     const handleStatusUpdate = async (galleryId, newStatus) => {
         if (!canManageGallery) {
             ToastMessage.notifyError('You do not have permission to manage gallery')
@@ -84,7 +80,7 @@ const GalleryManagement = ({ userData }) => {
             return
         }
 
-        setProcessingIds(prev => new Set(prev).add(galleryId))
+        startProcessing(galleryId)
 
         try {
             await updateGalleryStatus({
@@ -100,7 +96,7 @@ const GalleryManagement = ({ userData }) => {
             }, 500)
 
             if (selectedImage && selectedImage.id === galleryId) {
-                setSelectedImage(null)
+                closeImageModal()
             }
 
         } catch (error) {
@@ -108,11 +104,7 @@ const GalleryManagement = ({ userData }) => {
             const errorMessage = error?.data?.message || error?.message || 'Failed to update gallery status'
             ToastMessage.notifyError(errorMessage)
         } finally {
-            setProcessingIds(prev => {
-                const newSet = new Set(prev)
-                newSet.delete(galleryId)
-                return newSet
-            })
+            stopProcessing(galleryId)
         }
     }
 
@@ -157,7 +149,7 @@ const GalleryManagement = ({ userData }) => {
                 activeTab={activeTab}
                 processingIds={processingIds}
                 onStatusUpdate={handleStatusUpdate}
-                onImageClick={setSelectedImage}
+                onImageClick={handleImageClick}
                 getStatusColor={getStatusColor}
                 getInitials={getInitials}
                 currentPage={currentPage}
@@ -170,7 +162,7 @@ const GalleryManagement = ({ userData }) => {
 
             <GalleryImageModal
                 selectedImage={selectedImage}
-                onClose={() => setSelectedImage(null)}
+                onClose={closeImageModal}
                 processingIds={processingIds}
                 onStatusUpdate={handleStatusUpdate}
                 getStatusColor={getStatusColor}
