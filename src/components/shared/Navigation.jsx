@@ -1,8 +1,8 @@
 "use client"
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
-import { selectIsAuthenticated, selectToken, selectCurrentUser } from '@/redux/features/auth/authSlice'
+import { selectIsAuthenticated, selectCurrentUser } from '@/redux/features/auth/authSlice'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, Dropdown } from 'antd'
 import { DownOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons'
@@ -12,11 +12,10 @@ import '@/styles/antd.css'
 
 const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
     const router = useRouter()
-    // const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    // const [openSubmenu, setOpenSubmenu] = useState(null) // For desktop submenus
-    const [mobileOpenSubmenu, setMobileOpenSubmenu] = useState(null) // For mobile submenus
-    const [isMobile, setIsMobile] = useState(false) // Track mobile state
+    const [mobileOpenSubmenu, setMobileOpenSubmenu] = useState(null)
+    const [isMobile, setIsMobile] = useState(false)
+    const [menuKey, setMenuKey] = useState(Date.now()) // Force re-render Menu on resize
 
     // Get auth state from Redux
     const isAuthenticated = useSelector(selectIsAuthenticated)
@@ -28,7 +27,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
     // Use the most up-to-date user data available
     const currentUser = user || reduxUser
 
-    // Menu structure with submenus - add icons for items with submenus
+    // Menu structure with submenus
     const menuItems = [
         {
             key: 'home',
@@ -44,7 +43,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                 <span className="flex items-center gap-2">
                     Alumni
                     <svg
-                        className={`w-5 h-5 transition-transform `}
+                        className="w-5 h-5 transition-transform"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -74,7 +73,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                 <span className="flex items-center gap-2">
                     Blogs & Events
                     <svg
-                        className={`w-5 h-5 transition-transform `}
+                        className="w-5 h-5 transition-transform"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -169,7 +168,6 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                         </svg>
                     </button>
 
-                    {/* Mobile Submenu */}
                     {mobileOpenSubmenu === item.key && (
                         <div className="ml-4 mt-1 space-y-1 border-l border-gray-700 pl-4">
                             {item.children.map((subItem) => (
@@ -193,7 +191,10 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
         return (
             <div
                 key={item.key}
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => {
+                    setIsMobileMenuOpen(false)
+                    setMobileOpenSubmenu(null)
+                }}
                 className="block text-gray-300 hover:text-white hover:bg-gray-800 px-4 py-3 rounded-md text-base font-medium transition-colors cursor-pointer"
             >
                 <div className="flex items-center space-x-3">
@@ -204,20 +205,18 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
         )
     }
 
-    // Track window resize and reset states when switching between mobile and desktop
+    // Track window resize and force menu re-render
     useEffect(() => {
         const handleResize = () => {
-            const mobile = window.innerWidth < 1024 // lg breakpoint
-            const wasMobile = isMobile
-
+            const mobile = window.innerWidth < 1124
             setIsMobile(mobile)
+            console.log('Resize: isMobile=', mobile, 'isMobileMenuOpen=', isMobileMenuOpen)
 
-            // Reset states when switching between mobile and desktop
-            if (wasMobile !== mobile) {
-                // setOpenSubmenu(null)
-                setMobileOpenSubmenu(null)
+            // Reset mobile menu states and force menu re-render on desktop
+            if (!mobile) {
                 setIsMobileMenuOpen(false)
-                // setIsDropdownOpen(false)
+                setMobileOpenSubmenu(null)
+                setMenuKey(Date.now()) // Force re-render of Menu component
             }
         }
 
@@ -226,7 +225,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
 
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
-    }, [isMobile, isMobileMenuOpen])
+    }, [])
 
     return (
         <nav className="sticky top-0 z-50 bg-black shadow-xl border-b border-gray-800">
@@ -248,13 +247,15 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                     {/* Desktop Navigation Links */}
                     <div className="hidden lg:flex items-center space-x-2">
                         <Menu
+                            key={menuKey} // Force re-render on resize
                             mode="horizontal"
                             items={menuItems}
                             className="navigation-menu bg-transparent border-none"
                             style={{
                                 backgroundColor: 'transparent',
                                 borderBottom: 'none',
-                                lineHeight: '64px'
+                                lineHeight: '64px',
+                                display: isMobile ? 'none' : 'flex', // Explicitly control visibility
                             }}
                             theme="dark"
                         />
@@ -284,14 +285,14 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                                                     height={96}
                                                 />
                                             ) : (
-                                                <div className='w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-sm font-bold'>
+                                                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-sm font-bold">
                                                     {currentUser.name?.charAt(0).toUpperCase() || 'A'}
                                                 </div>
                                             )}
                                         </div>
-                                        <span className='truncate'>{currentUser.name || 'Alumni'}</span>
+                                        <span className="truncate">{currentUser.name || 'Alumni'}</span>
                                         <svg
-                                            className={`w-5 h-5 transition-transform `}
+                                            className="w-5 h-5 transition-transform"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -320,7 +321,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                     </div>
 
                     {/* Mobile menu button */}
-                    <div className="lg:hidden flex items-center">
+                    <div className="flex items-center lg:hidden">
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="text-gray-300 hover:text-white focus:outline-none focus:text-white"
@@ -339,7 +340,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
 
             {/* Mobile Menu Overlay */}
             <AnimatePresence>
-                {isMobileMenuOpen && (
+                {isMobileMenuOpen && isMobile && (
                     <>
                         {/* Backdrop */}
                         <motion.div
@@ -381,7 +382,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
 
                             {/* Menu Content */}
                             <div className="p-4">
-                                {/* User Section - existing code */}
+                                {/* User Section */}
                                 {isLoading ? (
                                     <div className="mb-6 p-4 bg-gray-800 rounded-lg">
                                         <div className="animate-pulse bg-gray-700 h-8 w-24 rounded mb-2"></div>
@@ -400,7 +401,7 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
                                                         height={96}
                                                     />
                                                 ) : (
-                                                    <div className='w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-lg font-bold'>
+                                                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-emerald-500 text-white text-lg font-bold">
                                                         {currentUser.name?.charAt(0).toUpperCase() || 'A'}
                                                     </div>
                                                 )}
