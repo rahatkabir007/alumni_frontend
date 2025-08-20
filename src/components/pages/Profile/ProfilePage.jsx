@@ -12,10 +12,11 @@ import Gallery from './components/RegularUserComponents/Gallery/Gallery'
 import AdditionalInfo from './components/RegularUserComponents/AdditionalInfo/AdditionalInfo'
 import UserManagement from './components/AdminComponents/UserManagement/UserManagement'
 import GalleryManagement from './components/AdminComponents/GalleryManagement/GalleryManagement'
-import BlogManagement from './components/AdminComponents/BlogManagement/BlogManagement'
 import EventManagement from './components/AdminComponents/EventManagement/EventManagement'
 import AnnouncementManagement from './components/AdminComponents/Announcements/AnnouncementManagement'
 import { useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi'
+import ReviewsTestimonials from './components/RegularUserComponents/ReviewsTestimonials/ReviewsTestimonials'
+import Events from './components/RegularUserComponents/Events/Events'
 
 const ProfilePage = () => {
   const dispatch = useDispatch()
@@ -29,7 +30,6 @@ const ProfilePage = () => {
   // Use profile hook with error handling
   const {
     activeSection,
-    isRefreshing,
     hasTriedFetch,
     handleSectionChange,
     handleRefreshData,
@@ -55,9 +55,9 @@ const ProfilePage = () => {
         dispatch(setHasTriedFetch(true))
 
         try {
-          console.log('Profile Page - Fetching user data...');
+          // console.log('Profile Page - Fetching user data...');
           const result = await triggerGetUser().unwrap()
-          console.log('Profile Page - User data fetched successfully:', result);
+          // console.log('Profile Page - User data fetched successfully:', result);
 
           dispatch(setCredentials({
             user: result,
@@ -101,12 +101,14 @@ const ProfilePage = () => {
         )
       case 'gallery':
         return <Gallery userData={currentUser} />
+      case 'reviews':
+        return <ReviewsTestimonials userData={currentUser} />
+      case 'events':
+        return <Events userData={currentUser} />
       case 'users':
         return <UserManagement userData={currentUser} />
       case 'gallery_management':
         return <GalleryManagement userData={currentUser} />
-      case 'blog_management':
-        return <BlogManagement userData={currentUser} />
       case 'event_management':
         return <EventManagement userData={currentUser} />
       case 'announcement_management':
