@@ -19,8 +19,8 @@ const GalleryImageCard = ({ gallery, onClick }) => {
                 />
 
                 {/* Overlay with title and year */}
-                <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-end">
-                    <div className="p-4 text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
+                <div className="absolute  inset-0 bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-end">
+                    <div className="p-4 bg-[rgba(0,0,0,0.8)] w-full text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 opacity-0 group-hover:opacity-100">
                         {gallery.title && (
                             <h3 className="font-semibold text-lg mb-1">{gallery.title}</h3>
                         )}

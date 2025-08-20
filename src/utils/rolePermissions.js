@@ -57,6 +57,9 @@ export const ROLE_PERMISSIONS = {
         PERMISSIONS.EDIT_PROFILE,
         // Moderator specific permissions
         PERMISSIONS.MANAGE_USERS, // Can access user management
+        PERMISSIONS.MANAGE_GALLERY,
+        PERMISSIONS.MANAGE_BLOGS,
+        PERMISSIONS.MANAGE_EVENTS,
         PERMISSIONS.APPROVE_BLOG,
         PERMISSIONS.CREATE_EVENT,
         PERMISSIONS.MANAGE_EVENT,
