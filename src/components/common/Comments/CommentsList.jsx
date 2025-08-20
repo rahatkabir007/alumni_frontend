@@ -55,7 +55,7 @@ const CommentsList = ({ type, id, title = "Comments" }) => {
 
     if (error) {
         return (
-            <ElegantCard>
+            <ElegantCard border={false} shadow="none">
                 <div className="text-center py-8">
                     <p className="text-red-500">Failed to load comments</p>
                     <button
@@ -70,7 +70,7 @@ const CommentsList = ({ type, id, title = "Comments" }) => {
     }
 
     return (
-        <ElegantCard>
+        <ElegantCard border={false} shadow="none" hover={false}>
             <div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -116,7 +116,7 @@ const CommentsList = ({ type, id, title = "Comments" }) => {
                         <p className="text-gray-500 mt-2">Loading comments...</p>
                     </div>
                 ) : comments.length > 0 ? (
-                    <div className="space-y-4">
+                    <div className="space-y-4  max-h-[190px] overflow-auto">
                         {comments.map((comment) => (
                             <CommentItem
                                 key={comment.id}
@@ -133,8 +133,8 @@ const CommentsList = ({ type, id, title = "Comments" }) => {
                                         key={page}
                                         onClick={() => setCurrentPage(page)}
                                         className={`px-3 py-1 text-sm rounded ${currentPage === page
-                                                ? 'bg-blue-500 text-white'
-                                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            ? 'bg-blue-500 text-white'
+                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                             }`}
                                     >
                                         {page}

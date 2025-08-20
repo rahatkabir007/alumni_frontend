@@ -96,9 +96,12 @@ const LikeButton = ({
 
     return (
         <button
-            onClick={handleLike}
+            onClick={(e) => {
+                e.stopPropagation()
+                handleLike()
+            }}
             disabled={isLoading}
-            className={`flex items-center gap-1 transition-all duration-200 ${optimisticIsLiked
+            className={`cursor-pointer flex items-center gap-1 transition-all duration-200 ${optimisticIsLiked
                 ? 'text-red-500 hover:text-red-600 scale-105'
                 : 'text-gray-500 hover:text-red-500'
                 } disabled:opacity-50 ${className}`}

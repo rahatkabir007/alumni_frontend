@@ -42,7 +42,7 @@ const GalleryImageModal = ({ selectedImage, onClose }) => {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
                             <span className="font-medium text-gray-900">Year:</span>
                             <span className="ml-2 text-gray-700">{selectedImage.year}</span>
@@ -52,6 +52,15 @@ const GalleryImageModal = ({ selectedImage, onClose }) => {
                             <span className="ml-2 text-gray-700">
                                 {new Date(selectedImage.createdAt).toLocaleDateString()}
                             </span>
+                        </div>
+                        <div className='flex  justify-end'>
+                            <LikeButton
+                                type="gallery"
+                                id={selectedImage.id}
+                                initialLikeCount={selectedImage.like_count}
+                                initialIsLiked={selectedImage.isLikedByCurrentUser || false}
+                                showCount={true}
+                            />
                         </div>
                     </div>
 
@@ -71,14 +80,9 @@ const GalleryImageModal = ({ selectedImage, onClose }) => {
                         </div>
                     )}
                 </div>
-                <LikeButton
-                    type="gallery"
-                    id={selectedImage.id}
-                    initialLikeCount={selectedImage.like_count}
-                    initialIsLiked={selectedImage.isLikedByCurrentUser || false}
-                    showCount={true}
-                />
-                <div className="p-6">
+
+
+                <div className="">
                     <CommentsList
                         type="gallery"
                         id={selectedImage.id}
