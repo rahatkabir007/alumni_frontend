@@ -37,7 +37,7 @@ const GalleryGrid = ({
             <section className="py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Masonry/Staggered Grid */}
-                    <StaggerContainer staggerDelay={0.05} className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+                    <StaggerContainer staggerDelay={0.05} className="columns-1 sm:columns-2 md:columns-3 lg:columns-5 gap-4 space-y-4">
                         {galleries.map((gallery) => (
                             <GalleryImageCard
                                 key={gallery.id}
