@@ -17,6 +17,8 @@ import AnnouncementManagement from './components/AdminComponents/Announcements/A
 import { useLazyGetCurrentUserQuery } from '@/redux/features/auth/authApi'
 import ReviewsTestimonials from './components/RegularUserComponents/ReviewsTestimonials/ReviewsTestimonials'
 import Events from './components/RegularUserComponents/Events/Events'
+import Posts from './components/RegularUserComponents/Posts/Posts'
+import PostManagement from './components/AdminComponents/PostManagement/PostManagement'
 
 const ProfilePage = () => {
   const dispatch = useDispatch()
@@ -99,6 +101,14 @@ const ProfilePage = () => {
             refetch={handleRefreshData}
           />
         )
+      case 'posts':
+        return (
+          <Posts
+            userData={currentUser}
+            onUpdate={handleUserUpdate}
+            refetch={handleRefreshData}
+          />
+        )
       case 'gallery':
         return <Gallery userData={currentUser} />
       case 'reviews':
@@ -107,6 +117,8 @@ const ProfilePage = () => {
         return <Events userData={currentUser} />
       case 'users':
         return <UserManagement userData={currentUser} />
+      case 'post_management':
+        return <PostManagement userData={currentUser} />
       case 'gallery_management':
         return <GalleryManagement userData={currentUser} />
       case 'event_management':
