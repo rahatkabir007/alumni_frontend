@@ -7,6 +7,7 @@ import userReducer from "../features/user/userSlice";
 import galleryReducer from "../features/gallery/gallerySlice";
 import profileReducer from '../features/profile/profileSlice'
 import commentsReducer from '../features/comments/commentsSlice'
+import postsReducer from '../features/posts/postsSlice'
 
 
 
@@ -18,7 +19,8 @@ const store = configureStore({
         user: userReducer,
         gallery: galleryReducer,
         profile: profileReducer,
-        comments: commentsReducer
+        comments: commentsReducer,
+        posts: postsReducer
     },
 
     middleware: getDefaultMiddleware =>

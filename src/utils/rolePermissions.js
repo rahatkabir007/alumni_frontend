@@ -9,6 +9,7 @@ export const PERMISSIONS = {
     GIVE_REVIEW: 'give_review',
     SEND_MESSAGE: 'send_message',
     EDIT_PROFILE: 'edit_profile',
+    CREATE_POST: 'create_post',
 
     // Moderator permissions
     APPROVE_BLOG: 'approve_blog',
@@ -17,15 +18,15 @@ export const PERMISSIONS = {
     POST_ANNOUNCEMENT: 'post_announcement',
     APPROVE_REVIEW: 'approve_review',
     MODERATE_CONTENT: 'moderate_content',
-    MANAGE_USERS: 'manage_users', // Moved to moderator level to allow user management access
-    MANAGE_GALLERY: 'manage_gallery', // Allows managing gallery content
-    MANAGE_BLOGS: 'manage_blogs', // Allows managing blog content
-    MANAGE_EVENTS: 'manage_events', // Allows managing event content
-    // MODERATOR RESTRICTION: BLOCK_USER permission is split - moderators can activate (pending to active) but not deactivate (active to inactive)
+    MANAGE_USERS: 'manage_users',
+    MANAGE_GALLERY: 'manage_gallery',
+    MANAGE_BLOGS: 'manage_blogs',
+    MANAGE_EVENTS: 'manage_events',
+    MANAGE_POSTS: 'manage_posts',
 
     // Admin permissions  
     DELETE_USER: 'delete_user',
-    BLOCK_USER: 'block_user', // Full blocking permission (including setting to inactive) - ADMIN ONLY
+    BLOCK_USER: 'block_user',
     CHANGE_USER_ROLE: 'change_user_role',
     MANAGE_ANNOUNCEMENTS: 'manage_announcements',
     DELETE_ANY_BLOG: 'delete_any_blog',
@@ -45,6 +46,19 @@ export const ROLE_PERMISSIONS = {
         PERMISSIONS.SEND_MESSAGE,
         PERMISSIONS.EDIT_PROFILE
     ],
+    alumni: [
+        // Include all user permissions
+        PERMISSIONS.POST_BLOG,
+        PERMISSIONS.EDIT_OWN_BLOG,
+        PERMISSIONS.DELETE_OWN_BLOG,
+        PERMISSIONS.JOIN_EVENT,
+        PERMISSIONS.UPLOAD_GALLERY,
+        PERMISSIONS.GIVE_REVIEW,
+        PERMISSIONS.SEND_MESSAGE,
+        PERMISSIONS.EDIT_PROFILE,
+        // Alumni specific permissions
+        PERMISSIONS.CREATE_POST,
+    ],
     moderator: [
         // Include all user permissions
         PERMISSIONS.POST_BLOG,
@@ -55,23 +69,24 @@ export const ROLE_PERMISSIONS = {
         PERMISSIONS.GIVE_REVIEW,
         PERMISSIONS.SEND_MESSAGE,
         PERMISSIONS.EDIT_PROFILE,
+        PERMISSIONS.CREATE_POST,
         // Moderator specific permissions
-        PERMISSIONS.MANAGE_USERS, // Can access user management
+        PERMISSIONS.MANAGE_USERS,
         PERMISSIONS.MANAGE_GALLERY,
         PERMISSIONS.MANAGE_BLOGS,
         PERMISSIONS.MANAGE_EVENTS,
+        PERMISSIONS.MANAGE_POSTS,
         PERMISSIONS.APPROVE_BLOG,
         PERMISSIONS.CREATE_EVENT,
         PERMISSIONS.MANAGE_EVENT,
         PERMISSIONS.POST_ANNOUNCEMENT,
         PERMISSIONS.APPROVE_REVIEW,
         PERMISSIONS.MODERATE_CONTENT
-        // MODERATOR RESTRICTION: Moderators do NOT have BLOCK_USER permission - they can activate users (pending to active) but not deactivate (active to inactive)
     ],
     admin: [
         // All permissions including full blocking capability
         PERMISSIONS.DELETE_USER,
-        PERMISSIONS.BLOCK_USER, // Full blocking permission (can set users to inactive) - ADMIN EXCLUSIVE
+        PERMISSIONS.BLOCK_USER,
         PERMISSIONS.CHANGE_USER_ROLE,
         PERMISSIONS.MANAGE_ANNOUNCEMENTS,
         PERMISSIONS.DELETE_ANY_BLOG,
@@ -79,19 +94,12 @@ export const ROLE_PERMISSIONS = {
         PERMISSIONS.SYSTEM_SETTINGS,
         // All other permissions
         ...Object.values(PERMISSIONS)
+    ],
+    super_admin: [
+        // All permissions including super admin specific permissions
+        ...Object.values(PERMISSIONS)
     ]
 }
-
-// // Fix the circular reference issue
-// ROLE_PERMISSIONS.moderator = [
-//     ...ROLE_PERMISSIONS.user,
-//     PERMISSIONS.APPROVE_BLOG,
-//     PERMISSIONS.CREATE_EVENT,
-//     PERMISSIONS.MANAGE_EVENT,
-//     PERMISSIONS.POST_ANNOUNCEMENT,
-//     PERMISSIONS.APPROVE_REVIEW,
-//     PERMISSIONS.MODERATE_CONTENT
-// ]
 
 /**
  * Check if user has a specific permission

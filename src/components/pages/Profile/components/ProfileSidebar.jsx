@@ -10,8 +10,7 @@ import { checkUserPermission, PERMISSIONS } from '@/utils/rolePermissions'
 import { menuItems as baseMenuItems } from '@/datas/profilePage'
 import { LockFilled } from '@ant-design/icons'
 
-const lockedSections = ['blogs', 'events', 'gallery', 'reviews'];
-
+const lockedSections = ['blogs', 'events', 'gallery', 'reviews', 'posts'];
 
 const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh }) => {
     const [isCollapsed, setIsCollapsed] = useState(false)
@@ -21,7 +20,6 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
     // Create menu items with useMemo to prevent duplicates
     const menuItems = useMemo(() => {
         const items = [...baseMenuItems]
-
 
         if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_USERS)) {
             if (!items.some(item => item.id === 'users')) {
@@ -36,6 +34,7 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                 })
             }
         }
+
         if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_GALLERY)) {
             if (!items.some(item => item.id === 'gallery_management')) {
                 items.push({
@@ -64,6 +63,21 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
             }
         }
 
+        if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_POSTS)) {
+            if (!items.some(item => item.id === 'post_management')) {
+                items.push({
+                    id: 'post_management',
+                    label: 'Post Management',
+                    icon: (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    ),
+                    description: 'Moderate and manage posts',
+                });
+            }
+        }
+
         if (checkUserPermission(userData.roles, PERMISSIONS.MANAGE_ANNOUNCEMENTS) || checkUserPermission(userData.roles, PERMISSIONS.POST_ANNOUNCEMENT)) {
             if (!items.some(item => item.id === 'announcement_management')) {
                 items.push({
@@ -78,17 +92,17 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
             }
         }
         // Add Additional Information menu if not present
-        if (!items.some(item => item.id === 'additional-info')) {
-            items.push({
-                id: 'additional-info',
-                label: 'Additional Information',
-                icon: (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                )
-            })
-        }
+        // if (!items.some(item => item.id === 'additional-info')) {
+        //     items.push({
+        //         id: 'additional-info',
+        //         label: 'Additional Information',
+        //         icon: (
+        //             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        //                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        //             </svg>
+        //         )
+        //     })
+        // }
 
         return items
     }, [userData.roles])
@@ -264,11 +278,7 @@ const ProfileSidebar = ({ userData, activeSection, onSectionChange, onRefresh })
                                 >
                                     <span className="mr-3">{isLocked ? <LockFilled /> : item.icon}</span>
                                     {item.label}
-                                    {(item.moderatorOnly || item.adminOnly) && (
-                                        <BlackTag size="xs" variant="subtle" className="ml-auto">
-                                            {item.adminOnly ? 'Admin' : 'Mod'}
-                                        </BlackTag>
-                                    )}
+
                                 </button>
                                 {isLocked && (
                                     <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 z-20 hidden group-hover:block">
