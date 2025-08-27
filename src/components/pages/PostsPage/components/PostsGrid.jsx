@@ -1,7 +1,7 @@
 "use client"
 import React from 'react'
 import PostCard from './PostCard'
-import Pagination from '@/components/common/Pagination'
+import InfiniteScrollPagination from '@/components/common/InfiniteScrollPagination'
 import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
 
@@ -10,31 +10,45 @@ const PostsGrid = ({
     isLoading,
     isFetching,
     error,
-    currentPage,
-    totalPages,
-    totalItems,
-    itemsPerPage,
-    onPageChange,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
     onPostClick,
     onRefetch
 }) => {
-    if (isLoading || isFetching) {
+    if (isLoading && (!posts || posts.length === 0)) {
         return (
             <section className="py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center py-12">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
-                        <p className="text-gray-600">Loading posts...</p>
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="space-y-6">
+                        {[...Array(3)].map((_, index) => (
+                            <div key={index} className="animate-pulse">
+                                <ElegantCard className="p-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                                        <div className="flex-1 space-y-2">
+                                            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                                            <div className="h-3 bg-gray-200 rounded w-1/6"></div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div className="h-4 bg-gray-200 rounded"></div>
+                                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                                        <div className="h-48 bg-gray-200 rounded"></div>
+                                    </div>
+                                </ElegantCard>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
         )
     }
 
-    if (error) {
+    if (error && (!posts || posts.length === 0)) {
         return (
             <section className="py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <ElegantCard>
                         <div className="text-center py-12">
                             <div className="text-red-400 text-4xl mb-4">⚠️</div>
@@ -52,10 +66,10 @@ const PostsGrid = ({
         )
     }
 
-    if (posts.length === 0) {
+    if (!posts || posts.length === 0) {
         return (
             <section className="py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <ElegantCard>
                         <div className="text-center py-12">
                             <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,10 +85,10 @@ const PostsGrid = ({
     }
 
     return (
-        <section className="py-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Posts Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <section className="py-6">
+            <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Posts Feed - Single Column */}
+                <div className="space-y-0">
                     {posts.map((post, index) => (
                         <PostCard
                             key={post.id}
@@ -85,19 +99,14 @@ const PostsGrid = ({
                     ))}
                 </div>
 
-                {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="flex justify-center">
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            totalItems={totalItems}
-                            itemsPerPage={itemsPerPage}
-                            onPageChange={onPageChange}
-                            isLoading={isLoading || isFetching}
-                        />
-                    </div>
-                )}
+                {/* Infinite Scroll Pagination */}
+                <InfiniteScrollPagination
+                    hasNextPage={hasNextPage}
+                    isFetchingNextPage={isFetchingNextPage}
+                    fetchNextPage={fetchNextPage}
+                    isLoading={isLoading}
+                    error={error}
+                />
             </div>
         </section>
     )

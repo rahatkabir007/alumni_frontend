@@ -33,7 +33,7 @@ export const postsApi = apiSlice.injectEndpoints({
             providesTags: ['Post'],
         }),
 
-        // Get all posts (public view and admin management)
+        // Get all posts (public view with optional auth)
         getAllPosts: builder.query({
             query: (params = {}) => {
                 const { page = 1, limit = 10, status, visibility, sortBy = 'createdAt', sortOrder = 'desc' } = params
@@ -65,22 +65,19 @@ export const postsApi = apiSlice.injectEndpoints({
             providesTags: ['Post'],
         }),
 
-        // Get public posts (for posts page)
-        getPublicPosts: builder.query({
-            query: (params = {}) => {
-                const { page = 1, limit = 12, visibility = 'all', sortBy = 'published_at', sortOrder = 'desc' } = params
+        // Get posts by user ID (public view with optional auth)
+        getPostsByUserId: builder.query({
+            query: ({ userId, ...params }) => {
+                const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = params
 
                 const queryParams = new URLSearchParams({
                     page: page.toString(),
                     limit: limit.toString(),
                     sortBy,
-                    sortOrder,
-                    status: 'active' // Only active posts for public view
+                    sortOrder
                 })
 
-                if (visibility && visibility !== 'all') queryParams.append('visibility', visibility)
-
-                return `/posts/public?${queryParams.toString()}`
+                return `/posts/user/${userId}?${queryParams.toString()}`
             },
             transformResponse: (response) => {
                 if (response.success && response.data) {
@@ -91,7 +88,7 @@ export const postsApi = apiSlice.injectEndpoints({
                     currentPage: 1,
                     totalPages: 1,
                     totalItems: 0,
-                    itemsPerPage: 12
+                    itemsPerPage: 10
                 }
             },
             providesTags: ['Post'],
@@ -138,14 +135,46 @@ export const postsApi = apiSlice.injectEndpoints({
 
         // Get post by ID
         getPostById: builder.query({
-            query: (postId) => `/posts/${postId}`,
+            query: ({ postId, includeDetails = false }) => {
+                const queryParams = includeDetails ? '?includeDetails=true' : ''
+                return `/posts/${postId}${queryParams}`
+            },
             transformResponse: (response) => {
                 if (response.success && response.data) {
                     return response.data
                 }
                 throw new Error(response.message || 'Failed to fetch post data')
             },
-            providesTags: (result, error, postId) => [{ type: 'Post', id: postId }],
+            providesTags: (result, error, { postId }) => [{ type: 'Post', id: postId }],
+        }),
+
+        // Toggle like on post
+        togglePostLike: builder.mutation({
+            query: (postId) => ({
+                url: `/posts/${postId}/like`,
+                method: 'POST',
+            }),
+            invalidatesTags: (result, error, postId) => [
+                { type: 'Post', id: postId },
+                'Post'
+            ],
+        }),
+
+        // Get like status for post
+        getPostLikeStatus: builder.query({
+            query: (postId) => `/posts/${postId}/like-status`,
+            transformResponse: (response) => {
+                if (response.success && response.data) {
+                    return response.data
+                }
+                return {
+                    likeCount: 0,
+                    isLiked: false
+                }
+            },
+            providesTags: (result, error, postId) => [
+                { type: 'PostLike', id: postId }
+            ],
         }),
     }),
 })
@@ -153,11 +182,14 @@ export const postsApi = apiSlice.injectEndpoints({
 export const {
     useGetMyPostsQuery,
     useGetAllPostsQuery,
-    useGetPublicPostsQuery,
+    useLazyGetAllPostsQuery,
+    useGetPostsByUserIdQuery,
     useCreatePostMutation,
     useUpdatePostMutation,
     useUpdatePostStatusMutation,
     useDeletePostMutation,
     useGetPostByIdQuery,
     useLazyGetPostByIdQuery,
+    useTogglePostLikeMutation,
+    useGetPostLikeStatusQuery,
 } = postsApi

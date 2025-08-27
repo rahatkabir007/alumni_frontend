@@ -1,40 +1,49 @@
 "use client"
-import React, { useState } from 'react'
-import { useGetPublicPostsQuery } from '@/redux/features/posts/postsApi'
+import React, { useState, useEffect } from 'react'
+import { useLazyGetAllPostsQuery } from '@/redux/features/posts/postsApi'
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import PostsHeader from '@/components/pages/PostsPage/components/PostsHeader'
 import PostsFilters from '@/components/pages/PostsPage/components/PostsFilters'
 import PostsGrid from '@/components/pages/PostsPage/components/PostsGrid'
 import PostModal from '@/components/pages/PostsPage/components/PostModal'
 
 const PostsPage = () => {
-    const [currentPage, setCurrentPage] = useState(1)
     const [visibilityFilter, setVisibilityFilter] = useState('all')
     const [selectedPost, setSelectedPost] = useState(null)
 
-    const {
-        data: postsData,
-        isLoading,
-        isFetching,
-        error,
-        refetch
-    } = useGetPublicPostsQuery({
-        page: currentPage,
-        limit: 12,
+    const [getAllPostsQuery, { isLoading, error }] = useLazyGetAllPostsQuery()
+
+    const queryParams = {
+        limit: 10, // Smaller limit for better infinite scroll experience
+        status: 'active',
         visibility: visibilityFilter,
-        sortBy: 'published_at',
+        sortBy: 'createdAt',
         sortOrder: 'desc'
-    })
-
-    const posts = postsData?.posts || []
-    const totalItems = postsData?.totalItems || 0
-    const totalPages = postsData?.totalPages || 1
-
-    const handlePageChange = (page) => {
-        setCurrentPage(page)
     }
 
+    const {
+        data: posts,
+        hasNextPage,
+        isFetchingNextPage,
+        fetchNextPage,
+        refetch,
+        totalItems
+    } = useInfiniteScroll(getAllPostsQuery, queryParams)
+
+    // Initial load
+    useEffect(() => {
+        fetchNextPage()
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Refetch when visibility filter changes
+    useEffect(() => {
+        refetch()
+        setTimeout(() => {
+            fetchNextPage()
+        }, 100)
+    }, [visibilityFilter]) // eslint-disable-line react-hooks/exhaustive-deps
+
     const handleVisibilityChange = (visibility) => {
-        setCurrentPage(1)
         setVisibilityFilter(visibility)
     }
 
@@ -46,6 +55,13 @@ const PostsPage = () => {
         setSelectedPost(null)
     }
 
+    const handleRefresh = () => {
+        refetch()
+        setTimeout(() => {
+            fetchNextPage()
+        }, 100)
+    }
+
     return (
         <div className="bg-gray-50 min-h-screen">
             <PostsHeader />
@@ -54,21 +70,19 @@ const PostsPage = () => {
                 visibilityFilter={visibilityFilter}
                 onVisibilityChange={handleVisibilityChange}
                 totalItems={totalItems}
-                onRefresh={refetch}
+                onRefresh={handleRefresh}
             />
 
             <PostsGrid
                 posts={posts}
                 isLoading={isLoading}
-                isFetching={isFetching}
+                isFetching={isFetchingNextPage}
                 error={error}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalItems}
-                itemsPerPage={postsData?.itemsPerPage || 12}
-                onPageChange={handlePageChange}
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                fetchNextPage={fetchNextPage}
                 onPostClick={handlePostClick}
-                onRefetch={refetch}
+                onRefetch={handleRefresh}
             />
 
             <PostModal
