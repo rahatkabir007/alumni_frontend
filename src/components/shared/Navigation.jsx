@@ -67,32 +67,32 @@ const Navigation = ({ user, onLogout, isInitialized, isLoggingOut }) => {
             key: 'gallery',
             label: <Link href="/gallery">Gallery</Link>,
         },
-        {
-            key: 'blogs',
-            label: (
-                <span className="flex items-center gap-2">
-                    Blogs & Events
-                    <svg
-                        className="w-5 h-5 transition-transform"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                </span>
-            ),
-            children: [
-                {
-                    key: 'all-blogs',
-                    label: <Link href="/blogs">Latest Blogs</Link>
-                },
-                {
-                    key: 'events',
-                    label: <Link href="/blogs/news">Latest Events</Link>
-                },
-            ]
-        },
+        // {
+        //     key: 'blogs',
+        //     label: (
+        //         <span className="flex items-center gap-2">
+        //             Blogs & Events
+        //             <svg
+        //                 className="w-5 h-5 transition-transform"
+        //                 fill="none"
+        //                 stroke="currentColor"
+        //                 viewBox="0 0 24 24"
+        //             >
+        //                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        //             </svg>
+        //         </span>
+        //     ),
+        //     children: [
+        //         {
+        //             key: 'all-blogs',
+        //             label: <Link href="/blogs">Latest Blogs</Link>
+        //         },
+        //         {
+        //             key: 'events',
+        //             label: <Link href="/blogs/news">Latest Events</Link>
+        //         },
+        //     ]
+        // },
         {
             key: 'posts',
             label: <Link href="/posts">Posts</Link>,
