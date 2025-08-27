@@ -1,5 +1,5 @@
 "use client"
-import BlackButton from './BlackButton'
+import React from 'react'
 
 const Pagination = ({
     currentPage,
@@ -8,119 +8,103 @@ const Pagination = ({
     itemsPerPage,
     onPageChange,
     isLoading = false,
-    showInfo = true
+    className = ""
 }) => {
-    // Fix the calculation to handle edge cases
-    const startItem = totalItems === 0 ? 0 : ((currentPage - 1) * itemsPerPage) + 1
-    const endItem = totalItems === 0 ? 0 : Math.min(currentPage * itemsPerPage, totalItems)
+    if (totalPages <= 1) return null
 
-    const generatePageNumbers = () => {
-        const pages = []
-        const maxVisiblePages = 7
+    const getPageNumbers = () => {
+        const delta = 2
+        const range = []
+        const rangeWithDots = []
 
-        if (totalPages <= maxVisiblePages) {
-            // Show all pages if total pages is less than max visible
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i)
-            }
-        } else {
-            // Smart pagination with ellipsis
-            if (currentPage <= 4) {
-                // Show first 5 pages + ellipsis + last page
-                for (let i = 1; i <= 5; i++) {
-                    pages.push(i)
-                }
-                if (totalPages > 6) {
-                    pages.push('...')
-                    pages.push(totalPages)
-                }
-            } else if (currentPage >= totalPages - 3) {
-                // Show first page + ellipsis + last 5 pages
-                pages.push(1)
-                if (totalPages > 6) {
-                    pages.push('...')
-                }
-                for (let i = totalPages - 4; i <= totalPages; i++) {
-                    pages.push(i)
-                }
-            } else {
-                // Show first page + ellipsis + current-1, current, current+1 + ellipsis + last page
-                pages.push(1)
-                pages.push('...')
-                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-                    pages.push(i)
-                }
-                pages.push('...')
-                pages.push(totalPages)
-            }
+        for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+            range.push(i)
         }
 
-        return pages
+        if (currentPage - delta > 2) {
+            rangeWithDots.push(1, '...')
+        } else {
+            rangeWithDots.push(1)
+        }
+
+        rangeWithDots.push(...range)
+
+        if (currentPage + delta < totalPages - 1) {
+            rangeWithDots.push('...', totalPages)
+        } else {
+            rangeWithDots.push(totalPages)
+        }
+
+        return rangeWithDots
     }
 
-    const pages = generatePageNumbers()
-
-    // Don't show pagination if there are no results or only 1 page
-    if (totalPages <= 1) {
-        return null
+    const handlePageClick = (page) => {
+        if (page !== currentPage && !isLoading && typeof page === 'number') {
+            onPageChange(page)
+        }
     }
+
+    const startItem = (currentPage - 1) * itemsPerPage + 1
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems)
 
     return (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 pt-4 border-t border-gray-200">
-            {showInfo && (
-                <div className="text-sm text-gray-700">
-                    {totalItems === 0 ? (
-                        "No results found"
-                    ) : (
-                        `Showing ${startItem} to ${endItem} of ${totalItems} result${totalItems === 1 ? '' : 's'}`
-                    )}
-                </div>
-            )}
+        <div className={`flex items-center justify-between ${className}`}>
+            {/* Results info */}
+            <div className="text-sm text-gray-700">
+                Showing <span className="font-medium">{startItem}</span> to{' '}
+                <span className="font-medium">{endItem}</span> of{' '}
+                <span className="font-medium">{totalItems}</span> results
+            </div>
 
-            <div className="flex items-center gap-1 sm:gap-2">
-                <BlackButton
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onPageChange(currentPage - 1)}
-                    disabled={currentPage <= 1 || isLoading}
-                    className="mr-1"
+            {/* Pagination controls */}
+            <div className="flex items-center space-x-2">
+                {/* Previous button */}
+                <button
+                    onClick={() => handlePageClick(currentPage - 1)}
+                    disabled={currentPage === 1 || isLoading}
+                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Previous
-                </BlackButton>
+                </button>
 
                 {/* Page numbers */}
-                {pages.map((page, index) => {
-                    if (page === '...') {
+                <div className="flex space-x-1">
+                    {getPageNumbers().map((page, index) => {
+                        if (page === '...') {
+                            return (
+                                <span
+                                    key={`dots-${index}`}
+                                    className="px-3 py-2 text-sm font-medium text-gray-700"
+                                >
+                                    ...
+                                </span>
+                            )
+                        }
+
                         return (
-                            <span key={`ellipsis-${index}`} className="px-2 py-1 text-gray-500">
-                                ...
-                            </span>
+                            <button
+                                key={page}
+                                onClick={() => handlePageClick(page)}
+                                disabled={isLoading}
+                                className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
+                                    ? 'text-white bg-black border border-black'
+                                    : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                                {page}
+                            </button>
                         )
-                    }
+                    })}
+                </div>
 
-                    return (
-                        <BlackButton
-                            key={page}
-                            size="sm"
-                            variant={page === currentPage ? "solid" : "outline"}
-                            onClick={() => onPageChange(page)}
-                            disabled={isLoading}
-                            className={page === currentPage ? "bg-black text-white hover:bg-gray-800" : ""}
-                        >
-                            {page}
-                        </BlackButton>
-                    )
-                })}
-
-                <BlackButton
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onPageChange(currentPage + 1)}
-                    disabled={currentPage >= totalPages || isLoading}
-                    className="ml-1"
+                {/* Next button */}
+                <button
+                    onClick={() => handlePageClick(currentPage + 1)}
+                    disabled={currentPage === totalPages || isLoading}
+                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Next
-                </BlackButton>
+                </button>
             </div>
         </div>
     )
