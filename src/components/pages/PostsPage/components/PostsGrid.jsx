@@ -19,7 +19,7 @@ const PostsGrid = ({
     if (isLoading && (!posts || posts.length === 0)) {
         return (
             <section className="py-12">
-                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="space-y-6">
                         {[...Array(3)].map((_, index) => (
                             <div key={index} className="animate-pulse">
@@ -86,7 +86,7 @@ const PostsGrid = ({
 
     return (
         <section className="py-6">
-            <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-4">
                 {/* Posts Feed - Single Column */}
                 <div className="space-y-0">
                     {posts.map((post, index) => (

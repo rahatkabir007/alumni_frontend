@@ -64,7 +64,7 @@ const PostCard = ({ post, onClick, index = 0 }) => {
 
     return (
         <ElegantCard
-            className="overflow-hidden w-full max-w-2xl mx-auto mb-6"
+            className="overflow-hidden w-full max-w-4xl mx-auto mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
@@ -287,7 +287,7 @@ const PostCard = ({ post, onClick, index = 0 }) => {
                             </svg>
                             <span className="font-medium">Comment</span>
                         </button>
-                        <button
+                        {/* <button
                             className="flex items-center gap-2 text-gray-500 hover:text-green-500 transition-colors"
                             aria-label="Share this post"
                         >
@@ -306,7 +306,7 @@ const PostCard = ({ post, onClick, index = 0 }) => {
                                 />
                             </svg>
                             <span className="font-medium">Share</span>
-                        </button>
+                        </button> */}
                     </div>
                 </div>
             </div>
