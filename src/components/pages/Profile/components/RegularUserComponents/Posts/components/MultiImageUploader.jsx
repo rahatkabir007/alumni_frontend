@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
 import Image from 'next/image'
 import BlackButton from '@/components/common/BlackButton'
 import { ToastMessage } from '@/utils/ToastMessage'
@@ -52,7 +52,7 @@ const MultiImageUploader = ({
         }
 
         onImagesChange(newImages)
-        ToastMessage.notifySuccess(`${files.length} image(s) added for preview`)
+        // ToastMessage.notifySuccess(`${files.length} image(s) added for preview`)
 
         // Reset file input
         if (fileInputRef.current) {
@@ -70,7 +70,7 @@ const MultiImageUploader = ({
 
         const newImages = images.filter((_, i) => i !== index)
         onImagesChange(newImages)
-        ToastMessage.notifySuccess('Image removed')
+        // ToastMessage.notifySuccess('Image removed')
     }
 
     const handleReorderImage = (fromIndex, toIndex) => {
