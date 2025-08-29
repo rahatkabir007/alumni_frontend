@@ -16,10 +16,10 @@ import { ToastMessage } from '@/utils/ToastMessage'
 import ElegantCard from '@/components/common/ElegantCard'
 import BlackButton from '@/components/common/BlackButton'
 import Pagination from '@/components/common/Pagination'
-import PostModal from '@/components/pages/PostsPage/components/PostModal'
 import PostManagementHeader from './components/PostManagementHeader'
 import PostManagementTabs from './components/PostManagementTabs'
 import PostManagementCard from './components/PostManagementCard'
+import PostManagementModal from './components/PostManagementModal'
 
 const PostManagement = ({ userData }) => {
     const dispatch = useDispatch()
@@ -197,10 +197,14 @@ const PostManagement = ({ userData }) => {
                 </div>
             )}
 
-            {/* Post Modal */}
-            <PostModal
+            {/* Post Management Modal */}
+            <PostManagementModal
                 selectedPost={postManagement.selectedPost}
                 onClose={closePostModal}
+                onStatusUpdate={handleStatusUpdate}
+                isProcessing={postManagement.processingIds.includes(postManagement.selectedPost?.id)}
+                getStatusColor={getStatusColor}
+                getVisibilityColor={getVisibilityColor}
             />
         </div>
     )

@@ -6,7 +6,7 @@ import BlackButton from '@/components/common/BlackButton'
 import LikeButton from '@/components/common/LikeButton/LikeButton'
 
 const PostCard = ({ post, onEdit, onDelete, onView, isDeleting, canEdit }) => {
-    const [imageError, setImageError] = useState(false)
+    const [imageErrors, setImageErrors] = useState({})
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -50,37 +50,55 @@ const PostCard = ({ post, onEdit, onDelete, onView, isDeleting, canEdit }) => {
         }
     }
 
+    const handleImageError = (index) => {
+        setImageErrors(prev => ({ ...prev, [index]: true }))
+    }
+
+    const renderImages = () => {
+        if (!post.images || post.images.length === 0) return null
+
+        const imagesToShow = post.images.slice(0, 2)
+        const remainingCount = post.images.length - 2
+
+        return (
+            <div className="grid grid-cols-2 gap-2 mt-3">
+                {imagesToShow.map((image, index) => (
+                    <div key={index} className="relative h-24 rounded overflow-hidden">
+                        {!imageErrors[index] ? (
+                            <Image
+                                src={image}
+                                alt={`Post image ${index + 1}`}
+                                fill
+                                className="object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                onError={() => handleImageError(index)}
+                                onClick={() => onView(post)}
+                                sizes="(max-width: 640px) 50vw, 150px"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center cursor-pointer" onClick={() => onView(post)}>
+                                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                        )}
+
+                        {/* Show count on the second image if there are more */}
+                        {index === 1 && remainingCount > 0 && (
+                            <div
+                                className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold cursor-pointer"
+                                onClick={() => onView(post)}
+                            >
+                                +{remainingCount}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        )
+    }
+
     return (
         <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
-            {/* Post Images Preview */}
-            {post.images && post.images.length > 0 && (
-                <div className="relative h-32 overflow-hidden">
-                    {!imageError ? (
-                        <Image
-                            src={post.images[0]}
-                            alt={post.title || 'Post image'}
-                            fill
-                            className="object-cover"
-                            onError={() => setImageError(true)}
-                            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                        />
-                    ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                    )}
-
-                    {/* Image Count Indicator */}
-                    {post.images.length > 1 && (
-                        <div className="absolute top-2 left-2 bg-black/60 text-white px-2 py-1 rounded-full text-xs">
-                            +{post.images.length - 1}
-                        </div>
-                    )}
-                </div>
-            )}
-
             <div className="p-4 space-y-3">
                 {/* Status and Visibility Badges */}
                 <div className="flex flex-wrap gap-2">
@@ -104,9 +122,12 @@ const PostCard = ({ post, onEdit, onDelete, onView, isDeleting, canEdit }) => {
                     {truncateText(post.body)}
                 </p>
 
+                {/* Post Images - Below description */}
+                {renderImages()}
+
                 {/* Tags Preview */}
                 {post.tags && post.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1 mt-3">
                         {post.tags.slice(0, 3).map((tag, index) => (
                             <BlackTag key={index} size="xs" variant="subtle">
                                 #{tag}
