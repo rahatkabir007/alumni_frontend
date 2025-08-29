@@ -1,21 +1,22 @@
 "use client"
-import React, { useState } from 'react'
+import React from 'react'
 import GlobalModal from '@/components/antd/Modal/GlobalModal'
-import BlackTag from '@/components/common/BlackTag'
 import Image from 'next/image'
-import GalleryActionButtons from './GalleryActionButtons'
+import BlackTag from '@/components/common/BlackTag'
 import LikeButton from '@/components/common/LikeButton/LikeButton'
 import CommentsList from '@/components/common/Comments/CommentsList'
 
-const GalleryImageModal = ({
-    selectedImage,
-    onClose,
-    processingIds,
-    onStatusUpdate,
-    getStatusColor,
-    getInitials
-}) => {
+const GalleryModal = ({ selectedImage, onClose }) => {
     if (!selectedImage) return null
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'active': return 'bg-green-100 text-green-800'
+            case 'inactive': return 'bg-red-100 text-red-800'
+            case 'pending_approval': return 'bg-yellow-100 text-yellow-800'
+            default: return 'bg-gray-100 text-gray-800'
+        }
+    }
 
     const getStatusText = (status) => {
         switch (status) {
@@ -59,28 +60,6 @@ const GalleryImageModal = ({
                 {/* Right Side - Details */}
                 <div className="w-96 bg-white overflow-y-auto border-l border-gray-200">
                     <div className="p-6 space-y-4">
-                        {/* Author Info */}
-                        {selectedImage.user && (
-                            <div className="flex items-center gap-3 pb-4 border-b border-gray-200">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white text-lg font-bold">
-                                    {getInitials(selectedImage.user.name)}
-                                </div>
-                                <div>
-                                    <p className="font-medium text-gray-900">
-                                        {selectedImage.user.name || 'Anonymous'}
-                                    </p>
-                                    <p className="text-sm text-gray-600">
-                                        {selectedImage.user.alumni_type === 'student'
-                                            ? `Alumni, Batch ${selectedImage.user.batch}`
-                                            : 'Faculty Member'}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        Uploaded on {new Date(selectedImage.createdAt).toLocaleDateString()}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
                         {/* Image Title */}
                         {selectedImage.title && (
                             <div>
@@ -106,16 +85,6 @@ const GalleryImageModal = ({
                             {selectedImage.updatedAt && selectedImage.updatedAt !== selectedImage.createdAt && (
                                 <p>Last updated: {new Date(selectedImage.updatedAt).toLocaleDateString()}</p>
                             )}
-                        </div>
-
-                        {/* Management Actions */}
-                        <div className="pt-4 border-t border-gray-200">
-                            <h4 className="text-sm font-medium text-gray-900 mb-3">Management Actions</h4>
-                            <GalleryActionButtons
-                                gallery={selectedImage}
-                                processingIds={processingIds}
-                                onStatusUpdate={onStatusUpdate}
-                            />
                         </div>
 
                         {/* Interactions */}
@@ -152,4 +121,4 @@ const GalleryImageModal = ({
     )
 }
 
-export default GalleryImageModal
+export default GalleryModal

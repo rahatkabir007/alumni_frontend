@@ -12,6 +12,7 @@ import GalleryUploadForm from './GalleryUploadForm'
 import GalleryInteractions from '@/components/common/GalleryInteractions/GalleryInteractions'
 import LikeButton from '@/components/common/LikeButton/LikeButton'
 import CommentsList from '@/components/common/Comments/CommentsList'
+import GalleryModal from './components/GalleryModal'
 
 const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
     const [deleteGallery, { isLoading: isDeleting }] = useDeleteGalleryMutation()
@@ -65,7 +66,8 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
 
     return (
         <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {/* Gallery Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {galleries.map((gallery) => (
                     <ElegantCard key={gallery.id} className="overflow-hidden group p-0">
                         <div className="relative">
@@ -149,47 +151,11 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
                 ))}
             </div>
 
-            {/* Image Preview Modal */}
-            {selectedImage && (
-                <GlobalModal
-                    isModalOpen={!!selectedImage}
-                    setModalHandler={() => setSelectedImage(null)}
-                    title={selectedImage.title || 'Gallery Image'}
-                    width={900}
-                    closeIcon={true}
-                >
-                    <div className="p-4">
-                        <Image
-                            src={selectedImage.image}
-                            alt={selectedImage.title || 'Gallery image'}
-                            width={800}
-                            height={600}
-                            className="w-full h-auto max-h-96 object-contain rounded-lg mb-4"
-                        />
-                        {selectedImage.description && (
-                            <p className="mb-4 text-gray-700">{selectedImage.description}</p>
-                        )}
-                        <div className="mb-4 flex justify-between text-sm text-gray-500">
-                            <span>Year: {selectedImage.year}</span>
-                            <span>Uploaded: {new Date(selectedImage.createdAt).toLocaleDateString()}</span>
-                        </div>
-
-                        {/* Interactions in Modal */}
-                        <LikeButton
-                            type="gallery"
-                            id={selectedImage.id}
-                            initialLikeCount={selectedImage.like_count}
-                            initialIsLiked={selectedImage.isLikedByCurrentUser || false}
-                            showCount={true}
-                        />
-                        <CommentsList
-                            type="gallery"
-                            id={selectedImage.id}
-                            title="Comments"
-                        />
-                    </div>
-                </GlobalModal>
-            )}
+            {/* View Gallery Modal */}
+            <GalleryModal
+                selectedImage={selectedImage}
+                onClose={() => setSelectedImage(null)}
+            />
 
             {/* Edit Gallery Modal */}
             {editingGallery && (
