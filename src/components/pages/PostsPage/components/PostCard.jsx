@@ -181,12 +181,12 @@ const PostCard = ({ post, onClick, index = 0 }) => {
                             )}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-1 max-h-96 overflow-hidden">
+                        <div className="grid grid-cols-3 gap-1 max-h-96 overflow-hidden">
                             {post.images.slice(0, 4).map((image, index) => (
-                                <div key={index} className="relative h-48">
+                                <div key={index} className="relative h-56">
                                     {imageError[index] ? (
                                         <div
-                                            className="w-full h-48 bg-gray-200 flex items-center justify-center"
+                                            className="w-full h-56 bg-gray-200 flex items-center justify-center"
                                             aria-label={`Image ${index + 1} failed to load`}
                                         >
                                             <svg
