@@ -67,7 +67,7 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
     return (
         <>
             {/* Gallery Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  gap-4">
                 {galleries.map((gallery) => (
                     <ElegantCard key={gallery.id} className="overflow-hidden group p-0">
                         <div className="relative">
@@ -76,7 +76,7 @@ const GalleryGrid = ({ galleries, userData, onRefresh, isOwner = false }) => {
                                 alt={gallery.title || `Gallery image ${gallery.id}`}
                                 width={400}
                                 height={300}
-                                className="w-full h-48 object-cover cursor-pointer hover:scale-105 transition-transform"
+                                className="w-full h-32 object-cover cursor-pointer hover:scale-105 transition-transform"
                                 onClick={() => setSelectedImage(gallery)}
                             />
 
