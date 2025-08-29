@@ -58,7 +58,7 @@ const PostManagementCard = ({
         const remainingCount = post.images.length - 2
 
         return (
-            <div className="grid grid-cols-2 gap-2 mt-3">
+            <div className="grid grid-cols-6 gap-2 mt-3">
                 {imagesToShow.map((image, index) => (
                     <div key={index} className="relative h-24 rounded overflow-hidden">
                         {!imageErrors[index] ? (
@@ -227,7 +227,7 @@ const PostManagementCard = ({
                             initialIsLiked={post.isLikedByCurrentUser || false}
                             size="sm"
                         />
-                        <button 
+                        <button
                             onClick={() => onPostClick(post)}
                             className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors"
                         >
