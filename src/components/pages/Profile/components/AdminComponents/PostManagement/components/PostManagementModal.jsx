@@ -117,12 +117,12 @@ const PostManagementModal = ({
             isModalOpen={!!selectedPost}
             setModalHandler={onClose}
             title={selectedPost.title || 'Post Management'}
-            width={1200}
+            width={hasImages ? 1200 : 800}
             closeIcon={true}
         >
-            <div className="flex h-[80vh]">
-                {/* Left Side - Images Slider */}
-                {hasImages ? (
+            {hasImages ? (
+                <div className="flex h-[80vh]">
+                    {/* Left Side - Images Slider */}
                     <div className="flex-1 bg-black flex items-center justify-center relative">
                         <div className="relative w-full h-full flex items-center justify-center">
                             <Image
@@ -186,56 +186,153 @@ const PostManagementModal = ({
                             )}
                         </div>
                     </div>
-                ) : (
-                    <div className="flex-1 bg-gray-100 flex items-center justify-center">
-                        <div className="text-center text-gray-500">
-                            <svg className="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <p className="text-lg">No images in this post</p>
+
+                    {/* Right Side - Post Details */}
+                    <div className="w-96 bg-white overflow-y-auto border-l border-gray-200">
+                        <div className="p-6 space-y-4">
+                            {/* Author Info */}
+                            <div className="flex items-center gap-3 pb-4 border-b border-gray-200">
+                                {selectedPost.user?.profilePhoto ? (
+                                    <Image
+                                        src={selectedPost.user.profilePhoto}
+                                        alt={selectedPost.user.name}
+                                        width={48}
+                                        height={48}
+                                        className="w-12 h-12 rounded-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white text-lg font-bold">
+                                        {getInitials(selectedPost.user?.name)}
+                                    </div>
+                                )}
+                                <div>
+                                    <p className="font-medium text-gray-900">
+                                        {selectedPost.user?.name || 'Anonymous'}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        {selectedPost.user?.alumni_type === 'student'
+                                            ? `Alumni, Batch ${selectedPost.user?.batch}`
+                                            : 'Faculty Member'}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        {new Date(selectedPost.createdAt).toLocaleDateString()}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Status and Visibility Badges */}
+                            <div className="flex gap-2">
+                                <BlackTag className={getStatusColor(selectedPost.status)}>
+                                    {getStatusText(selectedPost.status)}
+                                </BlackTag>
+                                <BlackTag className={getVisibilityColor(selectedPost.visibility)}>
+                                    {getVisibilityText(selectedPost.visibility)}
+                                </BlackTag>
+                            </div>
+
+                            {/* Post Title */}
+                            {selectedPost.title && (
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                        {selectedPost.title}
+                                    </h3>
+                                </div>
+                            )}
+
+                            {/* Post Body */}
+                            <div>
+                                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                                    {selectedPost.body}
+                                </p>
+                            </div>
+
+                            {/* Tags */}
+                            {selectedPost.tags && selectedPost.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedPost.tags.map((tag, index) => (
+                                        <BlackTag key={index} size="sm" variant="subtle">
+                                            #{tag}
+                                        </BlackTag>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Management Actions */}
+                            <div className="pt-4 border-t border-gray-200">
+                                <h4 className="text-sm font-medium text-gray-900 mb-3">Management Actions</h4>
+                                {renderManagementActions()}
+                            </div>
+
+                            {/* Interactions */}
+                            <div className="flex items-center justify-between py-4 border-t border-gray-200">
+                                <div className="flex items-center gap-6">
+                                    <LikeButton
+                                        type="post"
+                                        id={selectedPost.id}
+                                        initialLikeCount={selectedPost.like_count}
+                                        initialIsLiked={selectedPost.isLikedByCurrentUser || false}
+                                        showCount={true}
+                                    />
+                                    <div className="flex items-center gap-1 text-gray-500">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a9.863 9.863 0 01-4.906-1.239L3 21l1.239-4.906A9.863 9.863 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
+                                        </svg>
+                                        <span className="text-sm font-medium">{selectedPost.comment_count || 0} Comments</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Comments Section */}
+                            <div className="border-t border-gray-200 pt-4">
+                                <CommentsList
+                                    type="post"
+                                    id={selectedPost.id}
+                                    title="Comments"
+                                />
+                            </div>
                         </div>
                     </div>
-                )}
-
-                {/* Right Side - Post Details */}
-                <div className="w-96 bg-white overflow-y-auto border-l border-gray-200">
-                    <div className="p-6 space-y-4">
+                </div>
+            ) : (
+                /* Full Width Layout - No Images */
+                <div className="p-6 max-h-[80vh] overflow-y-auto">
+                    <div className="max-w-4xl mx-auto space-y-6">
                         {/* Author Info */}
-                        <div className="flex items-center gap-3 pb-4 border-b border-gray-200">
+                        <div className="flex items-center gap-4 pb-6 border-b border-gray-200">
                             {selectedPost.user?.profilePhoto ? (
                                 <Image
                                     src={selectedPost.user.profilePhoto}
                                     alt={selectedPost.user.name}
-                                    width={48}
-                                    height={48}
-                                    className="w-12 h-12 rounded-full object-cover"
+                                    width={64}
+                                    height={64}
+                                    className="w-16 h-16 rounded-full object-cover"
                                 />
                             ) : (
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white text-lg font-bold">
+                                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white text-xl font-bold">
                                     {getInitials(selectedPost.user?.name)}
                                 </div>
                             )}
-                            <div>
-                                <p className="font-medium text-gray-900">
+                            <div className="flex-1">
+                                <p className="font-semibold text-lg text-gray-900">
                                     {selectedPost.user?.name || 'Anonymous'}
                                 </p>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-gray-600">
                                     {selectedPost.user?.alumni_type === 'student'
                                         ? `Alumni, Batch ${selectedPost.user?.batch}`
                                         : 'Faculty Member'}
                                 </p>
-                                <p className="text-xs text-gray-500">
-                                    {new Date(selectedPost.createdAt).toLocaleDateString()}
+                                <p className="text-sm text-gray-500">
+                                    Posted on {new Date(selectedPost.createdAt).toLocaleDateString()}
                                 </p>
                             </div>
                         </div>
 
                         {/* Status and Visibility Badges */}
-                        <div className="flex gap-2">
-                            <BlackTag className={getStatusColor(selectedPost.status)}>
+                        <div className="flex gap-3">
+                            <BlackTag size="md" className={getStatusColor(selectedPost.status)}>
                                 {getStatusText(selectedPost.status)}
                             </BlackTag>
-                            <BlackTag className={getVisibilityColor(selectedPost.visibility)}>
+                            <BlackTag size="md" className={getVisibilityColor(selectedPost.visibility)}>
                                 {getVisibilityText(selectedPost.visibility)}
                             </BlackTag>
                         </div>
@@ -243,15 +340,15 @@ const PostManagementModal = ({
                         {/* Post Title */}
                         {selectedPost.title && (
                             <div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                <h1 className="text-3xl font-bold text-gray-900 mb-4">
                                     {selectedPost.title}
-                                </h3>
+                                </h1>
                             </div>
                         )}
 
                         {/* Post Body */}
-                        <div>
-                            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                        <div className="prose max-w-none">
+                            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-lg">
                                 {selectedPost.body}
                             </p>
                         </div>
@@ -260,7 +357,7 @@ const PostManagementModal = ({
                         {selectedPost.tags && selectedPost.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2">
                                 {selectedPost.tags.map((tag, index) => (
-                                    <BlackTag key={index} size="sm" variant="subtle">
+                                    <BlackTag key={index} size="md" variant="subtle">
                                         #{tag}
                                     </BlackTag>
                                 ))}
@@ -268,32 +365,33 @@ const PostManagementModal = ({
                         )}
 
                         {/* Management Actions */}
-                        <div className="pt-4 border-t border-gray-200">
-                            <h4 className="text-sm font-medium text-gray-900 mb-3">Management Actions</h4>
+                        <div className="pt-6 border-t border-gray-200">
+                            <h4 className="text-lg font-medium text-gray-900 mb-4">Management Actions</h4>
                             {renderManagementActions()}
                         </div>
 
                         {/* Interactions */}
-                        <div className="flex items-center justify-between py-4 border-t border-gray-200">
-                            <div className="flex items-center gap-6">
+                        <div className="flex items-center justify-between py-6 border-t border-gray-200">
+                            <div className="flex items-center gap-8">
                                 <LikeButton
                                     type="post"
                                     id={selectedPost.id}
                                     initialLikeCount={selectedPost.like_count}
                                     initialIsLiked={selectedPost.isLikedByCurrentUser || false}
                                     showCount={true}
+                                    size="lg"
                                 />
-                                <div className="flex items-center gap-1 text-gray-500">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="flex items-center gap-2 text-gray-500">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a9.863 9.863 0 01-4.906-1.239L3 21l1.239-4.906A9.863 9.863 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
                                     </svg>
-                                    <span className="text-sm font-medium">{selectedPost.comment_count || 0} Comments</span>
+                                    <span className="text-base font-medium">{selectedPost.comment_count || 0} Comments</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Comments Section */}
-                        <div className="border-t border-gray-200 pt-4">
+                        <div className="border-t border-gray-200 pt-6">
                             <CommentsList
                                 type="post"
                                 id={selectedPost.id}
@@ -302,7 +400,7 @@ const PostManagementModal = ({
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
         </GlobalModal>
     )
 }
