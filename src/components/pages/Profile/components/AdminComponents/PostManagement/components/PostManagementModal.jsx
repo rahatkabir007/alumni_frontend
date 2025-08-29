@@ -169,8 +169,8 @@ const PostManagementModal = ({
                                             key={index}
                                             onClick={() => setCurrentImageIndex(index)}
                                             className={`flex-shrink-0 w-16 h-16 rounded overflow-hidden border-2 transition-all ${currentImageIndex === index
-                                                    ? 'border-white'
-                                                    : 'border-transparent opacity-60 hover:opacity-100'
+                                                ? 'border-white'
+                                                : 'border-transparent opacity-60 hover:opacity-100'
                                                 }`}
                                         >
                                             <Image
