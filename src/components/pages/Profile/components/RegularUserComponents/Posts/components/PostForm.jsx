@@ -1,8 +1,10 @@
 "use client"
+import { useState } from 'react'
 import { Formik, Form, Field, FieldArray } from 'formik'
 import * as Yup from 'yup'
 import InputComponent1 from '@/components/common/InputComponent1'
 import BlackButton from '@/components/common/BlackButton'
+import MultiImageUploader from './MultiImageUploader'
 
 const PostForm = ({ initialValues, onSubmit, onCancel, isLoading, isEditMode = false }) => {
     const PostSchema = Yup.object().shape({
@@ -19,7 +21,7 @@ const PostForm = ({ initialValues, onSubmit, onCancel, isLoading, isEditMode = f
             validationSchema={PostSchema}
             onSubmit={onSubmit}
         >
-            {({ values, errors, touched }) => (
+            {({ values, errors, touched, setFieldValue }) => (
                 <Form className="space-y-6">
                     {/* Title */}
                     <InputComponent1
@@ -51,44 +53,16 @@ const PostForm = ({ initialValues, onSubmit, onCancel, isLoading, isEditMode = f
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Images (Optional)
                         </label>
-                        <FieldArray name="images">
-                            {({ push, remove }) => (
-                                <div className="space-y-3">
-                                    {values.images.map((image, index) => (
-                                        <div key={index} className="flex gap-2">
-                                            <Field
-                                                name={`images.${index}`}
-                                                className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                                                placeholder="Enter image URL"
-                                            />
-                                            {values.images.length > 1 && (
-                                                <BlackButton
-                                                    type="button"
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => remove(index)}
-                                                >
-                                                    Remove
-                                                </BlackButton>
-                                            )}
-                                        </div>
-                                    ))}
-                                    <BlackButton
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => push('')}
-                                        icon={
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                            </svg>
-                                        }
-                                    >
-                                        Add Image
-                                    </BlackButton>
-                                </div>
-                            )}
-                        </FieldArray>
+                        <MultiImageUploader
+                            images={values.images}
+                            onImagesChange={(newImages) => setFieldValue('images', newImages)}
+                            maxImages={10}
+                            acceptedTypes={['image/jpeg', 'image/png', 'image/jpg', 'image/webp']}
+                            maxSizeMB={10}
+                        />
+                        {errors.images && touched.images && (
+                            <p className="mt-1 text-sm text-red-600">{errors.images}</p>
+                        )}
                     </div>
 
                     {/* Tags */}

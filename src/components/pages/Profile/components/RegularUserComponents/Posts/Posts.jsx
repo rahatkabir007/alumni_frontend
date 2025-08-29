@@ -72,19 +72,17 @@ const Posts = ({ userData }) => {
                         <BlackTag variant="subtle" size="sm">
                             {totalItems} posts
                         </BlackTag>
-                        {canCreatePost && (
-                            <BlackButton
-                                size="sm"
-                                onClick={() => setShowUploadForm(true)}
-                                icon={
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                    </svg>
-                                }
-                            >
-                                Create Post
-                            </BlackButton>
-                        )}
+                        <BlackButton
+                            size="sm"
+                            onClick={() => setShowUploadForm(true)}
+                            icon={
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                            }
+                        >
+                            Create Post
+                        </BlackButton>
                     </div>
                 </div>
             </ElegantCard>

@@ -208,7 +208,7 @@ const GalleryUploadForm = ({ onSuccess, onCancel, editData = null, isEditMode = 
                                         </label>
                                     </div>
                                 ) : (
-                                    <div className="space-y-4">
+                                    <div className="space-y-4 w-50">
                                         <div className="relative">
                                             <Image
                                                 src={previewUrl}
