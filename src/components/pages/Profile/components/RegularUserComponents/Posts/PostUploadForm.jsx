@@ -14,21 +14,18 @@ const PostUploadForm = ({ onSuccess, onCancel, editData = null, isEditMode = fal
     const initialValues = {
         title: editData?.title || '',
         body: editData?.body || '',
-        tags: editData?.tags || [''],
+        tags: editData?.tags?.length > 0 ? editData.tags : [''],
         visibility: editData?.visibility || 'public',
-        images: editData?.images?.length > 0 ? editData.images : ['']
+        images: editData?.images?.length > 0 ? editData.images : []
     }
 
     const handleSubmit = async (values, { setSubmitting }) => {
         try {
-            // Filter out empty image URLs and tags
-            const filteredImages = values.images.filter(url => url.trim() !== '')
-            const filteredTags = values.tags.filter(tag => tag.trim() !== '')
-
             const postData = {
                 ...values,
-                images: filteredImages,
-                tags: filteredTags
+                // Images are already uploaded URLs at this point
+                images: values.images,
+                tags: values.tags
             }
 
             if (isEditMode && editData) {

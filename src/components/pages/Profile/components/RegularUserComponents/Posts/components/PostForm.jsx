@@ -5,21 +5,113 @@ import * as Yup from 'yup'
 import InputComponent1 from '@/components/common/InputComponent1'
 import BlackButton from '@/components/common/BlackButton'
 import MultiImageUploader from './MultiImageUploader'
+import imageUploadService from '@/utils/imageUploadService'
+import { ToastMessage } from '@/utils/ToastMessage'
 
 const PostForm = ({ initialValues, onSubmit, onCancel, isLoading, isEditMode = false }) => {
+    const [isUploadingImages, setIsUploadingImages] = useState(false)
+
     const PostSchema = Yup.object().shape({
         title: Yup.string().min(3, 'Title must be at least 3 characters'),
         body: Yup.string().required('Post content is required').min(10, 'Post content must be at least 10 characters'),
         tags: Yup.array().of(Yup.string().trim()),
         visibility: Yup.string().required('Visibility is required'),
-        images: Yup.array().of(Yup.string().url('Must be a valid URL'))
+        images: Yup.array()
     })
+
+    // Process initial values to handle existing images properly
+    const processedInitialValues = {
+        ...initialValues,
+        images: initialValues.images?.filter(img => img && img.trim() !== '') || [],
+        tags: initialValues.tags?.filter(tag => tag && tag.trim() !== '') || ['']
+    }
+
+    const uploadImages = async (images) => {
+        const uploadedUrls = []
+
+        for (let i = 0; i < images.length; i++) {
+            const image = images[i]
+
+            // If it's already a string URL (existing image), keep it
+            if (typeof image === 'string') {
+                uploadedUrls.push(image)
+                continue
+            }
+
+            // If it's already uploaded (has url property), use that
+            if (image?.url) {
+                uploadedUrls.push(image.url)
+                continue
+            }
+
+            // If it has a file, upload it
+            if (image?.file) {
+                try {
+                    // ToastMessage.notifyInfo(`Uploading image ${i + 1} of ${images.length}...`)
+
+                    const result = await imageUploadService.uploadImage(image.file, (progress) => {
+                        // You can add progress handling here if needed
+                        console.log(`Upload progress for image ${i + 1}:`, progress)
+                    })
+
+                    uploadedUrls.push(result.url)
+
+                    // Clean up the preview URL
+                    if (image.preview) {
+                        URL.revokeObjectURL(image.preview)
+                    }
+                } catch (error) {
+                    console.error(`Failed to upload image ${i + 1}:`, error)
+                    throw new Error(`Failed to upload image ${i + 1}: ${error.message}`)
+                }
+            }
+        }
+
+        return uploadedUrls
+    }
+
+    const handleSubmit = async (values, formikBag) => {
+        const { setSubmitting } = formikBag
+
+        try {
+            setIsUploadingImages(true)
+
+            // Filter out empty tags
+            const filteredTags = values.tags.filter(tag => tag && tag.trim() !== '')
+
+            // Upload images if there are any
+            let imageUrls = []
+            if (values.images && values.images.length > 0) {
+                imageUrls = await uploadImages(values.images)
+                // ToastMessage.notifySuccess('Images uploaded successfully!')
+            }
+
+            // Prepare final data
+            const postData = {
+                ...values,
+                images: imageUrls,
+                tags: filteredTags
+            }
+
+            // Call the original onSubmit with uploaded image URLs
+            await onSubmit(postData, formikBag)
+
+        } catch (error) {
+            console.error('Failed to process post:', error)
+            ToastMessage.notifyError(error.message || 'Failed to process post')
+            setSubmitting(false)
+        } finally {
+            setIsUploadingImages(false)
+        }
+    }
+
+    const totalLoading = isLoading || isUploadingImages
 
     return (
         <Formik
-            initialValues={initialValues}
+            initialValues={processedInitialValues}
             validationSchema={PostSchema}
-            onSubmit={onSubmit}
+            onSubmit={handleSubmit}
         >
             {({ values, errors, touched, setFieldValue }) => (
                 <Form className="space-y-6">
@@ -129,21 +221,29 @@ const PostForm = ({ initialValues, onSubmit, onCancel, isLoading, isEditMode = f
                         )}
                     </div>
 
+
+
                     {/* Submit Button */}
                     <div className="flex justify-end gap-3">
                         <BlackButton
                             type="button"
                             variant="outline"
                             onClick={onCancel}
+                            disabled={totalLoading}
                         >
                             Cancel
                         </BlackButton>
                         <BlackButton
                             type="submit"
-                            loading={isLoading}
-                            disabled={isLoading}
+                            loading={totalLoading}
+                            disabled={totalLoading}
                         >
-                            {isLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Post' : 'Create Post')}
+                            {isUploadingImages
+                                ? 'Uploading Images...'
+                                : totalLoading
+                                    ? (isEditMode ? 'Updating...' : 'Creating...')
+                                    : (isEditMode ? 'Update Post' : 'Create Post')
+                            }
                         </BlackButton>
                     </div>
                 </Form>
